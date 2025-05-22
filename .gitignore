@@ -1,0 +1,15 @@
+# Build and binary files
+*.exe
+*.out
+*.test
+bin/
+
+# Go module cache
+vendor/
+
+# macOS
+.DS_Store
+
+# IDE settings
+.idea/
+.vscode/
