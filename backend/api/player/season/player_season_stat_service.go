@@ -6,7 +6,7 @@ import (
 
 )
 
-var ErrDuplicateMatch = errors.New("duplicate match stat")
+var ErrDuplicateSeasonStat = errors.New("duplicate match stat")
 
 type PlayerSeasonStatService struct {
 	repo *PlayerSeasonStatRepository
@@ -25,6 +25,6 @@ func (s *PlayerSeasonStatService) CreateStat(stat models.PlayerSeasonStat) error
 	return s.repo.Create(stat)
 }
 
-func (s *PlayerSeasonStatService) GetStatByID(uniqueTournamentID int, matchID int, playerID int) (*models.PlayerSeasonStat, error) {
+func (s *PlayerSeasonStatService) GetStatByID(uniqueTournamentID int, seasonID int, playerID int) (*models.PlayerSeasonStat, error) {
 	return s.repo.GetByID(uniqueTournamentID, seasonID, playerID)
 }

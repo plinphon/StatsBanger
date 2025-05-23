@@ -1,52 +1,54 @@
 package models
 
-type PlayerSeasonStats struct {
+import "database/sql"
+
+type PlayerSeasonStat struct {
     PlayerID                   int
     UniqueTournamentID         int
     SeasonID                   int
     TeamID                     int
-    AccurateLongBalls          float64
-    AccurateLongBallsPercentage float64
-    AccuratePasses             float64
-    AccuratePassesPercentage   float64
-    AerialDuelsWon             float64
-    Assists                    float64
-    BigChancesCreated          float64
-    BigChancesMissed           float64
-    CleanSheet                 float64
-    DribbledPast               float64
-    ErrorLeadToGoal            float64
-    ExpectedAssists            float64
-    ExpectedGoals              float64
-    Goals                      float64
-    GoalsAssistsSum            float64
-    GoalsConceded              float64
-    GoalsPrevented             float64
-    Interceptions              float64
-    KeyPasses                  float64
-    MinutesPlayed              float64
-    PassToAssist               float64
-    PenaltyFaced               float64
-    PenaltySave                float64
-    Rating                     float64
-    RedCards                   float64
-    SavedShotsFromInsideTheBox float64
-    Saves                      float64
-    SuccessfulDribbles         float64
-    Tackles                    float64
-    YellowCards                float64
-    TotalRating                float64
-    CountRating                float64
-    TotalLongBalls             float64
-    TotalPasses                float64
-    ShotsFromInsideTheBox      float64
-    Appearances                float64
-    Type                       float64
-    ID                         float64
-    AccurateCrosses            float64
-    AccurateCrossesPercentage  float64
-    BlockedShots               float64
-    ShotsOnTarget              float64
-    TotalShots                 float64
-    TotalCross                 float64
+    AccurateLongBalls          sql.NullFloat64
+    AccurateLongBallsPercentage sql.NullFloat64
+    AccuratePasses             sql.NullFloat64
+    AccuratePassesPercentage   sql.NullFloat64
+    AerialDuelsWon             sql.NullFloat64
+    Assists                    sql.NullFloat64
+    BigChancesCreated          sql.NullFloat64
+    BigChancesMissed           sql.NullFloat64
+    CleanSheet                 sql.NullFloat64
+    DribbledPast               sql.NullFloat64
+    ErrorLeadToGoal            sql.NullFloat64
+    ExpectedAssists            sql.NullFloat64
+    ExpectedGoals              sql.NullFloat64
+    Goals                      sql.NullFloat64
+    GoalsAssistsSum            sql.NullFloat64
+    GoalsConceded              sql.NullFloat64
+    GoalsPrevented             sql.NullFloat64
+    Interceptions              sql.NullFloat64
+    KeyPasses                  sql.NullFloat64
+    MinutesPlayed              sql.NullFloat64
+    PassToAssist               sql.NullFloat64
+    PenaltyFaced               sql.NullFloat64
+    PenaltySave                sql.NullFloat64
+    Rating                     sql.NullFloat64
+    RedCards                   sql.NullFloat64
+    SavedShotsFromInsideTheBox sql.NullFloat64
+    Saves                      sql.NullFloat64
+    SuccessfulDribbles         sql.NullFloat64
+    Tackles                    sql.NullFloat64
+    YellowCards                sql.NullFloat64
+    TotalRating                sql.NullFloat64
+    CountRating                sql.NullFloat64
+    TotalLongBalls             sql.NullFloat64
+    TotalPasses                sql.NullFloat64
+    ShotsFromInsideTheBox      sql.NullFloat64
+    Appearances                sql.NullFloat64
+    Type                       string
+    ID                         sql.NullFloat64
+    AccurateCrosses            sql.NullFloat64
+    AccurateCrossesPercentage  sql.NullFloat64
+    BlockedShots               sql.NullFloat64
+    ShotsOnTarget              sql.NullFloat64
+    TotalShots                 sql.NullFloat64
+    TotalCross                 sql.NullFloat64
 }

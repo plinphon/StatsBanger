@@ -21,6 +21,7 @@ func SetupRoutes(app fiber.Router) {
 	RegisterTeamSeasonStatRoutes(api)
 
 	RegisterPlayerMatchStatRoutes(api)
+	RegisterPlayerSeasonStatRoutes(api)
 }
 
 
@@ -61,7 +62,7 @@ func RegisterTeamSeasonStatRoutes(router fiber.Router) {
 	controller := teamSeasonStat.NewTeamSeasonStatController(service)
 
 	stat := router.Group("/team-season-stat")
-	stat.Get("tournament/:uniqueTournamentID/season/:seasonID/team/:teamID", controller.GetStatByID)
+	stat.Get("/tournament/:uniqueTournamentID/season/:seasonID/team/:teamID", controller.GetStatByID)
 }
 
 func RegisterPlayerMatchStatRoutes(router fiber.Router) {
@@ -87,5 +88,5 @@ func RegisterPlayerSeasonStatRoutes(router fiber.Router) {
 	controller := playerSeasonStat.NewPlayerSeasonStatController(service)
 
 	stat := router.Group("/player-season-stat")
-	stat.Get("tournament/:uniqueTournamentID/season/:seasonID/player/:playerID", controller.GetStatByID)
+	stat.Get("/tournament/:uniqueTournamentID/season/:seasonID/player/:playerID", controller.GetStatByID)
 }

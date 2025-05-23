@@ -9,11 +9,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type TeamMatchStatRepository struct {
+type PlayerSeasonStatRepository struct {
 	db *sql.DB
 }
 
-func NewTeamMatchStatRepository(dbPath string) (*TeamMatchStatRepository, error) {
+func NewPlayerSeasonStatRepository(dbPath string) (*PlayerSeasonStatRepository, error) {
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return nil, err
@@ -21,62 +21,70 @@ func NewTeamMatchStatRepository(dbPath string) (*TeamMatchStatRepository, error)
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
-	return &TeamMatchStatRepository{db: db}, nil
+	return &PlayerSeasonStatRepository{db: db}, nil
 }
 
-func (r *TeamMatchStatRepository) Create(stat models.TeamMatchStat) error {
+func (r *PlayerSeasonStatRepository) Create(stat models.PlayerSeasonStat) error {
 	query := `
-	INSERT INTO team_match_stat (
-		match_id, team_id, ball_possession, expected_goals, big_chances, total_shots,
-		goalkeeper_saves, corner_kicks, fouls, passes, tackles, free_kicks, yellow_cards, red_cards,
-		shots_on_target, hit_woodwork, shots_off_target, blocked_shots, shots_inside_box, shots_outside_box,
-		big_chances_scored, big_chances_missed, through_balls, touches_in_penalty_area, fouled_in_final_third,
-		offsides, accurate_passes, throw_ins, final_third_entries, final_third_phase, long_balls, crosses,
-		duels, dispossessed, ground_duels, aerial_duels, dribbles, tackles_won, total_tackles,
-		interceptions, recoveries, clearances, total_saves, goals_prevented, goal_kicks, big_saves,
-		high_claims, punches, errors_lead_to_a_shot, errors_lead_to_a_goal, penalty_saves
-	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+	INSERT INTO player_stat (
+		player_id, unique_tournament_id, season_id, team_id, accurate_long_balls,
+		accurate_long_balls_percentage, accurate_passes, accurate_passes_percentage,
+		aerial_duels_won, assists, big_chances_created, big_chances_missed,
+		clean_sheet, dribbled_past, error_lead_to_goal, expected_assists,
+		expected_goals, goals, goals_assists_sum, goals_conceded, goals_prevented,
+		interceptions, key_passes, minutes_played, pass_to_assist, penalty_faced,
+		penalty_save, rating, red_cards, saved_shots_from_inside_the_box, saves,
+		successful_dribbles, tackles, yellow_cards, total_rating, count_rating,
+		total_long_balls, total_passes, shots_from_inside_the_box, appearances,
+		type, id, accurate_crosses, accurate_crosses_percentage, blocked_shots,
+		shots_on_target, total_shots, total_cross
+	) VALUES (
+		?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+	)`
 
 	_, err := r.db.Exec(query,
-		stat.MatchID, stat.TeamID, stat.BallPossession, stat.ExpectedGoals, stat.BigChances,
-		stat.TotalShots, stat.GoalkeeperSaves, stat.CornerKicks, stat.Fouls, stat.Passes,
-		stat.Tackles, stat.FreeKicks, stat.YellowCards, stat.RedCards, stat.ShotsOnTarget,
-		stat.HitWoodwork, stat.ShotsOffTarget, stat.BlockedShots, stat.ShotsInsideBox, stat.ShotsOutsideBox,
-		stat.BigChancesScored, stat.BigChancesMissed, stat.ThroughBalls, stat.TouchesInPenaltyArea,
-		stat.FouledInFinalThird, stat.Offsides, stat.AccuratePasses, stat.ThrowIns, stat.FinalThirdEntries,
-		stat.FinalThirdPhase, stat.LongBalls, stat.Crosses, stat.Duels, stat.Dispossessed,
-		stat.GroundDuels, stat.AerialDuels, stat.Dribbles, stat.TacklesWon, stat.TotalTackles,
-		stat.Interceptions, stat.Recoveries, stat.Clearances, stat.TotalSaves, stat.GoalsPrevented,
-		stat.GoalKicks, stat.BigSaves, stat.HighClaims, stat.Punches, stat.ErrorsLeadToAShot,
-		stat.ErrorsLeadToAGoal, stat.PenaltySaves,
+		stat.PlayerID, stat.UniqueTournamentID, stat.SeasonID, stat.TeamID, stat.AccurateLongBalls,
+		stat.AccurateLongBallsPercentage, stat.AccuratePasses, stat.AccuratePassesPercentage,
+		stat.AerialDuelsWon, stat.Assists, stat.BigChancesCreated, stat.BigChancesMissed,
+		stat.CleanSheet, stat.DribbledPast, stat.ErrorLeadToGoal, stat.ExpectedAssists,
+		stat.ExpectedGoals, stat.Goals, stat.GoalsAssistsSum, stat.GoalsConceded, stat.GoalsPrevented,
+		stat.Interceptions, stat.KeyPasses, stat.MinutesPlayed, stat.PassToAssist, stat.PenaltyFaced,
+		stat.PenaltySave, stat.Rating, stat.RedCards, stat.SavedShotsFromInsideTheBox, stat.Saves,
+		stat.SuccessfulDribbles, stat.Tackles, stat.YellowCards, stat.TotalRating, stat.CountRating,
+		stat.TotalLongBalls, stat.TotalPasses, stat.ShotsFromInsideTheBox, stat.Appearances,
+		stat.Type, stat.ID, stat.AccurateCrosses, stat.AccurateCrossesPercentage, stat.BlockedShots,
+		stat.ShotsOnTarget, stat.TotalShots, stat.TotalCross,
 	)
 
 	return err
 }
 
-func (r *TeamMatchStatRepository) GetByID(matchID float64, teamID float64) (*models.TeamMatchStat, error) {
-	query := `SELECT * FROM team_match_stat WHERE match_id = ? AND team_id = ?`
+func (r *PlayerSeasonStatRepository)  GetByID(uniqueTournamentID int, seasonID int, playerID int) (*models.PlayerSeasonStat, error) {
+	query := `
+	SELECT * 
+	FROM player_stat 
+	WHERE unique_tournament_id = ? AND season_id = ? AND player_id = ?`
 
-	row := r.db.QueryRow(query, matchID, teamID) 
+	row := r.db.QueryRow(query, uniqueTournamentID, seasonID, playerID)
 
-	var stat models.TeamMatchStat
-
+	var stat models.PlayerSeasonStat
 	err := row.Scan(
-		&stat.MatchID, &stat.TeamID, &stat.BallPossession, &stat.ExpectedGoals, &stat.BigChances,
-		&stat.TotalShots, &stat.GoalkeeperSaves, &stat.CornerKicks, &stat.Fouls, &stat.Passes,
-		&stat.Tackles, &stat.FreeKicks, &stat.YellowCards, &stat.RedCards, &stat.ShotsOnTarget,
-		&stat.HitWoodwork, &stat.ShotsOffTarget, &stat.BlockedShots, &stat.ShotsInsideBox, &stat.ShotsOutsideBox,
-		&stat.BigChancesScored, &stat.BigChancesMissed, &stat.ThroughBalls, &stat.TouchesInPenaltyArea,
-		&stat.FouledInFinalThird, &stat.Offsides, &stat.AccuratePasses, &stat.ThrowIns, &stat.FinalThirdEntries,
-		&stat.FinalThirdPhase, &stat.LongBalls, &stat.Crosses, &stat.Duels, &stat.Dispossessed,
-		&stat.GroundDuels, &stat.AerialDuels, &stat.Dribbles, &stat.TacklesWon, &stat.TotalTackles,
-		&stat.Interceptions, &stat.Recoveries, &stat.Clearances, &stat.TotalSaves, &stat.GoalsPrevented,
-		&stat.GoalKicks, &stat.BigSaves, &stat.HighClaims, &stat.Punches, &stat.ErrorsLeadToAShot,
-		&stat.ErrorsLeadToAGoal, &stat.PenaltySaves,
+		&stat.PlayerID, &stat.UniqueTournamentID, &stat.SeasonID, &stat.TeamID,
+		&stat.AccurateLongBalls, &stat.AccurateLongBallsPercentage, &stat.AccuratePasses, &stat.AccuratePassesPercentage,
+		&stat.AerialDuelsWon, &stat.Assists, &stat.BigChancesCreated, &stat.BigChancesMissed,
+		&stat.CleanSheet, &stat.DribbledPast, &stat.ErrorLeadToGoal, &stat.ExpectedAssists,
+		&stat.ExpectedGoals, &stat.Goals, &stat.GoalsAssistsSum, &stat.GoalsConceded,
+		&stat.GoalsPrevented, &stat.Interceptions, &stat.KeyPasses, &stat.MinutesPlayed,
+		&stat.PassToAssist, &stat.PenaltyFaced, &stat.PenaltySave, &stat.Rating,
+		&stat.RedCards, &stat.SavedShotsFromInsideTheBox, &stat.Saves, &stat.SuccessfulDribbles,
+		&stat.Tackles, &stat.YellowCards, &stat.TotalRating, &stat.CountRating,
+		&stat.TotalLongBalls, &stat.TotalPasses, &stat.ShotsFromInsideTheBox, &stat.Appearances,
+		&stat.Type, &stat.ID, &stat.AccurateCrosses, &stat.AccurateCrossesPercentage,
+		&stat.BlockedShots, &stat.ShotsOnTarget, &stat.TotalShots, &stat.TotalCross,
 	)
 
 	if err == sql.ErrNoRows {
-		return nil, errors.New("team match stat not found")
+		return nil, errors.New("player match stat not found")
 	} else if err != nil {
 		return nil, err
 	}

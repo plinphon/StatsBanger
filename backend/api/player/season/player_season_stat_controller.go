@@ -2,7 +2,7 @@ package season
 
 import (
 	"strconv"
-
+	"log"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -38,9 +38,9 @@ func (mc *PlayerSeasonStatController) GetStatByID(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid player ID")
 	}
 
-
 	stat, err := mc.service.GetStatByID(uniqueTournamentID, seasonID, playerID)
 	if err != nil {
+		log.Printf("❌ Error getting player stat: %v", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get a player stat")
 	}
 
