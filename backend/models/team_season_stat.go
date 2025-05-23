@@ -1,6 +1,6 @@
 package models
 
-type TeamSeasonStats struct {
+type TeamSeasonStat struct {
     UniqueTournamentID          float64
     SeasonID                    float64
     TeamID                      float64
