@@ -5,14 +5,23 @@ import (
 	"errors"
 
 	"github.com/plinphon/StatsBanger/backend/models"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type TeamMatchStatRepository struct {
 	db *sql.DB
 }
 
-func NewTeamMatchStatRepository(db *sql.DB) *TeamMatchStatRepository {
-	return &TeamMatchStatRepository{db: db}
+func NewTeamMatchStatRepository(dbPath string) (*TeamMatchStatRepository, error) {
+	db, err := sql.Open("sqlite3", dbPath)
+	if err != nil {
+		return nil, err
+	}
+	if err = db.Ping(); err != nil {
+		return nil, err
+	}
+	return &TeamMatchStatRepository{db: db}, nil
 }
 
 func (r *TeamMatchStatRepository) Create(stat models.TeamMatchStat) error {
@@ -45,7 +54,7 @@ func (r *TeamMatchStatRepository) Create(stat models.TeamMatchStat) error {
 	return err
 }
 
-func (r *TeamMatchStatRepository) GetByID(matchID int, teamID int) (*models.TeamMatchStat, error) {
+func (r *TeamMatchStatRepository) GetByID(matchID float64, teamID float64) (*models.TeamMatchStat, error) {
 	query := `SELECT * FROM team_match_stat WHERE match_id = ? AND team_id = ?`
 
 	row := r.db.QueryRow(query, matchID, teamID) 

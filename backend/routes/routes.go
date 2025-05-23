@@ -11,6 +11,7 @@ func SetupRoutes(app fiber.Router) {
 	api := app.Group("/api")
 
 	RegisterMatchRoutes(api)
+	RegisterTeamMatchStatRoutes(api)
 }
 
 
@@ -29,13 +30,13 @@ func RegisterMatchRoutes(router fiber.Router) {
 }
 
 func RegisterTeamMatchStatRoutes(router fiber.Router) {
-	repo, err := teammatchstat.NewMatchRepository("laligaDB.db")
+	repo, err := teammatchstat.NewTeamMatchStatRepository("laligaDB.db")
 	if err != nil {
 		panic(err)
 	}
 
-	service := teammatchstat.NewMatchService(repo)
-	controller := teammatchstat.NewMatchController(service)
+	service := teammatchstat.NewTeamMatchStatService(repo)
+	controller := teammatchstat.NewTeamMatchStatController(service)
 
 	stat := router.Group("/teammatchstat")
 	stat.Get("/match/:matchID/team/:teamID", controller.GetStatByID)

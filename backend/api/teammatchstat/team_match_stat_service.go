@@ -3,8 +3,10 @@ package teammatchstat
 import (
 	"github.com/plinphon/StatsBanger/backend/models"
 	"errors"
-	"time"
+
 )
+
+var ErrDuplicateMatch = errors.New("duplicate match stat")
 
 type TeamMatchStatService struct {
 	repo *TeamMatchStatRepository
@@ -23,6 +25,6 @@ func (s *TeamMatchStatService) CreateStat(stat models.TeamMatchStat) error {
 	return s.repo.Create(stat)
 }
 
-func (s *TeamMatchStatService) GetStatByID(matchID int, teamID int) (*models.TeamMatchStat, error) {
+func (s *TeamMatchStatService) GetStatByID(matchID float64, teamID float64) (*models.TeamMatchStat, error) {
 	return s.repo.GetByID(matchID, teamID)
 }
