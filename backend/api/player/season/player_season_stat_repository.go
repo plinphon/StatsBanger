@@ -1,4 +1,4 @@
-package teammatchstat
+package season
 
 import (
 	"database/sql"

@@ -3,55 +3,89 @@ package routes
 import (
 	"github.com/gofiber/fiber/v2"
 
-	Matches "github.com/plinphon/StatsBanger/backend/api/matches"
+	matches "github.com/plinphon/StatsBanger/backend/api/matches"
+
 	teamMatchStat "github.com/plinphon/StatsBanger/backend/api/team/match"
 	teamSeasonStat "github.com/plinphon/StatsBanger/backend/api/team/season"
+
+	playerMatchStat "github.com/plinphon/StatsBanger/backend/api/player/match"
+	playerSeasonStat "github.com/plinphon/StatsBanger/backend/api/player/season"
 )
 
 func SetupRoutes(app fiber.Router) {
 	api := app.Group("/api")
 
 	RegisterMatchRoutes(api)
+
 	RegisterTeamMatchStatRoutes(api)
+	RegisterTeamSeasonStatRoutes(api)
+
+	RegisterPlayerMatchStatRoutes(api)
 }
 
 
 func RegisterMatchRoutes(router fiber.Router) {
 
-	repo, err := Matches.NewMatchRepository("laligaDB.db")
+	repo, err := matches.NewMatchRepository("laligaDB.db")
 	if err != nil {
 		panic(err)
 	}
 
-	service := Matches.NewMatchService(repo)
-	controller := Matches.NewMatchController(service)
+	service := matches.NewMatchService(repo)
+	controller := matches.NewMatchController(service)
 
 	match := router.Group("/matches")
 	match.Get("/team/:teamID", controller.GetMatchByTeamID)
 }
 
 func RegisterTeamMatchStatRoutes(router fiber.Router) {
-	repo, err := TeamMatchStat.NewTeamMatchStatRepository("laligaDB.db")
+	repo, err := teamMatchStat.NewTeamMatchStatRepository("laligaDB.db")
 	if err != nil {
 		panic(err)
 	}
 
-	service := TeamMatchStat.NewTeamMatchStatService(repo)
-	controller := TeamMatchStat.NewTeamMatchStatController(service)
+	service := teamMatchStat.NewTeamMatchStatService(repo)
+	controller := teamMatchStat.NewTeamMatchStatController(service)
 
 	stat := router.Group("/team-match-stat")
 	stat.Get("/match/:matchID/team/:teamID", controller.GetStatByID)
 }
 
 func RegisterTeamSeasonStatRoutes(router fiber.Router) {
-	repo, err := TeamSeasonStat.NewTeamSeasonStatRepository("laligaDB.db")
+	repo, err := teamSeasonStat.NewTeamSeasonStatRepository("laligaDB.db")
 	if err != nil {
 		panic(err)
 	}
 
-	service := TeamSeasonStat.NewTeamSeasonStatService(repo)
-	controller := TeamSeasonStat.NewTeamSeasonStatController(service)
+	service := teamSeasonStat.NewTeamSeasonStatService(repo)
+	controller := teamSeasonStat.NewTeamSeasonStatController(service)
 
 	stat := router.Group("/team-season-stat")
 	stat.Get("tournament/:uniqueTournamentID/season/:seasonID/team/:teamID", controller.GetStatByID)
+}
+
+func RegisterPlayerMatchStatRoutes(router fiber.Router) {
+	repo, err := playerMatchStat.NewPlayerMatchStatRepository("laligaDB.db")
+	if err != nil {
+		panic(err)
+	}
+
+	service := playerMatchStat.NewPlayerMatchStatService(repo)
+	controller := playerMatchStat.NewPlayerMatchStatController(service)
+
+	stat := router.Group("/player-match-stat")
+	stat.Get("/match/:matchID/player/:playerID", controller.GetStatByID)
+}
+
+func RegisterPlayerSeasonStatRoutes(router fiber.Router) {
+	repo, err := playerSeasonStat.NewPlayerSeasonStatRepository("laligaDB.db")
+	if err != nil {
+		panic(err)
+	}
+
+	service := playerSeasonStat.NewPlayerSeasonStatService(repo)
+	controller := playerSeasonStat.NewPlayerSeasonStatController(service)
+
+	stat := router.Group("/player-season-stat")
+	stat.Get("tournament/:uniqueTournamentID/season/:seasonID/player/:playerID", controller.GetStatByID)
 }

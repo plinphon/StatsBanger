@@ -54,8 +54,10 @@ func (r *TeamMatchStatRepository) Create(stat models.TeamMatchStat) error {
 	return err
 }
 
-func (r *TeamMatchStatRepository) GetByID(matchID float64, teamID float64) (*models.TeamMatchStat, error) {
-	query := `SELECT * FROM team_match_stat WHERE match_id = ? AND team_id = ?`
+func (r *TeamMatchStatRepository) GetByID(matchID int, teamID int) (*models.TeamMatchStat, error) {
+	query := `
+	SELECT * FROM team_match_stat 
+	WHERE match_id = ? AND team_id = ?`
 
 	row := r.db.QueryRow(query, matchID, teamID) 
 

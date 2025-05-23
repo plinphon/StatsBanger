@@ -2,7 +2,7 @@ package match
 
 import (
 	"strconv"
-
+	"log"
 	"github.com/gofiber/fiber/v2"
 )
 
@@ -16,14 +16,14 @@ func NewTeamMatchStatController(service *TeamMatchStatService) *TeamMatchStatCon
 
 func (mc *TeamMatchStatController) GetStatByID(c *fiber.Ctx) error {
 	matchIDStr := c.Params("matchID")
-	matchID, err := strconv.ParseFloat(matchIDStr, 64)
+	matchID, err := strconv.Atoi(matchIDStr)
 
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid match ID")
 	}
 
 	teamIDStr := c.Params("teamID")
-	teamID, err := strconv.ParseFloat(teamIDStr, 64)
+	teamID, err := strconv.Atoi(teamIDStr)
 
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid team ID")
@@ -31,6 +31,7 @@ func (mc *TeamMatchStatController) GetStatByID(c *fiber.Ctx) error {
 
 	stat, err := mc.service.GetStatByID(matchID, teamID)
 	if err != nil {
+		log.Printf("❌ Error getting team stat: %v", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get a team stat")
 	}
 

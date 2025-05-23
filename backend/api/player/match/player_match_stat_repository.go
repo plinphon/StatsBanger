@@ -1,4 +1,4 @@
-package teammatchstat
+package match
 
 import (
 	"database/sql"
@@ -9,11 +9,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type TeamMatchStatRepository struct {
+type PlayerMatchStatRepository struct {
 	db *sql.DB
 }
 
-func NewTeamMatchStatRepository(dbPath string) (*TeamMatchStatRepository, error) {
+func NewPlayerMatchStatRepository(dbPath string) (*PlayerMatchStatRepository, error) {
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return nil, err
@@ -21,10 +21,10 @@ func NewTeamMatchStatRepository(dbPath string) (*TeamMatchStatRepository, error)
 	if err = db.Ping(); err != nil {
 		return nil, err
 	}
-	return &TeamMatchStatRepository{db: db}, nil
+	return &PlayerMatchStatRepository{db: db}, nil
 }
 
-func (r *TeamMatchStatRepository) Create(stat models.TeamMatchStat) error {
+func (r *PlayerMatchStatRepository) Create(stat models.PlayerMatchStat) error {
 	query := `
 	INSERT INTO team_match_stat (
 		match_id, team_id, ball_possession, expected_goals, big_chances, total_shots,
@@ -54,12 +54,12 @@ func (r *TeamMatchStatRepository) Create(stat models.TeamMatchStat) error {
 	return err
 }
 
-func (r *TeamMatchStatRepository) GetByID(matchID float64, teamID float64) (*models.TeamMatchStat, error) {
+func (r *PlayerMatchStatRepository) GetByID(matchID int, playerID int) (*models.PlayerMatchStat, error) {
 	query := `SELECT * FROM team_match_stat WHERE match_id = ? AND team_id = ?`
 
-	row := r.db.QueryRow(query, matchID, teamID) 
+	row := r.db.QueryRow(query, matchID, playerID) 
 
-	var stat models.TeamMatchStat
+	var stat models.PlayerMatchStat
 
 	err := row.Scan(
 		&stat.MatchID, &stat.TeamID, &stat.BallPossession, &stat.ExpectedGoals, &stat.BigChances,

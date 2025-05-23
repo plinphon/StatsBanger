@@ -1,10 +1,10 @@
 package models
 
 type PlayerSeasonStats struct {
-    PlayerID                   float64
-    UniqueTournamentID         float64
-    SeasonID                   float64
-    TeamID                     float64
+    PlayerID                   int
+    UniqueTournamentID         int
+    SeasonID                   int
+    TeamID                     int
     AccurateLongBalls          float64
     AccurateLongBallsPercentage float64
     AccuratePasses             float64

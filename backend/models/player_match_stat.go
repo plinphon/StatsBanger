@@ -1,8 +1,8 @@
 package models
 
 type PlayerMatchStats struct {
-    MatchID                    float64
-    PlayerID                   float64
+    MatchID                    int
+    PlayerID                   int
     TotalPass                  float64
     AccuratePass               float64
     TotalLongBalls             float64

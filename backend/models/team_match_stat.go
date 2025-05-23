@@ -1,8 +1,8 @@
 package models
 
 type TeamMatchStat struct {
-    MatchID                float64
-    TeamID                 float64
+    MatchID                int
+    TeamID                 int
     BallPossession         float64
     ExpectedGoals          float64
     BigChances             float64
