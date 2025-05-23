@@ -3,7 +3,8 @@ package routes
 import (
 	"github.com/gofiber/fiber/v2"
 
-	"github.com/plinphon/StatsBanger/backend/matches"
+	"github.com/plinphon/StatsBanger/backend/api/matches"
+	"github.com/plinphon/StatsBanger/backend/api/teammatchstat"
 )
 
 func SetupRoutes(app fiber.Router) {
@@ -25,4 +26,17 @@ func RegisterMatchRoutes(router fiber.Router) {
 
 	match := router.Group("/matches")
 	match.Get("/team/:teamID", controller.GetMatchByTeamID)
+}
+
+func RegisterTeamMatchStatRoutes(router fiber.Router) {
+	repo, err := teammatchstat.NewMatchRepository("laligaDB.db")
+	if err != nil {
+		panic(err)
+	}
+
+	service := teammatchstat.NewMatchService(repo)
+	controller := teammatchstat.NewMatchController(service)
+
+	stat := router.Group("/teammatchstat")
+	stat.Get("/match/:matchID/team/:teamID", controller.GetStatByID)
 }

@@ -1,0 +1,52 @@
+package models
+
+type PlayerSeasonStats struct {
+    PlayerID                   float64
+    UniqueTournamentID         float64
+    SeasonID                   float64
+    TeamID                     float64
+    AccurateLongBalls          float64
+    AccurateLongBallsPercentage float64
+    AccuratePasses             float64
+    AccuratePassesPercentage   float64
+    AerialDuelsWon             float64
+    Assists                    float64
+    BigChancesCreated          float64
+    BigChancesMissed           float64
+    CleanSheet                 float64
+    DribbledPast               float64
+    ErrorLeadToGoal            float64
+    ExpectedAssists            float64
+    ExpectedGoals              float64
+    Goals                      float64
+    GoalsAssistsSum            float64
+    GoalsConceded              float64
+    GoalsPrevented             float64
+    Interceptions              float64
+    KeyPasses                  float64
+    MinutesPlayed              float64
+    PassToAssist               float64
+    PenaltyFaced               float64
+    PenaltySave                float64
+    Rating                     float64
+    RedCards                   float64
+    SavedShotsFromInsideTheBox float64
+    Saves                      float64
+    SuccessfulDribbles         float64
+    Tackles                    float64
+    YellowCards                float64
+    TotalRating                float64
+    CountRating                float64
+    TotalLongBalls             float64
+    TotalPasses                float64
+    ShotsFromInsideTheBox      float64
+    Appearances                float64
+    Type                       float64
+    ID                         float64
+    AccurateCrosses            float64
+    AccurateCrossesPercentage  float64
+    BlockedShots               float64
+    ShotsOnTarget              float64
+    TotalShots                 float64
+    TotalCross                 float64
+}

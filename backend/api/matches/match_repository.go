@@ -26,6 +26,7 @@ func NewMatchRepository(dbPath string) (*MatchRepository, error) {
 
     return &MatchRepository{db: db}, nil
 }
+
 func (r *MatchRepository) Create(match models.Match) error {
 	query := `
 	INSERT INTO match_info (

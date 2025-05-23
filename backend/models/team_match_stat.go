@@ -1,0 +1,55 @@
+package models
+
+type TeamMatchStat struct {
+    MatchID                float64
+    TeamID                 float64
+    BallPossession         float64
+    ExpectedGoals          float64
+    BigChances             float64
+    TotalShots             float64
+    GoalkeeperSaves        float64
+    CornerKicks            float64
+    Fouls                  float64
+    Passes                 float64
+    Tackles                float64
+    FreeKicks              float64
+    YellowCards            float64
+    RedCards               float64
+    ShotsOnTarget          float64
+    HitWoodwork            float64
+    ShotsOffTarget         float64
+    BlockedShots           float64
+    ShotsInsideBox         float64
+    ShotsOutsideBox        float64
+    BigChancesScored       float64
+    BigChancesMissed       float64
+    ThroughBalls           float64
+    TouchesInPenaltyArea   float64
+    FouledInFinalThird     float64
+    Offsides               float64
+    AccuratePasses         float64
+    ThrowIns               float64
+    FinalThirdEntries      float64
+    FinalThirdPhase        float64
+    LongBalls              float64
+    Crosses                float64
+    Duels                  float64
+    Dispossessed           float64
+    GroundDuels            float64
+    AerialDuels            float64
+    Dribbles               float64
+    TacklesWon             float64
+    TotalTackles           float64
+    Interceptions          float64
+    Recoveries             float64
+    Clearances             float64
+    TotalSaves             float64
+    GoalsPrevented         float64
+    GoalKicks              float64
+    BigSaves               float64
+    HighClaims             float64
+    Punches                float64
+    ErrorsLeadToAShot      float64
+    ErrorsLeadToAGoal      float64
+    PenaltySaves           float64
+}
