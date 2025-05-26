@@ -1,57 +1,55 @@
 package models
 
-import "database/sql"
-
 type TeamMatchStat struct {
-    MatchID              int
-    TeamID               int
-    BallPossession       sql.NullFloat64
-    ExpectedGoals        sql.NullFloat64
-    BigChances           sql.NullFloat64
-    TotalShots           sql.NullFloat64
-    GoalkeeperSaves      sql.NullFloat64
-    CornerKicks          sql.NullFloat64
-    Fouls                sql.NullFloat64
-    Passes               sql.NullFloat64
-    Tackles              sql.NullFloat64
-    FreeKicks            sql.NullFloat64
-    YellowCards          sql.NullFloat64
-    RedCards             sql.NullFloat64
-    ShotsOnTarget        sql.NullFloat64
-    HitWoodwork          sql.NullFloat64
-    ShotsOffTarget       sql.NullFloat64
-    BlockedShots         sql.NullFloat64
-    ShotsInsideBox       sql.NullFloat64
-    ShotsOutsideBox      sql.NullFloat64
-    BigChancesScored     sql.NullFloat64
-    BigChancesMissed     sql.NullFloat64
-    ThroughBalls         sql.NullFloat64
-    TouchesInPenaltyArea sql.NullFloat64
-    FouledInFinalThird   sql.NullFloat64
-    Offsides             sql.NullFloat64
-    AccuratePasses       sql.NullFloat64
-    ThrowIns             sql.NullFloat64
-    FinalThirdEntries    sql.NullFloat64
-    FinalThirdPhase      sql.NullFloat64
-    LongBalls            sql.NullFloat64
-    Crosses              sql.NullFloat64
-    Duels                sql.NullFloat64
-    Dispossessed         sql.NullFloat64
-    GroundDuels          sql.NullFloat64
-    AerialDuels          sql.NullFloat64
-    Dribbles             sql.NullFloat64
-    TacklesWon           sql.NullFloat64
-    TotalTackles         sql.NullFloat64
-    Interceptions        sql.NullFloat64
-    Recoveries           sql.NullFloat64
-    Clearances           sql.NullFloat64
-    TotalSaves           sql.NullFloat64
-    GoalsPrevented       sql.NullFloat64
-    GoalKicks            sql.NullFloat64
-    BigSaves             sql.NullFloat64
-    HighClaims           sql.NullFloat64
-    Punches              sql.NullFloat64
-    ErrorsLeadToAShot    sql.NullFloat64
-    ErrorsLeadToAGoal    sql.NullFloat64
-    PenaltySaves         sql.NullFloat64
+	MatchID              int      `json:"matchID"`
+	TeamID               int      `json:"teamID"`
+	BallPossession       *float64 `json:"ballPossession"`
+	ExpectedGoals        *float64 `json:"expectedGoals"`
+	BigChances           *float64 `json:"bigChances"`
+	TotalShots           *float64 `json:"totalShots"`
+	GoalkeeperSaves      *float64 `json:"goalkeeperSaves"`
+	CornerKicks          *float64 `json:"cornerKicks"`
+	Fouls                *float64 `json:"fouls"`
+	Passes               *float64 `json:"passes"`
+	Tackles              *float64 `json:"tackles"`
+	FreeKicks            *float64 `json:"freeKicks"`
+	YellowCards          *float64 `json:"yellowCards"`
+	RedCards             *float64 `json:"redCards"`
+	ShotsOnTarget        *float64 `json:"shotsOnTarget"`
+	HitWoodwork          *float64 `json:"hitWoodwork"`
+	ShotsOffTarget       *float64 `json:"shotsOffTarget"`
+	BlockedShots         *float64 `json:"blockedShots"`
+	ShotsInsideBox       *float64 `json:"shotsInsideBox"`
+	ShotsOutsideBox      *float64 `json:"shotsOutsideBox"`
+	BigChancesScored     *float64 `json:"bigChancesScored"`
+	BigChancesMissed     *float64 `json:"bigChancesMissed"`
+	ThroughBalls         *float64 `json:"throughBalls"`
+	TouchesInPenaltyArea *float64 `json:"touchesInPenaltyArea"`
+	FouledInFinalThird   *float64 `json:"fouledInFinalThird"`
+	Offsides             *float64 `json:"offsides"`
+	AccuratePasses       *float64 `json:"accuratePasses"`
+	ThrowIns             *float64 `json:"throwIns"`
+	FinalThirdEntries    *float64 `json:"finalThirdEntries"`
+	FinalThirdPhase      *float64 `json:"finalThirdPhase"`
+	LongBalls            *float64 `json:"longBalls"`
+	Crosses              *float64 `json:"crosses"`
+	Duels                *float64 `json:"duels"`
+	Dispossessed         *float64 `json:"dispossessed"`
+	GroundDuels          *float64 `json:"groundDuels"`
+	AerialDuels          *float64 `json:"aerialDuels"`
+	Dribbles             *float64 `json:"dribbles"`
+	TacklesWon           *float64 `json:"tacklesWon"`
+	TotalTackles         *float64 `json:"totalTackles"`
+	Interceptions        *float64 `json:"interceptions"`
+	Recoveries           *float64 `json:"recoveries"`
+	Clearances           *float64 `json:"clearances"`
+	TotalSaves           *float64 `json:"totalSaves"`
+	GoalsPrevented       *float64 `json:"goalsPrevented"`
+	GoalKicks            *float64 `json:"goalKicks"`
+	BigSaves             *float64 `json:"bigSaves"`
+	HighClaims           *float64 `json:"highClaims"`
+	Punches              *float64 `json:"punches"`
+	ErrorsLeadToAShot    *float64 `json:"errorsLeadToAShot"`
+	ErrorsLeadToAGoal    *float64 `json:"errorsLeadToAGoal"`
+	PenaltySaves         *float64 `json:"penaltySaves"`
 }

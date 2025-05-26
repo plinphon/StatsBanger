@@ -1,12 +1,21 @@
-// src/components/ui/card.tsx
-import React, { ReactNode } from "react"
+import React from "react"
 
-export function Card({ children }: { children: ReactNode }) {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+  children: React.ReactNode
+}
+
+export function Card({ children, className = "", ...props }: CardProps) {
   return (
-    <div className="rounded-md border p-4 shadow-sm bg-white">{children}</div>
+    <div className={`bg-white rounded-xl p-4 shadow ${className}`} {...props}>
+      {children}
+    </div>
   )
 }
 
-export function CardContent({ children }: { children: ReactNode }) {
-  return <div className="mt-2">{children}</div>
+export function CardContent({ children, className = "", ...props }: CardProps) {
+  return (
+    <div className={`p-2 ${className}`} {...props}>
+      {children}
+    </div>
+  )
 }

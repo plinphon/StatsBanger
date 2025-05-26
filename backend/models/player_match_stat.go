@@ -1,60 +1,58 @@
 package models
 
-import "database/sql"
-
 type PlayerMatchStat struct {
-    MatchID                    int
-    PlayerID                   int
-    TotalPass                  sql.NullFloat64
-    AccuratePass               sql.NullFloat64
-    TotalLongBalls             sql.NullFloat64
-    AccurateLongBalls          sql.NullFloat64
-    GoalAssist                 sql.NullFloat64
-    SavedShotsFromInsideTheBox sql.NullFloat64
-    Saves                      sql.NullFloat64
-    MinutesPlayed              sql.NullFloat64
-    Touches                    sql.NullFloat64
-    Rating                     sql.NullFloat64
-    PossessionLostCtrl         sql.NullFloat64
-    KeyPass                    sql.NullFloat64
-    GoalsPrevented             sql.NullFloat64
-    AerialWon                  sql.NullFloat64
-    DuelLost                   sql.NullFloat64
-    DuelWon                    sql.NullFloat64
-    OnTargetScoringAttempt     sql.NullFloat64
-    Goals                      sql.NullFloat64
-    TotalClearance             sql.NullFloat64
-    InterceptionWon            sql.NullFloat64
-    TotalTackle                sql.NullFloat64
-    WasFouled                  sql.NullFloat64
-    Fouls                      sql.NullFloat64
-    ExpectedGoals              sql.NullFloat64
-    ExpectedAssists            sql.NullFloat64
-    AerialLost                 sql.NullFloat64
-    ChallengeLost              sql.NullFloat64
-    TotalCross                 sql.NullFloat64
-    TotalContest               sql.NullFloat64
-    WonContest                 sql.NullFloat64
-    OutfielderBlock            sql.NullFloat64
-    BigChanceCreated           sql.NullFloat64
-    Dispossessed               sql.NullFloat64
-    ShotOffTarget              sql.NullFloat64
-    AccurateCross              sql.NullFloat64
-    TotalOffside               sql.NullFloat64
-    BlockedScoringAttempt      sql.NullFloat64
-    PenaltyWon                 sql.NullFloat64
-    PenaltyConceded            sql.NullFloat64
-    BigChanceMissed            sql.NullFloat64
-    TotalKeeperSweeper         sql.NullFloat64
-    AccurateKeeperSweeper      sql.NullFloat64
-    GoodHighClaim              sql.NullFloat64
-    Punches                    sql.NullFloat64
-    ClearanceOffLine           sql.NullFloat64
-    HitWoodwork                sql.NullFloat64
-    ErrorLeadToAShot           sql.NullFloat64
-    OwnGoals                   sql.NullFloat64
-    LastManTackle              sql.NullFloat64
-    ErrorLeadToAGoal           sql.NullFloat64
-    PenaltySave                sql.NullFloat64
-    PenaltyMiss                sql.NullFloat64
+	MatchID                    int      `json:"matchID"`
+	PlayerID                   int      `json:"playerID"`
+	TotalPass                  *float64 `json:"totalPass"`
+	AccuratePass               *float64 `json:"accuratePass"`
+	TotalLongBalls             *float64 `json:"totalLongBalls"`
+	AccurateLongBalls          *float64 `json:"accurateLongBalls"`
+	GoalAssist                 *float64 `json:"goalAssist"`
+	SavedShotsFromInsideTheBox *float64 `json:"savedShotsFromInsideTheBox"`
+	Saves                      *float64 `json:"saves"`
+	MinutesPlayed              *float64 `json:"minutesPlayed"`
+	Touches                    *float64 `json:"touches"`
+	Rating                     *float64 `json:"rating"`
+	PossessionLostCtrl         *float64 `json:"possessionLostCtrl"`
+	KeyPass                    *float64 `json:"keyPass"`
+	GoalsPrevented             *float64 `json:"goalsPrevented"`
+	AerialWon                  *float64 `json:"aerialWon"`
+	DuelLost                   *float64 `json:"duelLost"`
+	DuelWon                    *float64 `json:"duelWon"`
+	OnTargetScoringAttempt     *float64 `json:"onTargetScoringAttempt"`
+	Goals                      *float64 `json:"goals"`
+	TotalClearance             *float64 `json:"totalClearance"`
+	InterceptionWon            *float64 `json:"interceptionWon"`
+	TotalTackle                *float64 `json:"totalTackle"`
+	WasFouled                  *float64 `json:"wasFouled"`
+	Fouls                      *float64 `json:"fouls"`
+	ExpectedGoals              *float64 `json:"expectedGoals"`
+	ExpectedAssists            *float64 `json:"expectedAssists"`
+	AerialLost                 *float64 `json:"aerialLost"`
+	ChallengeLost              *float64 `json:"challengeLost"`
+	TotalCross                 *float64 `json:"totalCross"`
+	TotalContest               *float64 `json:"totalContest"`
+	WonContest                 *float64 `json:"wonContest"`
+	OutfielderBlock            *float64 `json:"outfielderBlock"`
+	BigChanceCreated           *float64 `json:"bigChanceCreated"`
+	Dispossessed               *float64 `json:"dispossessed"`
+	ShotOffTarget              *float64 `json:"shotOffTarget"`
+	AccurateCross              *float64 `json:"accurateCross"`
+	TotalOffside               *float64 `json:"totalOffside"`
+	BlockedScoringAttempt      *float64 `json:"blockedScoringAttempt"`
+	PenaltyWon                 *float64 `json:"penaltyWon"`
+	PenaltyConceded            *float64 `json:"penaltyConceded"`
+	BigChanceMissed            *float64 `json:"bigChanceMissed"`
+	TotalKeeperSweeper         *float64 `json:"totalKeeperSweeper"`
+	AccurateKeeperSweeper      *float64 `json:"accurateKeeperSweeper"`
+	GoodHighClaim              *float64 `json:"goodHighClaim"`
+	Punches                    *float64 `json:"punches"`
+	ClearanceOffLine           *float64 `json:"clearanceOffLine"`
+	HitWoodwork                *float64 `json:"hitWoodwork"`
+	ErrorLeadToAShot           *float64 `json:"errorLeadToAShot"`
+	OwnGoals                   *float64 `json:"ownGoals"`
+	LastManTackle              *float64 `json:"lastManTackle"`
+	ErrorLeadToAGoal           *float64 `json:"errorLeadToAGoal"`
+	PenaltySave                *float64 `json:"penaltySave"`
+	PenaltyMiss                *float64 `json:"penaltyMiss"`
 }

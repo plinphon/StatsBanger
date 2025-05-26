@@ -7,7 +7,15 @@ interface Props {
   data: TeamMatchStat[]
 }
 
-const metrics = ["ExpectedGoals", "TotalShots", "ShotsOnTarget", "ShotsOffTarget", "Fouls", "Passes", "Tackles"]
+const metrics = [
+    "expectedGoals",
+    "totalShots",
+    "shotsOnTarget",
+    "shotsOffTarget",
+    "fouls",
+    "passes",
+    "tackles"
+  ]
 
 export default function TeamAnalytics({ data }: Props) {
   return (
@@ -15,7 +23,7 @@ export default function TeamAnalytics({ data }: Props) {
       {metrics.map((metric) => (
         <Card key={metric} className="rounded-2xl shadow">
           <CardContent>
-            <h2 className="text-xl font-semibold mb-4">{metric}</h2>
+           <h2 className="text-xl font-semibold mb-4">{metric}</h2>
             <ResponsiveContainer width="100%" height={200}>
               <BarChart data={data}>
                 <XAxis dataKey="MatchID" />

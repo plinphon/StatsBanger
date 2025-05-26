@@ -1,54 +1,52 @@
 package models
 
-import "database/sql"
-
 type PlayerSeasonStat struct {
-    PlayerID                   int
-    UniqueTournamentID         int
-    SeasonID                   int
-    TeamID                     int
-    AccurateLongBalls          sql.NullFloat64
-    AccurateLongBallsPercentage sql.NullFloat64
-    AccuratePasses             sql.NullFloat64
-    AccuratePassesPercentage   sql.NullFloat64
-    AerialDuelsWon             sql.NullFloat64
-    Assists                    sql.NullFloat64
-    BigChancesCreated          sql.NullFloat64
-    BigChancesMissed           sql.NullFloat64
-    CleanSheet                 sql.NullFloat64
-    DribbledPast               sql.NullFloat64
-    ErrorLeadToGoal            sql.NullFloat64
-    ExpectedAssists            sql.NullFloat64
-    ExpectedGoals              sql.NullFloat64
-    Goals                      sql.NullFloat64
-    GoalsAssistsSum            sql.NullFloat64
-    GoalsConceded              sql.NullFloat64
-    GoalsPrevented             sql.NullFloat64
-    Interceptions              sql.NullFloat64
-    KeyPasses                  sql.NullFloat64
-    MinutesPlayed              sql.NullFloat64
-    PassToAssist               sql.NullFloat64
-    PenaltyFaced               sql.NullFloat64
-    PenaltySave                sql.NullFloat64
-    Rating                     sql.NullFloat64
-    RedCards                   sql.NullFloat64
-    SavedShotsFromInsideTheBox sql.NullFloat64
-    Saves                      sql.NullFloat64
-    SuccessfulDribbles         sql.NullFloat64
-    Tackles                    sql.NullFloat64
-    YellowCards                sql.NullFloat64
-    TotalRating                sql.NullFloat64
-    CountRating                sql.NullFloat64
-    TotalLongBalls             sql.NullFloat64
-    TotalPasses                sql.NullFloat64
-    ShotsFromInsideTheBox      sql.NullFloat64
-    Appearances                sql.NullFloat64
-    Type                       string
-    ID                         sql.NullFloat64
-    AccurateCrosses            sql.NullFloat64
-    AccurateCrossesPercentage  sql.NullFloat64
-    BlockedShots               sql.NullFloat64
-    ShotsOnTarget              sql.NullFloat64
-    TotalShots                 sql.NullFloat64
-    TotalCross                 sql.NullFloat64
+	PlayerID                    int      `json:"playerID"`
+	UniqueTournamentID          int      `json:"uniqueTournamentID"`
+	SeasonID                    int      `json:"seasonID"`
+	TeamID                      int      `json:"teamID"`
+	AccurateLongBalls           *float64 `json:"accurateLongBalls"`
+	AccurateLongBallsPercentage *float64 `json:"accurateLongBallsPercentage"`
+	AccuratePasses              *float64 `json:"accuratePasses"`
+	AccuratePassesPercentage    *float64 `json:"accuratePassesPercentage"`
+	AerialDuelsWon              *float64 `json:"aerialDuelsWon"`
+	Assists                     *float64 `json:"assists"`
+	BigChancesCreated           *float64 `json:"bigChancesCreated"`
+	BigChancesMissed            *float64 `json:"bigChancesMissed"`
+	CleanSheet                  *float64 `json:"cleanSheet"`
+	DribbledPast                *float64 `json:"dribbledPast"`
+	ErrorLeadToGoal             *float64 `json:"errorLeadToGoal"`
+	ExpectedAssists             *float64 `json:"expectedAssists"`
+	ExpectedGoals               *float64 `json:"expectedGoals"`
+	Goals                       *float64 `json:"goals"`
+	GoalsAssistsSum             *float64 `json:"goalsAssistsSum"`
+	GoalsConceded               *float64 `json:"goalsConceded"`
+	GoalsPrevented              *float64 `json:"goalsPrevented"`
+	Interceptions               *float64 `json:"interceptions"`
+	KeyPasses                   *float64 `json:"keyPasses"`
+	MinutesPlayed               *float64 `json:"minutesPlayed"`
+	PassToAssist                *float64 `json:"passToAssist"`
+	PenaltyFaced                *float64 `json:"penaltyFaced"`
+	PenaltySave                 *float64 `json:"penaltySave"`
+	Rating                      *float64 `json:"rating"`
+	RedCards                    *float64 `json:"redCards"`
+	SavedShotsFromInsideTheBox  *float64 `json:"savedShotsFromInsideTheBox"`
+	Saves                       *float64 `json:"saves"`
+	SuccessfulDribbles          *float64 `json:"successfulDribbles"`
+	Tackles                     *float64 `json:"tackles"`
+	YellowCards                 *float64 `json:"yellowCards"`
+	TotalRating                 *float64 `json:"totalRating"`
+	CountRating                 *float64 `json:"countRating"`
+	TotalLongBalls              *float64 `json:"totalLongBalls"`
+	TotalPasses                 *float64 `json:"totalPasses"`
+	ShotsFromInsideTheBox       *float64 `json:"shotsFromInsideTheBox"`
+	Appearances                 *float64 `json:"appearances"`
+	Type                        string   `json:"type"`
+	ID                          *float64 `json:"id"`
+	AccurateCrosses             *float64 `json:"accurateCrosses"`
+	AccurateCrossesPercentage   *float64 `json:"accurateCrossesPercentage"`
+	BlockedShots                *float64 `json:"blockedShots"`
+	ShotsOnTarget               *float64 `json:"shotsOnTarget"`
+	TotalShots                  *float64 `json:"totalShots"`
+	TotalCross                  *float64 `json:"totalCross"`
 }
