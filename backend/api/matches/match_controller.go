@@ -15,7 +15,7 @@ func NewMatchController(service *MatchService) *MatchController {
 }
 
 func (mc *MatchController) GetMatchByID(c *fiber.Ctx) error {
-	matchIDStr := c.Params("matchID")
+	matchIDStr := c.Query("matchID")
 	matchID, err := strconv.Atoi(matchIDStr)
 
 	if err != nil {
@@ -31,7 +31,7 @@ func (mc *MatchController) GetMatchByID(c *fiber.Ctx) error {
 }
 
 func (mc *MatchController) GetMatchByTeamID(c *fiber.Ctx) error {
-	teamIDStr := c.Params("teamID")
+	teamIDStr := c.Query("teamID")
 	teamID, err := strconv.Atoi(teamIDStr)
 
 	if err != nil {

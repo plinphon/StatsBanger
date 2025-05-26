@@ -16,7 +16,7 @@ func NewTeamSeasonStatController(service *TeamSeasonStatService) *TeamSeasonStat
 
 func (mc *TeamSeasonStatController) GetStatByID(c *fiber.Ctx) error {
 
-	uniqueTournamentIDStr := c.Params("uniqueTournamentID")
+	uniqueTournamentIDStr := c.Query("uniqueTournamentID")
 	uniqueTournamentID, err := strconv.Atoi(uniqueTournamentIDStr)
 
 	if err != nil {
@@ -24,14 +24,14 @@ func (mc *TeamSeasonStatController) GetStatByID(c *fiber.Ctx) error {
 	}
 
 
-	seasonIDStr := c.Params("seasonID")
+	seasonIDStr := c.Query("seasonID")
 	seasonID, err := strconv.Atoi(seasonIDStr)
 
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid season ID")
 	}
 
-	teamIDStr := c.Params("teamID")
+	teamIDStr := c.Query("teamID")
 	teamID, err := strconv.Atoi(teamIDStr)
 
 	if err != nil {

@@ -15,16 +15,16 @@ func NewPlayerMatchStatController(service *PlayerMatchStatService) *PlayerMatchS
 }
 
 func (mc *PlayerMatchStatController) GetStatByID(c *fiber.Ctx) error {
-	matchIDStr := c.Params("matchID")
+	matchIDStr := c.Query("matchID")
 	matchID, err := strconv.Atoi(matchIDStr)
 
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid match ID")
 	}
 
-	playerIDStr := c.Params("playerID")
+	playerIDStr := c.Query("playerID")
 	playerID, err := strconv.Atoi(playerIDStr)
-
+	
 	if err != nil {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid player ID")
 	}

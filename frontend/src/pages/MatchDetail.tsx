@@ -1,25 +1,38 @@
-import MirrorBarChart from '../components/OverallBarChart';
-import { useParams } from 'react-router-dom';
-import { matchStats } from '../models/matchData';
+// src/pages/analytics.tsx
+import React, { useEffect, useState } from "react"
+import TeamAnalytics from "../components/TeamAnalytics"
+import type { TeamMatchStat } from "../models/team-match-stat"
+import { fetchTeamMatchStat } from "../lib/api"
 
-const MatchDetail = () => {
-  const { id } = useParams();
-  const match = matchStats.find(m => m.id.toString() === id);
+const TEAM_ID = 2858
+const MATCH_ID = 11369285
 
-  if (!match) return <div>Match not found</div>;
+export default function AnalyticsPage() {
+  const [stats, setStats] = useState<TeamMatchStat[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const chartData = [
-    { label: 'Possession (%)', home: match.possession.home, away: match.possession.away },
-    { label: 'Shots on Target', home: match.shotsOnTarget.home, away: match.shotsOnTarget.away },
-    { label: 'Fouls', home: match.fouls.home, away: match.fouls.away },
-  ];
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        const teamMatchStat = await fetchTeamMatchStat(MATCH_ID, TEAM_ID)
+        setStats([teamMatchStat]);
+      } catch (err: any) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadStats()
+  }, [])
+
+  if (loading) return <p className="p-4">Loading match stats...</p>
+  if (error) return <p className="p-4 text-red-500">Error: {error}</p>
 
   return (
-    <div>
-      <h2>{match.homeTeam} vs {match.awayTeam}</h2>
-      <MirrorBarChart data={chartData} />
+    <div className="max-w-6xl mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-6">Team Match Stats Analytics</h1>
+      <TeamAnalytics data={stats} />
     </div>
-  );
-};
-
-export default MatchDetail;
+  )
+}

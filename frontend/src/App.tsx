@@ -1,6 +1,5 @@
 import './App.css';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Match from './pages/match';
 import MatchDetail from './pages/MatchDetail';
 
 
@@ -12,7 +11,6 @@ function App() {
       </nav>
 
       <Routes>
-        <Route path="/match" element={<Match/>} />
         <Route path="/match/:id" element={<MatchDetail />} />
       </Routes>
     </Router>
