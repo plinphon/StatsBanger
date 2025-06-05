@@ -1,23 +1,27 @@
 // src/pages/analytics.tsx
 import React, { useEffect, useState } from "react"
-import TeamAnalytics from "../components/TeamAnalytics"
-import MirrorBarChart from "../components/OverallBarChart"
+import { TeamAnalytics, PlayerSeasonRadar } from "../components/allCharts"
 import type { TeamMatchStat } from "../models/team-match-stat"
-import { fetchTeamMatchStat } from "../lib/api"
+import type { PlayerSeasonStat } from "../models/player-season-stat"
+import { fetchTeamMatchStat, fetchPlayerSeasonStat } from "../lib/api"
+import { Chart as ChartJS } from "chart.js/auto";
+import { Bar, Radar } from "react-chartjs-2";
+import { Label } from "recharts";
 
-const TEAM_ID = 2858
-const MATCH_ID = 11369285
+const UNIQUE_TOURNAMENT_ID = 8
+const SEASON_ID = 52376
+const PLAYER_ID = 1402912 //lamine yamal
 
 export default function AnalyticsPage() {
-  const [stats, setStats] = useState<TeamMatchStat[]>([])
+  const [stats, setStats] = useState<PlayerSeasonStat | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     async function loadStats() {
       try {
-        const teamMatchStat = await fetchTeamMatchStat(MATCH_ID, TEAM_ID)
-        setStats([teamMatchStat]);
+        const playerSeasonStat = await fetchPlayerSeasonStat(UNIQUE_TOURNAMENT_ID, SEASON_ID, PLAYER_ID)
+        setStats(playerSeasonStat);
       } catch (err: any) {
         setError(err.message)
       } finally {
@@ -33,7 +37,7 @@ export default function AnalyticsPage() {
   return (
     <div className="max-w-6xl mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Team Match Stats Analytics</h1>
-      <TeamAnalytics data={stats} />
+      <PlayerSeasonRadar data={stats!} position="M" />
     </div>
   )
 }
