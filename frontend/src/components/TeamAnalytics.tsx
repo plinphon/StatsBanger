@@ -20,6 +20,7 @@ const metrics = [
 export default function TeamAnalytics({ data }: Props) {
   return (
     <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <b>be:</b>
       {metrics.map((metric) => (
         <Card key={metric} className="rounded-2xl shadow">
           <CardContent>
