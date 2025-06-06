@@ -1,6 +1,7 @@
 import React from 'react';
 import '../style.css';
 import { useState } from "react";
+import { searchPlayerByName } from "../lib/api"; 
 
 const HomePage = () => {
   return (
@@ -45,10 +46,36 @@ export default HomePage;
 
 export function PlayerSelect() {
     const [expanded, setExpanded] = useState(false);
+    const [searchInput, setSearchInput] = useState("");
+    const [filteredPlayers, setFilteredPlayers] = useState<string[]>([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
   
     const handleFocus = () => {
       setExpanded(true);
     };
+
+    const handleChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setSearchInput(value);
+        
+        if (!value.trim()) {
+          setFilteredPlayers([]);
+          return;
+        }
+      
+        try {
+          setLoading(true);
+          setError(null);
+          const players = await searchPlayerByName(value);
+          setFilteredPlayers(players.map((p) => p.name)); 
+        } catch (err) {
+          setError("Failed to load players");
+          setFilteredPlayers([]);
+        } finally {
+          setLoading(false);
+        }
+      };
   
     const handleClickMain = (e: React.MouseEvent<HTMLDivElement>) => {
       // Prevent toggling if user clicks inside the panel
@@ -100,9 +127,37 @@ export function PlayerSelect() {
               <input
                 type="text"
                 placeholder="Search player name..."
+                value={searchInput}
+                onChange={handleChange}
                 onFocus={handleFocus}
                 className="w-full px-4 py-2 rounded-lg bg-gray-900 text-white border border-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
+
+            {searchInput && (
+            <ul className="mt-1 border border-gray-500 rounded bg-white text-black max-h-48 overflow-y-auto">
+                {loading ? (
+                <li className="p-2 text-gray-500 italic">Loading...</li>
+                ) : error ? (
+                <li className="p-2 text-red-500 italic">{error}</li>
+                ) : filteredPlayers.length > 0 ? (
+                filteredPlayers.map((name, idx) => (
+                    <li
+                    key={idx}
+                    onClick={() => {
+                        setSearchInput(name);
+                        setFilteredPlayers([]);
+                    }}
+                    className="p-2 hover:bg-gray-200 cursor-pointer"
+                    >
+                    {name}
+                    </li>
+                ))
+                ) : (
+                <li className="p-2 text-gray-500 italic">No results</li>
+                )}
+            </ul>
+            )}
+
   
               <select
                 onFocus={handleFocus}
