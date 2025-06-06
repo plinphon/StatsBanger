@@ -8,6 +8,7 @@ import (
 	teamMatchStat "github.com/plinphon/StatsBanger/backend/api/team/match"
 	teamSeasonStat "github.com/plinphon/StatsBanger/backend/api/team/season"
 
+	player "github.com/plinphon/StatsBanger/backend/api/player/info"
 	playerMatchStat "github.com/plinphon/StatsBanger/backend/api/player/match"
 	playerSeasonStat "github.com/plinphon/StatsBanger/backend/api/player/season"
 )
@@ -20,8 +21,10 @@ func SetupRoutes(app fiber.Router) {
 	RegisterTeamMatchStatRoutes(api)
 	RegisterTeamSeasonStatRoutes(api)
 
+	RegisterPlayerRoutes(api)
 	RegisterPlayerMatchStatRoutes(api)
 	RegisterPlayerSeasonStatRoutes(api)
+
 }
 
 
@@ -89,4 +92,19 @@ func RegisterPlayerSeasonStatRoutes(router fiber.Router) {
 
 	stat := router.Group("/player-season-stat")
 	stat.Get("/", controller.GetStatByID)
+}
+
+func RegisterPlayerRoutes(router fiber.Router) {
+	repo, err := player.NewPlayerRepository("laligaDB.db")
+	if err != nil {
+		panic(err)
+	}
+
+	service := player.NewPlayerService(repo)
+	controller := player.NewPlayerController(service)
+
+	stat := router.Group("/player")
+
+	stat.Get("/:playerID", controller.GetPlayerByID)
+	stat.Get("/", controller.SearchPlayersByName)
 }
