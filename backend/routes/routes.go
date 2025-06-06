@@ -39,6 +39,8 @@ func RegisterMatchRoutes(router fiber.Router) {
 	controller := matches.NewMatchController(service)
 
 	match := router.Group("/matches")
+
+	match.Get("/:matchID", controller.GetMatchByID)
 	match.Get("/", controller.GetMatchByTeamID)
 }
 

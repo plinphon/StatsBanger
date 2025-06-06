@@ -8,7 +8,9 @@ type Match struct {
 	SeasonID                    int    `json:"season_id"`
 	Matchday                    int       `json:"matchday"`
 	HomeTeamID                  int    `json:"home_team_id"`
+	HomeTeamName                string    `json:"home_team_name"`
 	AwayTeamID                  int     `json:"away_team_id"`
+	AwayTeamName                string    `json:away_team_name"`
 	HomeWin                     *int    `json:"home_win,omitempty"` //pointer to allow null
 	HomeScore                   *int      `json:"home_score,omitempty"`
 	AwayScore                   *int      `json:"away_score,omitempty"`

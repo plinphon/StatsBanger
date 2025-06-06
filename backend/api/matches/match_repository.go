@@ -56,11 +56,16 @@ func (r *MatchRepository) Create(match models.Match) error {
 func (r *MatchRepository) GetByID(matchID int) (*models.Match, error) {
 	query := `
 	SELECT 
-		match_id, unique_tournament_id, season_id, matchday,
-		home_team_id, away_team_id, home_win, home_score,
-		away_score, injury_time1, injury_time2, current_period_start_timestamp
-	FROM match_info
-	WHERE match_id = ?`
+		m.match_id, m.unique_tournament_id, m.season_id, m.matchday,
+		m.home_team_id, ht.team_name AS home_team_name,
+		m.away_team_id, at.team_name AS away_team_name,
+		m.home_win, m.home_score, m.away_score,
+		m.injury_time1, m.injury_time2, m.current_period_start_timestamp
+	FROM match_info m
+	JOIN team_info ht ON m.home_team_id = ht.team_id
+	JOIN team_info at ON m.away_team_id = at.team_id
+	WHERE m.match_id = ?
+	`
 
 	row := r.db.QueryRow(query, matchID)
 
@@ -71,7 +76,9 @@ func (r *MatchRepository) GetByID(matchID int) (*models.Match, error) {
 		&match.SeasonID,
 		&match.Matchday,
 		&match.HomeTeamID,
+		&match.HomeTeamName,
 		&match.AwayTeamID,
+		&match.AwayTeamName,
 		&match.HomeWin,
 		&match.HomeScore,
 		&match.AwayScore,
@@ -87,16 +94,21 @@ func (r *MatchRepository) GetByID(matchID int) (*models.Match, error) {
 	return &match, err
 }
 
-func (r *MatchRepository) GetByTeamID(TeamID int) ([]models.Match, error) {
+func (r *MatchRepository) GetByTeamID(teamID int) ([]models.Match, error) {
 	query := `
 	SELECT 
-		match_id, unique_tournament_id, season_id, matchday,
-		home_team_id, away_team_id, home_win, home_score,
-		away_score, injury_time1, injury_time2, current_period_start_timestamp
-	FROM match_info
-	WHERE home_team_id = ? OR away_team_id = ?`
+		m.match_id, m.unique_tournament_id, m.season_id, m.matchday,
+		m.home_team_id, ht.team_name AS home_team_name,
+		m.away_team_id, at.team_name AS away_team_name,
+		m.home_win, m.home_score, m.away_score,
+		m.injury_time1, m.injury_time2, m.current_period_start_timestamp
+	FROM match_info m
+	JOIN team_info ht ON m.home_team_id = ht.team_id
+	JOIN team_info at ON m.away_team_id = at.team_id
+	WHERE m.home_team_id = ? OR m.away_team_id = ?
+	`
 
-	rows, err := r.db.Query(query, TeamID, TeamID)
+	rows, err := r.db.Query(query, teamID, teamID)
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +123,9 @@ func (r *MatchRepository) GetByTeamID(TeamID int) ([]models.Match, error) {
 			&match.SeasonID,
 			&match.Matchday,
 			&match.HomeTeamID,
+			&match.HomeTeamName,
 			&match.AwayTeamID,
+			&match.AwayTeamName,
 			&match.HomeWin,
 			&match.HomeScore,
 			&match.AwayScore,
