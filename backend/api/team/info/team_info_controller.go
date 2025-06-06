@@ -31,7 +31,7 @@ func (tc *TeamController) GetTeamByID(c *fiber.Ctx) error {
 }
 
 func (tc *TeamController) SearchTeamsByName(c *fiber.Ctx) error {
-	teamName := c.Query("teamName")
+	teamName := c.Query("name")
 
 	teams, err := tc.service.SearchTeamsByName(teamName)
 	if err != nil {

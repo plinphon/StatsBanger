@@ -32,7 +32,7 @@ func (mc *PlayerController) GetPlayerByID(c *fiber.Ctx) error {
 }
 
 func (mc *PlayerController) SearchPlayersByName(c *fiber.Ctx) error {
-	playerName := c.Query("playerName")
+	playerName := c.Query("name")
 
 	player, err := mc.service.SearchPlayersByName(playerName)
 	if err != nil {
