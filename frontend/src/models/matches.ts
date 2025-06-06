@@ -1,11 +1,11 @@
 export interface Match {
-    matchId: number;
-    uniqueTournamentId: number;
-    seasonId: number;
+    matchID: number;
+    uniqueTournamentID: number;
+    seasonID: number;
     matchday: number;
-    homeTeamId: number;
+    homeTeamID: number;
     homeTeamName: string;
-    awayTeamId: number;
+    awayTeamID: number;
     awayTeamName: string;
     homeWin?: number | null;
     homeScore?: number | null;
