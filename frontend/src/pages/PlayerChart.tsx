@@ -1,12 +1,13 @@
 // src/pages/analytics.tsx
+import '../style.css'
+
 import React, { useEffect, useState } from "react"
 import { TeamAnalytics, PlayerSeasonRadar } from "../components/allCharts"
 import type { TeamMatchStat } from "../models/team-match-stat"
 import type { PlayerSeasonStat } from "../models/player-season-stat"
 import { fetchTeamMatchStat, fetchPlayerSeasonStat } from "../lib/api"
-import { Chart as ChartJS } from "chart.js/auto";
-import { Bar, Radar } from "react-chartjs-2";
-import { Label } from "recharts";
+
+
 
 const UNIQUE_TOURNAMENT_ID = 8
 const SEASON_ID = 52376

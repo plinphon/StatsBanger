@@ -1,7 +1,8 @@
-import './App.css';
+import './style.css';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import MatchDetail from './pages/MatchDetail';
 import PlayerChart from './pages/PlayerChart';
+import HomePage from './pages/Index';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Routes>
         <Route path="/match/:id" element={<MatchDetail />} />
         <Route path="/player-chart" element={<PlayerChart />} />
+        <Route path="/" element={<HomePage />} />
       </Routes>
     </Router>
   );
