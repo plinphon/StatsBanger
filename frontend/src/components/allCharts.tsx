@@ -23,6 +23,8 @@ const topicM = ["accuratePassesPercentage", "accurateLongBalls", "keyPasses", "t
 const topicD = ["tackles", "interceptions", "clearances", "groundDuelsWonPercentage", "aerialDuelsWonPercentage", "fouls", "accuratePassesPercentage", "accurateLongBalls", "keyPasses"]
 const topicG = ["saves", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut", "accuratePassesPercentage", "accurateLongBalls"]
 
+const teamTopic1 = []
+
 export function TeamAnalytics({ data }: Props) {
   return (
     <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -46,37 +48,51 @@ export function TeamAnalytics({ data }: Props) {
 }
 
 export function PlayerSeasonRadar({ data, position }) {
-  const metrics = (() => {
-    switch (position) {
-      case "F":
-        return topicF;
-      case "M":
-        return topicM;
-      case "D":
-        return topicD;
-      default:
-        return topicG; // Fallback for goalkeepers or invalid positions
-    }
-  })();  
+  const metrics = position === "F" ? topicF : position === "M" ? topicM : position === "D" ? topicD : topicG;
+
+  const bounds = {
+    accuratePassesPercentage: [0, 100],
+    accurateLongBalls: [0, 30],
+    keyPasses: [0, 10],
+    totalShots: [0, 20],
+    successfulDribbles: [0, 15],
+    totalDuelsWon: [0, 25], // Upper bound is 25
+    tackles: [0, 10],
+    interceptions: [0, 10],
+  };
+
   const generateChartData = (data, metrics) => {
     return metrics.map(metric => ({
       label: metric,
-      value: data[metric] ?? 0 // Default to 0 if the metric is null or undefined
+      value: data[metric] !== undefined ? data[metric] : 0 // Handle undefined values
     }));
   };
+
   const ChartData = generateChartData(data, metrics);
-  
+
   return (
     <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
       <ResponsiveContainer width="100%" height={300}>
-        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={ChartData}>
-          <PolarGrid />
-          <PolarAngleAxis dataKey="label" />
-          <PolarRadiusAxis />
-          <Tooltip />
-          <Radar name="Player1" dataKey="value" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={ChartData} style={{ backgroundColor: '#1a1a1a' }}>
+          <PolarGrid stroke="#444" />
+          <PolarAngleAxis dataKey="label" stroke="#fff" fontSize={14} />
+          {metrics.map((metric, index) => (
+            <PolarRadiusAxis key={index} domain={bounds[metric]} stroke="#fff" />
+          ))}
+          <Radar
+            name="Player Performance"
+            dataKey="value"
+            stroke="#8884d8"
+            fill="rgba(136, 132, 216, 0.6)"
+            fillOpacity={0.8}
+          />
+          <Tooltip 
+            contentStyle={{ backgroundColor: '#333', borderColor: '#888' }} 
+            labelStyle={{ color: '#fff' }}
+            itemStyle={{ color: '#fff' }} 
+          />
         </RadarChart>
       </ResponsiveContainer>
     </div>
-  )
+  );
 }

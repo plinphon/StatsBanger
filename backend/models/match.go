@@ -3,15 +3,15 @@ package models
 import "time"
 
 type Match struct {
-	MatchID                     int    `json:"match_id"`
-	UniqueTournamentID          int     `json:"unique_tournament_id"`
-	SeasonID                    int    `json:"season_id"`
+	MatchID                     int       `json:"match_id"`
+	UniqueTournamentID          int       `json:"unique_tournament_id"`
+	SeasonID                    int       `json:"season_id"`
 	Matchday                    int       `json:"matchday"`
-	HomeTeamID                  int    `json:"home_team_id"`
+	HomeTeamID                  int       `json:"home_team_id"`
 	HomeTeamName                string    `json:"home_team_name"`
-	AwayTeamID                  int     `json:"away_team_id"`
+	AwayTeamID                  int       `json:"away_team_id"`
 	AwayTeamName                string    `json:away_team_name"`
-	HomeWin                     *int    `json:"home_win,omitempty"` //pointer to allow null
+	HomeWin                     *int      `json:"home_win,omitempty"` //pointer to allow null
 	HomeScore                   *int      `json:"home_score,omitempty"`
 	AwayScore                   *int      `json:"away_score,omitempty"`
 	InjuryTime1                 *int      `json:"injury_time1,omitempty"`

@@ -29,7 +29,6 @@ func SetupRoutes(app fiber.Router) {
 
 }
 
-
 func RegisterMatchRoutes(router fiber.Router) {
 
 	repo, err := matches.NewMatchRepository("laligaDB.db")
