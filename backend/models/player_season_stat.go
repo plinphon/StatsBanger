@@ -1,10 +1,10 @@
 package models
 
 type PlayerSeasonStat struct {
-	PlayerID                    int      `json:"playerID"`
-	UniqueTournamentID          int      `json:"uniqueTournamentID"`
-	SeasonID                    int      `json:"seasonID"`
-	TeamID                      int      `json:"teamID"`
+	PlayerID                    int      `json:"playerId"`
+	UniqueTournamentID          int      `json:"uniqueTournamentId"`
+	SeasonID                    int      `json:"seasonId"`
+	TeamID                      int      `json:"teamId"`
 	AccurateLongBalls           *float64 `json:"accurateLongBalls"`
 	AccurateLongBallsPercentage *float64 `json:"accurateLongBallsPercentage"`
 	AccuratePasses              *float64 `json:"accuratePasses"`

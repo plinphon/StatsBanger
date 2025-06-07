@@ -31,7 +31,7 @@ func (s *PlayerService) GetPlayerByID(playerID int) (*models.Player, error) {
         return nil, err
     }
 
-    birthday := player.BirthdayTimestamp
+    birthday := player.Birthday
     player.Age = CalculateAge(birthday)
 
     return player, nil
@@ -44,7 +44,7 @@ func (s *PlayerService) SearchPlayersByName(name string) ([]*models.Player, erro
     }
 
     for _, player := range players {
-        birthday := player.BirthdayTimestamp
+        birthday := player.Birthday
         player.Age = CalculateAge(birthday)
     }
 

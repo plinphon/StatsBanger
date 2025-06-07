@@ -1,8 +1,8 @@
 package models
 
 type PlayerMatchStat struct {
-	MatchID                    int      `json:"matchID"`
-	PlayerID                   int      `json:"playerID"`
+	MatchID                    int      `json:"matchId"`
+	PlayerID                   int      `json:"playerId"`
 	TotalPass                  *float64 `json:"totalPass"`
 	AccuratePass               *float64 `json:"accuratePass"`
 	TotalLongBalls             *float64 `json:"totalLongBalls"`

@@ -3,18 +3,18 @@ package models
 import "time"
 
 type Match struct {
-	MatchID                     int    `json:"match_id"`
-	UniqueTournamentID          int     `json:"unique_tournament_id"`
-	SeasonID                    int    `json:"season_id"`
-	Matchday                    int       `json:"matchday"`
-	HomeTeamID                  int    `json:"home_team_id"`
-	HomeTeamName                string    `json:"home_team_name"`
-	AwayTeamID                  int     `json:"away_team_id"`
-	AwayTeamName                string    `json:away_team_name"`
-	HomeWin                     *int    `json:"home_win,omitempty"` //pointer to allow null
-	HomeScore                   *int      `json:"home_score,omitempty"`
-	AwayScore                   *int      `json:"away_score,omitempty"`
-	InjuryTime1                 *int      `json:"injury_time1,omitempty"`
-	InjuryTime2                 *int      `json:"injury_time2,omitempty"`
-	CurrentPeriodStartTimestamp time.Time `json:"current_period_start_timestamp"`
+	ID                         int       `json:"id"`
+	UniqueTournamentID          int       `json:"uniqueTournamentId"`
+	SeasonID                   int       `json:"seasonId"`
+	Matchday                   int       `json:"matchday"`
+	HomeTeamID                 int       `json:"homeTeamId"`
+	HomeTeamName               string    `json:"homeTeamName"`
+	AwayTeamID                 int       `json:"awayTeamId"`
+	AwayTeamName               string    `json:"awayTeamName"`
+	HomeWin                    *int      `json:"homeWin,omitempty"`        // pointer to allow null
+	HomeScore                  *int      `json:"homeScore,omitempty"`
+	AwayScore                  *int      `json:"awayScore,omitempty"`
+	InjuryTime1                *int      `json:"injuryTime1,omitempty"`
+	InjuryTime2                *int      `json:"injuryTime2,omitempty"`
+	CurrentPeriodStartTimestamp time.Time `json:"currentPeriodStartTimestamp"`
 }
