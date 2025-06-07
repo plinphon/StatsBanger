@@ -33,7 +33,7 @@ func (r *PlayerRepository) Create(player models.Player) error {
 	_, err := r.db.Exec(query,
 		player.ID,
 		player.Name,
-		player.BirthdayTimestamp,
+		player.Birthday,
 		player.Position,
 		player.Height,
 		player.PreferredFoot,
@@ -68,7 +68,7 @@ func (r *PlayerRepository) GetByID(playerID int) (*models.Player, error) {
 	err := row.Scan(
 		&player.ID,
 		&player.Name,
-		&player.BirthdayTimestamp,
+		&player.Birthday,
 		&player.TeamID,
 		&player.TeamName,
 		&player.Position,
@@ -106,7 +106,7 @@ func (r *PlayerRepository) SearchByName(name string) ([]*models.Player, error) {
 		err := rows.Scan(
 			&p.ID,
 			&p.Name,
-			&p.BirthdayTimestamp,
+			&p.Birthday,
 			&p.Position,
 			&p.Height,
 			&p.PreferredFoot,

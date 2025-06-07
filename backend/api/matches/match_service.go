@@ -24,7 +24,7 @@ func (s *MatchService) CreateMatch(match models.Match) error {
 		return ErrInvalidTeamIDs
 	}
 
-	if existing, _ := s.repo.GetByID(match.MatchID); existing != nil {
+	if existing, _ := s.repo.GetByID(match.ID); existing != nil {
 		return ErrDuplicateMatch
 	}
 
