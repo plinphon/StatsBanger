@@ -1,6 +1,6 @@
 export interface PlayerMatchStat {
-    matchID: number
-    playerID: number
+    matchId: number
+    playerId: number
     totalPass: number | null
     accuratePass: number | null
     totalLongBalls: number | null

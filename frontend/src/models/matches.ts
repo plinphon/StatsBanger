@@ -1,6 +1,6 @@
 export interface Match {
-    matchID: number;
-    uniqueTournamentID: number;
+    id: number;
+    uniqueTournamentId: number;
     seasonID: number;
     matchday: number;
     homeTeamID: number;

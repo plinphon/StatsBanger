@@ -1,6 +1,6 @@
 export interface TeamMatchStat {
-  matchID: number
-  teamID: number
+  matchId: number
+  teamId: number
   ballPossession: number | null
   expectedGoals: number | null
   bigChances: number | null

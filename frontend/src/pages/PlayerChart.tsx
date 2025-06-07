@@ -2,6 +2,7 @@
 import '../style.css'
 
 import React, { useEffect, useState } from "react"
+import { useParams } from "react-router-dom"
 import { TeamAnalytics, PlayerSeasonRadar } from "../components/allCharts"
 import type { TeamMatchStat } from "../models/team-match-stat"
 import type { PlayerSeasonStat } from "../models/player-season-stat"
@@ -11,9 +12,12 @@ import { fetchTeamMatchStat, fetchPlayerSeasonStat } from "../lib/api"
 
 const UNIQUE_TOURNAMENT_ID = 8
 const SEASON_ID = 52376
-const PLAYER_ID = 1402912 //lamine yamal
 
-export default function AnalyticsPage() {
+
+export default function PlayerChart() {
+  const { id } = useParams<{ id: string }>() 
+  const PLAYER_ID = parseInt(id || "", 10) // safely parse the id
+
   const [stats, setStats] = useState<PlayerSeasonStat | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

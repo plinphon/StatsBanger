@@ -3,8 +3,10 @@ import '../style.css';
 import { useState } from "react";
 import { searchPlayerByName } from "../lib/api"; 
 import { searchTeamByName } from "../lib/api"; 
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 flex flex-col items-center justify-center p-6 overflow-hidden relative">
       {/* Animated background elements */}
@@ -28,7 +30,6 @@ const HomePage = () => {
      <TeamSelect />
 
 
-
       <footer className="mt-16 text-sm text-gray-400 relative z-10 animate-fade-in animate-delay-1000">
         <div className="flex items-center space-x-6">
           <span>© 2025 Football Stats Visualizer</span>
@@ -48,7 +49,7 @@ export default HomePage;
 export function PlayerSelect() {
     const [expanded, setExpanded] = useState(false);
     const [searchInput, setSearchInput] = useState("");
-    const [filteredPlayers, setFilteredPlayers] = useState<string[]>([]);
+    const [filteredPlayers, setFilteredPlayers] = useState<{ name: string; id: number }[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
   
@@ -69,7 +70,7 @@ export function PlayerSelect() {
           setLoading(true);
           setError(null);
           const players = await searchPlayerByName(value);
-          setFilteredPlayers(players.map((p) => p.name)); 
+          setFilteredPlayers(players.map((p) => ({ name: p.name, id: Number(p.id) })));
         } catch (err) {
           setError("Failed to load players");
           setFilteredPlayers([]);
@@ -86,7 +87,9 @@ export function PlayerSelect() {
       }
       setExpanded((prev) => !prev);
     };
-  
+
+    const navigate = useNavigate();
+
     return (
       <main
         onClick={handleClickMain}
@@ -141,18 +144,18 @@ export function PlayerSelect() {
                 ) : error ? (
                 <li className="p-2 text-red-500 italic">{error}</li>
                 ) : filteredPlayers.length > 0 ? (
-                filteredPlayers.map((name, idx) => (
+                  filteredPlayers.map(({ name, id }, idx) => (
                     <li
-                    key={idx}
-                    onClick={() => {
-                        setSearchInput(name);
-                        setFilteredPlayers([]);
-                    }}
-                    className="p-2 hover:bg-gray-200 cursor-pointer"
+                      key={idx}
+                      onClick={() => {
+                        navigate(`/player/${id}`);
+                      }}
+                      className="p-2 hover:bg-gray-200 cursor-pointer"
                     >
-                    {name}
+                      {name}
                     </li>
-                ))
+                  ))
+                  
                 ) : (
                 <li className="p-2 text-gray-500 italic">No results</li>
                 )}

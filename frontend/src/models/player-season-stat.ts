@@ -1,8 +1,8 @@
 export interface PlayerSeasonStat {
-    playerID: number
-    uniqueTournamentID: number
-    seasonID: number
-    teamID: number
+    playerId: number
+    uniqueTournamentId: number
+    seasonId: number
+    teamId: number
     accurateLongBalls: number | null
     accurateLongBallsPercentage: number | null
     accuratePasses: number | null

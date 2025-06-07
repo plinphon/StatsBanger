@@ -1,5 +1,5 @@
 export interface Player {
-    ID: number;
+    id: number;
     name: string;
     birthdayTimestamp: string;
     age: number;
