@@ -211,6 +211,9 @@ func (r *PlayerSeasonStatRepository) GetTopPlayersByStat(statField string, uniqu
 		args = append(args, limit)
 	}
 
+	log.Printf("Executing SQL:\n%s", query)
+	log.Printf("Parameters: %v", args)
+
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
 		return nil, err
@@ -238,3 +241,122 @@ func (r *PlayerSeasonStatRepository) GetTopPlayersByStat(statField string, uniqu
 	return results, nil
 }
 
+func (r *PlayerSeasonStatRepository) GetPlayerStatsPercentile(
+	statFields []string,
+	tournamentID int,
+	seasonID int,
+	playerID int,
+	positionFilter *string,
+) (*models.PlayerStatWithMeta, error) {
+	if len(statFields) == 0 {
+		return nil, fmt.Errorf("no stat fields provided")
+	}
+
+	// Validate stat fields
+	for _, statField := range statFields {
+		if statField == "" {
+			continue
+		}
+		if !models.ValidTopPlayerFields[statField] {
+			return nil, fmt.Errorf("invalid stat field: %s", statField)
+		}
+	}
+	if positionFilter != nil && !models.ValidPositions[*positionFilter] {
+		return nil, fmt.Errorf("invalid position filter: %s", *positionFilter)
+	}
+
+	// Build SELECT fields
+	selectFields := ""
+	if len(statFields) > 0 {
+		selectFields = ", ps." + strings.Join(statFields, ", ps.")
+	}
+
+	query := fmt.Sprintf(`
+		SELECT ps.player_id, pi.player_name, ps.team_id, ti.team_name %s
+		FROM player_stat ps
+		JOIN player_info pi ON ps.player_id = pi.player_id
+		JOIN team_info ti ON ps.team_id = ti.team_id
+		WHERE ps.unique_tournament_id = ? AND ps.season_id = ? AND ps.player_id = ?`, selectFields)
+
+	args := []interface{}{tournamentID, seasonID, playerID}
+	row := r.db.QueryRow(query, args...)
+
+	// Prepare destinations
+	var (
+		playerIDOut int
+		playerName  string
+		teamID      int
+		teamName    string
+	)
+	nullableValues := make([]sql.NullFloat64, len(statFields))
+	dest := []interface{}{&playerIDOut, &playerName, &teamID, &teamName}
+	for i := range nullableValues {
+		dest = append(dest, &nullableValues[i])
+	}
+
+	// Scan once
+	if err := row.Scan(dest...); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("player %d stats not found", playerID)
+		}
+		return nil, err
+	}
+
+	// Calculate percentiles
+	statsMap := make(map[string]*float64)
+	for i, statField := range statFields {
+		if !nullableValues[i].Valid {
+			statsMap[statField] = nil
+			continue
+		}
+		playerValue := nullableValues[i].Float64
+
+		// Count below
+		queryBelow := fmt.Sprintf(`
+			SELECT COUNT(*)
+			FROM player_stat ps
+			JOIN player_info pi ON ps.player_id = pi.player_id
+			WHERE ps.unique_tournament_id = ? AND ps.season_id = ? AND ps.%s IS NOT NULL AND ps.%s < ?`, statField, statField)
+
+		argsBelow := []interface{}{tournamentID, seasonID, playerValue}
+		if positionFilter != nil {
+			queryBelow += " AND pi.position = ?"
+			argsBelow = append(argsBelow, *positionFilter)
+		}
+		var numBelow int
+		if err := r.db.QueryRow(queryBelow, argsBelow...).Scan(&numBelow); err != nil {
+			return nil, fmt.Errorf("failed to count players below for %s: %w", statField, err)
+		}
+
+		// Count total
+		queryTotal := fmt.Sprintf(`
+			SELECT COUNT(*)
+			FROM player_stat ps
+			JOIN player_info pi ON ps.player_id = pi.player_id
+			WHERE ps.unique_tournament_id = ? AND ps.season_id = ? AND ps.%s IS NOT NULL`, statField)
+
+		argsTotal := []interface{}{tournamentID, seasonID}
+		if positionFilter != nil {
+			queryTotal += " AND pi.position = ?"
+			argsTotal = append(argsTotal, *positionFilter)
+		}
+		var total int
+		if err := r.db.QueryRow(queryTotal, argsTotal...).Scan(&total); err != nil {
+			return nil, fmt.Errorf("failed to count total players for %s: %w", statField, err)
+		}
+		if total == 0 {
+			statsMap[statField] = nil
+			continue
+		}
+		p := float64(numBelow) / float64(total)
+		statsMap[statField] = &p
+	}
+
+	return &models.PlayerStatWithMeta{
+		PlayerID:   playerIDOut,
+		PlayerName: playerName,
+		TeamID:     teamID,
+		TeamName:   teamName,
+		Stats:      statsMap,
+	}, nil
+}

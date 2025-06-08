@@ -100,6 +100,7 @@ func RegisterPlayerSeasonStatRoutes(router fiber.Router) {
 	stat := router.Group("/player-season-stat")
 	stat.Get("/", controller.GetStatByID)
 	stat.Get("/meta", controller.GetPlayerStatsWithMeta)
+	stat.Get("/percentile", controller.GetPlayerStatPercentile)
 
 	topPlayerGroup := router.Group("/top-players")
 	topPlayerGroup.Get("/", controller.GetTopPlayersByStat)
