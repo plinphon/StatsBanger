@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
+	"strings"
 	"github.com/plinphon/StatsBanger/backend/models"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -92,6 +94,92 @@ func (r *PlayerSeasonStatRepository) GetByID(uniqueTournamentID int, seasonID in
 	return &stat, nil
 }
 
+func (r *PlayerSeasonStatRepository) GetMultipleStatsByPlayerID(
+	statFields []string,
+	uniqueTournamentID int,
+	seasonID int,
+	playerID int,
+) (*models.PlayerStatWithMeta, error) {
+	log.Printf("statFields: %v", statFields)
+
+	if len(statFields) == 0 {
+		// Use all valid stat fields for SELECT
+		statFields = make([]string, 0, len(models.ValidTopPlayerFields))
+		for field := range models.ValidTopPlayerFields {
+			statFields = append(statFields, field)
+		}
+    } else {
+        // Validate requested fields
+        for _, field := range statFields {
+            if field == "" {
+                continue // Skip empty fields
+            }
+            if !models.ValidTopPlayerFields[field] {
+                return nil, fmt.Errorf("invalid stat field: %s", field)
+            }
+        }
+    }
+	
+	// Join stat fields to SELECT
+	selectFields := ""
+	if len(statFields) > 0 {
+		selectFields = ", ps." + strings.Join(statFields, ", ps.")
+	}
+
+	query := fmt.Sprintf(`
+		SELECT ps.player_id, pi.player_name, ps.team_id, ti.team_name %s
+		FROM player_stat ps
+		JOIN player_info pi ON ps.player_id = pi.player_id
+		JOIN team_info ti ON ps.team_id = ti.team_id
+		WHERE ps.unique_tournament_id = ? AND ps.season_id = ? AND ps.player_id = ?`, selectFields)
+
+	args := []interface{}{uniqueTournamentID, seasonID, playerID}
+	row := r.db.QueryRow(query, args...)
+
+	// Prepare storage for fixed fields + dynamic stat values
+	var (
+		playerIDOut   int
+		playerName    string
+		teamID        int
+		teamName      string
+	)
+
+	nullableValues := make([]sql.NullFloat64, len(statFields))
+	dest := make([]interface{}, 0, 4+len(statFields))
+
+	// Append pointers to fixed fields
+	dest = append(dest, &playerIDOut, &playerName, &teamID, &teamName)
+
+	// Append pointers to dynamic stat values
+	for i := range nullableValues {
+		dest = append(dest, &nullableValues[i])
+	}
+
+	// Scan result
+	if err := row.Scan(dest...); err == sql.ErrNoRows {
+		return nil, errors.New("player stats not found")
+	} else if err != nil {
+		return nil, err
+	}
+
+	// Build stats map
+	statsMap := make(map[string]*float64)
+	for i, field := range statFields {
+		if nullableValues[i].Valid {
+			statsMap[field] = &nullableValues[i].Float64
+		} else {
+			statsMap[field] = nil
+		}
+	}
+	return &models.PlayerStatWithMeta{
+		PlayerID:   playerIDOut,
+		PlayerName: playerName,
+		TeamID:     teamID,
+		TeamName:   teamName,
+		Stats:      statsMap,
+	}, nil
+}
+
 func (r *PlayerSeasonStatRepository) GetTopPlayersByStat(statField string, uniqueTournamentID int, seasonID int, limit int, positionFilter string) ([]models.TopPlayerStatResult, error) {
 	
 	if !models.ValidTopPlayerFields[statField] {
@@ -149,3 +237,4 @@ func (r *PlayerSeasonStatRepository) GetTopPlayersByStat(statField string, uniqu
 	
 	return results, nil
 }
+

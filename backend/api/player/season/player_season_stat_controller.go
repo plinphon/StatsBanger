@@ -3,7 +3,9 @@ package season
 import (
 	"strconv"
 	"log"
+	"strings"
 	"github.com/gofiber/fiber/v2"
+	"github.com/plinphon/StatsBanger/backend/models"
 )
 
 type PlayerSeasonStatController struct {
@@ -91,3 +93,48 @@ func (mc *PlayerSeasonStatController) GetTopPlayersByStat(c *fiber.Ctx) error {
 	return c.JSON(topPlayer)
 }
 
+func (mc *PlayerSeasonStatController) GetPlayerStatsWithMeta(c *fiber.Ctx) error {
+    // Parse playerID
+    playerIDStr := c.Query("playerID")
+    playerID, err := strconv.Atoi(playerIDStr)
+    if err != nil {
+        return fiber.NewError(fiber.StatusBadRequest, "Invalid playerID")
+    }
+
+    // Parse uniqueTournamentID
+    uniqueTournamentIDStr := c.Query("uniqueTournamentID")
+    uniqueTournamentID, err := strconv.Atoi(uniqueTournamentIDStr)
+    if err != nil {
+        return fiber.NewError(fiber.StatusBadRequest, "Invalid uniqueTournamentID")
+    }
+
+    // Parse seasonID
+    seasonIDStr := c.Query("seasonID")
+    seasonID, err := strconv.Atoi(seasonIDStr)
+    if err != nil {
+        return fiber.NewError(fiber.StatusBadRequest, "Invalid seasonID")
+    }
+
+    // Parse statFields (comma-separated in query)
+    statFieldsQuery := c.Query("statFields", "")
+
+    var statFields []string
+    if statFieldsQuery == "" {
+        // If no statFields provided, fetch all valid fields
+        statFields = make([]string, 0, len(models.ValidTopPlayerFields))
+        for field := range models.ValidTopPlayerFields {
+            statFields = append(statFields, field)
+        }
+    } else {
+        statFields = strings.Split(statFieldsQuery, ",")
+    }
+
+    // Call service
+    playerStats, err := mc.service.GetPlayerStatsWithMeta(statFields, uniqueTournamentID, seasonID, playerID)
+    if err != nil {
+        log.Printf("❌ Error getting player stats: %v", err)
+        return fiber.NewError(fiber.StatusInternalServerError, "Failed to get player stats")
+    }
+
+    return c.JSON(playerStats)
+}
