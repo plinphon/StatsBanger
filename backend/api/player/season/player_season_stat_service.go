@@ -32,3 +32,12 @@ func (s *PlayerSeasonStatService) GetStatByID(uniqueTournamentID int, seasonID i
 func (s *PlayerSeasonStatService) GetTopPlayersByStat(statField string, uniqueTournamentID int, seasonID int, limit int, positionFilter string) ([]models.TopPlayerStatResult, error) {
 	return s.repo.GetTopPlayersByStat(statField, uniqueTournamentID, seasonID, limit, positionFilter)
 }
+
+func (s *PlayerSeasonStatService) GetPlayerStatsWithMeta(
+	statFields []string,
+	tournamentID int,
+	seasonID int,
+	playerID int,
+) (*models.PlayerStatWithMeta, error) {
+	return s.repo.GetMultipleStatsByPlayerID(statFields, tournamentID, seasonID, playerID)
+}

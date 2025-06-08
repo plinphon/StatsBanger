@@ -29,7 +29,6 @@ func SetupRoutes(app fiber.Router) {
 
 }
 
-
 func RegisterMatchRoutes(router fiber.Router) {
 
 	repo, err := matches.NewMatchRepository("laligaDB.db")
@@ -99,9 +98,11 @@ func RegisterPlayerSeasonStatRoutes(router fiber.Router) {
 
 	stat := router.Group("/player-season-stat")
 	stat.Get("/", controller.GetStatByID)
+	stat.Get("/meta", controller.GetPlayerStatsWithMeta)
 
 	topPlayerGroup := router.Group("/top-players")
 	topPlayerGroup.Get("/", controller.GetTopPlayersByStat)
+	
 }
 
 func RegisterPlayerRoutes(router fiber.Router) {
