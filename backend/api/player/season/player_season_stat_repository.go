@@ -3,8 +3,9 @@ package season
 import (
 	"database/sql"
 	"errors"
-
+	"fmt"
 	"github.com/plinphon/StatsBanger/backend/models"
+	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -59,7 +60,7 @@ func (r *PlayerSeasonStatRepository) Create(stat models.PlayerSeasonStat) error 
 	return err
 }
 
-func (r *PlayerSeasonStatRepository)  GetByID(uniqueTournamentID int, seasonID int, playerID int) (*models.PlayerSeasonStat, error) {
+func (r *PlayerSeasonStatRepository) GetByID(uniqueTournamentID int, seasonID int, playerID int) (*models.PlayerSeasonStat, error) {
 	query := `
 	SELECT * 
 	FROM player_stat 
@@ -90,4 +91,113 @@ func (r *PlayerSeasonStatRepository)  GetByID(uniqueTournamentID int, seasonID i
 	}
 
 	return &stat, nil
+}
+
+func (r *PlayerSeasonStatRepository) GetTopPlayersByStat(statField string, uniqueTournamentID int, seasonID int, limit int, positionFilter string) ([]models.TopPlayerStatResult, error) {
+	var validStatFields = map[string]bool{
+		"accurate_long_balls":               true,
+		"accurate_long_balls_percentage":    true,
+		"accurate_passes":                   true,
+		"accurate_passes_percentage":        true,
+		"aerial_duels_won":                  true,
+		"assists":                           true,
+		"big_chances_created":               true,
+		"big_chances_missed":                true,
+		"clean_sheet":                       true,
+		"dribbled_past":                     true,
+		"error_lead_to_goal":                true,
+		"expected_assists":                  true,
+		"expected_goals":                    true,
+		"goals":                             true,
+		"goals_assists_sum":                 true,
+		"goals_conceded":                    true,
+		"goals_prevented":                   true,
+		"interceptions":                     true,
+		"key_passes":                        true,
+		"minutes_played":                    true,
+		"pass_to_assist":                    true,
+		"penalty_faced":                     true,
+		"penalty_save":                      true,
+		"rating":                            true,
+		"red_cards":                         true,
+		"saved_shots_from_inside_the_box":   true,
+		"saves":                             true,
+		"successful_dribbles":               true,
+		"tackles":                           true,
+		"yellow_cards":                      true,
+		"total_rating":                      true,
+		"count_rating":                      true,
+		"total_long_balls":                  true,
+		"total_passes":                      true,
+		"shots_from_inside_the_box":         true,
+		"appearances":                       true,
+		"accurate_crosses":                  true,
+		"accurate_crosses_percentage":       true,
+		"blocked_shots":                     true,
+		"shots_on_target":                   true,
+		"total_shots":                       true,
+		"total_cross":                       true,
+	}
+
+	var validPositions = map[string]bool{
+		"D": true,
+		"M": true,
+		"F": true,
+		"G": true,
+	}
+	
+	if !validStatFields[statField] {
+		return nil, fmt.Errorf("invalid stat field: %s", statField)
+	}
+
+	query := fmt.Sprintf(`
+		SELECT ps.player_id, pi.player_name AS player_name, pi.position, ps.%s 
+		FROM player_stat ps
+		JOIN player_info pi ON ps.player_id = pi.player_id
+		WHERE ps.unique_tournament_id = ? AND ps.season_id = ?`, statField)
+
+	args := []interface{}{uniqueTournamentID, seasonID}
+
+	if positionFilter != "" {
+		if !validPositions[positionFilter] {
+			return nil, fmt.Errorf("invalid position filter: %s", positionFilter)
+		}
+		query += " AND pi.position = ?"
+		args = append(args, positionFilter)
+	}
+	
+	// Add order by statField descending
+	query += fmt.Sprintf(" ORDER BY ps.%s DESC", statField)
+
+	// Add limit if > 0 (no limit if limit <= 0)
+	if limit > 0 {
+		query += " LIMIT ?"
+		args = append(args, limit)
+	}
+
+	rows, err := r.db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []models.TopPlayerStatResult 
+	for rows.Next() {
+		var playerID int
+		var playerName, position string
+		var value float64
+	
+		if err := rows.Scan(&playerID, &playerName, &position, &value); err != nil {
+			return nil, err
+		}
+	
+		results = append(results, models.TopPlayerStatResult{
+			PlayerID:   playerID,
+			PlayerName: playerName,
+			Position:   position,
+			StatValue:  value,
+		})
+	}
+	
+	return results, nil
 }
