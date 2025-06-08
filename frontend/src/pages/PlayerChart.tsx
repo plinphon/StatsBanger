@@ -29,8 +29,8 @@ export default function PlayerChart() {
         ])
         setPlayer(playerInfo)
         setStats(playerSeasonStat)
-      } catch (err: any) {
-        setError(err.message)
+      } catch (err: unknown) {
+        setError(err instanceof Error ? err.message : 'An error occurred')
       } finally {
         setLoading(false)
       }
@@ -46,11 +46,9 @@ export default function PlayerChart() {
     <div className="max-w-5xl mx-auto p-4">
       {/* Player Info Card */}
       <div className="flex flex-col md:flex-row items-center bg-gradient-to-r from-green-900/60 to-cyan-900/60 rounded-2xl shadow-lg p-6 mb-8 gap-6">
-        <img
-          src={player.photoUrl || "/default-player.png"}
-          alt={player.name}
-          className="w-32 h-32 rounded-full object-cover border-4 border-green-400 shadow"
-        />
+        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-green-400 to-cyan-500 flex items-center justify-center text-white font-bold text-2xl border-4 border-green-400 shadow">
+          {player.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+        </div>
         <div className="flex-1">
           <h2 className="text-3xl font-bold text-green-200 mb-2">{player.name}</h2>
           <div className="flex flex-wrap gap-4 text-gray-200">
@@ -72,11 +70,15 @@ export default function PlayerChart() {
 
       {/* Stats Graph */}
       <div className="bg-gray-900/80 rounded-2xl shadow-lg p-6 mb-8">
-        <h3 className="text-2xl font-semibold text-cyan-200 mb-4">Season Performance</h3>
-        <PlayerSeasonRadar
-          data={stats}
+        <div className="flex justify-center  items-center mb-4">
+          <h3 className="text-2xl font-semibold text-cyan-200">Season Performance</h3>
+        </div>
+       
+                  <PlayerSeasonRadar
+          data={stats as unknown as Record<string, number | null>}
           position={player.position?.charAt(0).toUpperCase() || "M"}
         />
+        
       </div>
 
       {/* Descriptive Stats Section (Toggleable) */}
@@ -98,11 +100,11 @@ export default function PlayerChart() {
         {showStats && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
             {Object.entries(stats)
-              .filter(([key, value]) => typeof value === "number" && isFinite(value))
-              .map(([key, value]) => (
-                <div key={key}>
+              .filter(([, value]) => typeof value === "number" && isFinite(value))
+              .map(([statKey, value]) => (
+                <div key={statKey}>
                   <span className="font-semibold capitalize">
-                    {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
+                    {statKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
                   </span>{" "}
                   {value}
                 </div>
