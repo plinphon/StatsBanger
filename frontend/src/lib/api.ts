@@ -10,6 +10,9 @@ import type { TeamSeasonStat } from "../models/team-season-stat"
 
 import type { Match } from "../models/match"
 
+import type { TopPlayer } from "../models/top-stat"
+import type { TopTeam } from "../models/top-stat" 
+
 // ----------------------------
 // Player APIs
 // ----------------------------
@@ -38,6 +41,23 @@ export async function fetchPlayerSeasonStat(uniqueTournamentID: number, seasonID
   return await res.json()
 }
 
+export async function fetchTopPlayers(
+  statName: string,
+  uniqueTournamentID: number,
+  seasonID: number,
+  limit?: number,
+  position?: string
+): Promise<TopPlayer[]> {
+  let url = `${API_BASE_URL}/api/top-players?statName=${statName}&uniqueTournamentID=${uniqueTournamentID}&seasonID=${seasonID}`
+  if (limit) url += `&limit=${limit}`
+  if (position) url += `&position=${position}`
+
+  const res = await fetch(url)
+  if (!res.ok) throw new Error("Failed to fetch top players")
+  return await res.json()
+}
+
+
 // ----------------------------
 // Team APIs
 // ----------------------------
@@ -63,6 +83,20 @@ export async function fetchTeamMatchStat(matchId: number, teamId: number): Promi
 export async function fetchTeamSeasonStat(uniqueTournamentID: number, seasonID: number, teamID: number): Promise<TeamSeasonStat> {
   const res = await fetch(`${API_BASE_URL}/api/team-season-stat?uniqueTournamentID=${uniqueTournamentID}&seasonID=${seasonID}&teamID=${teamID}`)
   if (!res.ok) throw new Error("Failed to fetch team season stat")
+  return await res.json()
+}
+
+export async function fetchTopTeams(
+  statName: string,
+  uniqueTournamentID: number,
+  seasonID: number,
+  limit?: number
+): Promise<TopTeam[]> {
+  let url = `${API_BASE_URL}/api/top-teams?statName=${statName}&uniqueTournamentID=${uniqueTournamentID}&seasonID=${seasonID}`
+  if (limit) url += `&limit=${limit}`
+
+  const res = await fetch(url)
+  if (!res.ok) throw new Error("Failed to fetch top teams")
   return await res.json()
 }
 
