@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/plinphon/StatsBanger/backend/models"
-	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -94,59 +93,8 @@ func (r *PlayerSeasonStatRepository) GetByID(uniqueTournamentID int, seasonID in
 }
 
 func (r *PlayerSeasonStatRepository) GetTopPlayersByStat(statField string, uniqueTournamentID int, seasonID int, limit int, positionFilter string) ([]models.TopPlayerStatResult, error) {
-	var validStatFields = map[string]bool{
-		"accurate_long_balls":               true,
-		"accurate_long_balls_percentage":    true,
-		"accurate_passes":                   true,
-		"accurate_passes_percentage":        true,
-		"aerial_duels_won":                  true,
-		"assists":                           true,
-		"big_chances_created":               true,
-		"big_chances_missed":                true,
-		"clean_sheet":                       true,
-		"dribbled_past":                     true,
-		"error_lead_to_goal":                true,
-		"expected_assists":                  true,
-		"expected_goals":                    true,
-		"goals":                             true,
-		"goals_assists_sum":                 true,
-		"goals_conceded":                    true,
-		"goals_prevented":                   true,
-		"interceptions":                     true,
-		"key_passes":                        true,
-		"minutes_played":                    true,
-		"pass_to_assist":                    true,
-		"penalty_faced":                     true,
-		"penalty_save":                      true,
-		"rating":                            true,
-		"red_cards":                         true,
-		"saved_shots_from_inside_the_box":   true,
-		"saves":                             true,
-		"successful_dribbles":               true,
-		"tackles":                           true,
-		"yellow_cards":                      true,
-		"total_rating":                      true,
-		"count_rating":                      true,
-		"total_long_balls":                  true,
-		"total_passes":                      true,
-		"shots_from_inside_the_box":         true,
-		"appearances":                       true,
-		"accurate_crosses":                  true,
-		"accurate_crosses_percentage":       true,
-		"blocked_shots":                     true,
-		"shots_on_target":                   true,
-		"total_shots":                       true,
-		"total_cross":                       true,
-	}
-
-	var validPositions = map[string]bool{
-		"D": true,
-		"M": true,
-		"F": true,
-		"G": true,
-	}
 	
-	if !validStatFields[statField] {
+	if !models.ValidTopPlayerFields[statField] {
 		return nil, fmt.Errorf("invalid stat field: %s", statField)
 	}
 
@@ -159,7 +107,7 @@ func (r *PlayerSeasonStatRepository) GetTopPlayersByStat(statField string, uniqu
 	args := []interface{}{uniqueTournamentID, seasonID}
 
 	if positionFilter != "" {
-		if !validPositions[positionFilter] {
+		if !models.ValidPositions[positionFilter] {
 			return nil, fmt.Errorf("invalid position filter: %s", positionFilter)
 		}
 		query += " AND pi.position = ?"

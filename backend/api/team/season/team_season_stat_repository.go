@@ -3,7 +3,7 @@ package season
 import (
 	"database/sql"
 	"errors"
-
+	"fmt"
 	"github.com/plinphon/StatsBanger/backend/models"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -180,4 +180,51 @@ func (r *TeamSeasonStatRepository) GetByID(uniqueTournamentID int, seasonID int,
 		return nil, err
 	}
 	return &stat, nil
+}
+
+func (r *TeamSeasonStatRepository) GetTopTeamsByStat(statField string, uniqueTournamentID int, seasonID int, limit int) ([]models.TopTeamStatResult, error) {
+
+    if !models.ValidTopTeamFields[statField] {
+        return nil, fmt.Errorf("invalid stat field: %s", statField)
+    }
+
+    query := fmt.Sprintf(`
+        SELECT ts.team_id, ti.team_name, ts.%s
+        FROM team_stat ts
+        JOIN team_info ti ON ts.team_id = ti.team_id
+        WHERE ts.unique_tournament_id = ? AND ts.season_id = ?
+        ORDER BY ts.%s DESC
+    `, statField, statField)
+
+    args := []interface{}{uniqueTournamentID, seasonID}
+
+    if limit > 0 {
+        query += " LIMIT ?"
+        args = append(args, limit)
+    }
+
+    rows, err := r.db.Query(query, args...)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var results []models.TopTeamStatResult
+    for rows.Next() {
+        var teamID int
+        var teamName string
+        var value float64
+
+        if err := rows.Scan(&teamID, &teamName, &value); err != nil {
+            return nil, err
+        }
+
+        results = append(results, models.TopTeamStatResult{
+            TeamID:    teamID,
+            TeamName:  teamName,
+            StatValue: value,
+        })
+    }
+
+    return results, nil
 }

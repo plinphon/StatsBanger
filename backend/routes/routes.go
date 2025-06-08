@@ -70,6 +70,9 @@ func RegisterTeamSeasonStatRoutes(router fiber.Router) {
 
 	stat := router.Group("/team-season-stat")
 	stat.Get("/", controller.GetStatByID)
+
+	topTeamGroup := router.Group("/top-teams")
+	topTeamGroup.Get("/", controller.GetTopTeamsByStat)
 }
 
 func RegisterPlayerMatchStatRoutes(router fiber.Router) {

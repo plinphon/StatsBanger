@@ -14,3 +14,10 @@ type Player struct {
 	PreferredFoot string    `json:"preferredFoot"`
 	Nationality   string    `json:"nationality"`
 }
+
+var ValidPositions = map[string]bool{
+	"D": true,
+	"M": true,
+	"F": true,
+	"G": true,
+}

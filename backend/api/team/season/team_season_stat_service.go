@@ -28,3 +28,6 @@ func (s *TeamSeasonStatService) CreateStat(stat models.TeamSeasonStat) error {
 func (s *TeamSeasonStatService) GetStatByID(uniqueTournamentID int, seasonID int, teamID int) (*models.TeamSeasonStat, error) {
 	return s.repo.GetByID(uniqueTournamentID, seasonID, teamID)
 }
+func (s *TeamSeasonStatService) GetTopTeamsByStat(statField string, uniqueTournamentID int, seasonID int, limit int) ([]models.TopTeamStatResult, error) {
+	return s.repo.GetTopTeamsByStat(statField, uniqueTournamentID, seasonID, limit)
+}
