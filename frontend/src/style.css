@@ -101,3 +101,8 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #718096;
 }
+
+/* Force Recharts background to be transparent */
+.radar-chart-container .recharts-surface {
+  background: transparent !important;
+}

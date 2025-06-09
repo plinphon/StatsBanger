@@ -1,7 +1,11 @@
 package models
 
 type Team struct {
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
-	HomeStadium string `json:"homeStadium"`
+	TeamId      int    `json:"id" gorm:"primaryKey;column:team_id"`
+	TeamName    string `json:"name" gorm:"column:team_name"`
+	HomeStadium string `json:"homeStadium" gorm:"column:home_stadium"`
+}
+
+func (Team) TableName() string {
+    return "team_info"
 }

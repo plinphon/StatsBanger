@@ -15,22 +15,33 @@ type PlayerSeasonStatService struct {
 func NewPlayerSeasonStatService(repo *PlayerSeasonStatRepository) *PlayerSeasonStatService {
     return &PlayerSeasonStatService{repo: repo}
 }
-
+/*
 func (s *PlayerSeasonStatService) CreateStat(stat models.PlayerSeasonStat) error {
 
-	if existing, _ := s.repo.GetByID(stat.UniqueTournamentID, stat.SeasonID, stat.PlayerID); existing != nil {
+	if existing, _ := s.repo.GetByID(stat.UniqueTournamentId, stat.SeasonId, stat.PlayerId); existing != nil {
 		return ErrDuplicateSeasonStat
 	}
 
 	return s.repo.Create(stat)
+}*/
+
+
+func (s *PlayerSeasonStatService) GetTopPlayersByStat(statField string, uniqueTournamentId int, seasonId int, limit int, positionFilter string) ([]models.TopPlayerStatResult, error) {
+	return s.repo.GetTopPlayersByStat(statField, uniqueTournamentId, seasonId, limit, positionFilter)
 }
 
-func (s *PlayerSeasonStatService) GetStatByID(uniqueTournamentID int, seasonID int, playerID int) (*models.PlayerSeasonStat, error) {
-	return s.repo.GetByID(uniqueTournamentID, seasonID, playerID)
-}
+func (s *PlayerSeasonStatService) GetPlayerStatsWithMeta(
+	statFields []string,
+	tournamentId int,
+	seasonId int,
+	playerIds []int, 
+) ([]*models.PlayerSeasonStat, error) {
+	stats, err := s.repo.GetMultipleStatsByPlayerId(statFields, tournamentId, seasonId, playerIds)
+	if err != nil {
+		return nil, err
+	}
 
-func (s *PlayerSeasonStatService) GetTopPlayersByStat(statField string, uniqueTournamentID int, seasonID int, limit int, positionFilter string) ([]models.TopPlayerStatResult, error) {
-	return s.repo.GetTopPlayersByStat(statField, uniqueTournamentID, seasonID, limit, positionFilter)
+	return stats, nil
 }
 
 func (s *PlayerSeasonStatService) GetPlayerStatsWithMeta(

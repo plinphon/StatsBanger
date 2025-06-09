@@ -7,13 +7,10 @@ import HomePage from './pages/Index';
 import TeamScatter from './pages/TeamScatter';
 import PlayerScatter from './pages/PlayerScatter';
 
+
 function App() {
   return (
     <Router>
-      <nav>
-        <Link to="/">Home</Link> | <Link to="/player">Stats</Link> | <Link to="/match/:id">match</Link>
-      </nav>
-
       <Routes>
         <Route path="/player-scatter" element={<PlayerScatter />} />
         <Route path="/team-scatter" element={<TeamScatter />} />
@@ -21,7 +18,6 @@ function App() {
         <Route path="/player/:id" element={<PlayerChart />} />
         <Route path="/team/:id" element={<TeamRadar />} />
         <Route path="/" element={<HomePage />} />
-
       </Routes>
     </Router>
   );
