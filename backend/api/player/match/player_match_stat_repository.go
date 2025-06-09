@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
     "gorm.io/driver/sqlite"
 	"log"
-	
+
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -157,3 +157,21 @@ func (r *PlayerMatchStatRepository) GetByMatchId(matchId int, statFields []strin
 
 	return stats, nil
 }
+
+func (r *PlayerMatchStatRepository) GetByPlayerID(playerID int) ([]models.PlayerMatchStat, error) {
+	var stats []models.PlayerMatchStat
+
+	err := r.db.
+		Preload("Match").
+		Preload("Player").
+		Preload("Team").
+		Where("player_id = ?", playerID).
+		Find(&stats).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return stats, nil
+}
+

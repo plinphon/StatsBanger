@@ -3,7 +3,7 @@ package routes
 import (
 	"github.com/gofiber/fiber/v2"
 
-	//matches "github.com/plinphon/StatsBanger/backend/api/matches"
+	matches "github.com/plinphon/StatsBanger/backend/api/matches"
 
 	team "github.com/plinphon/StatsBanger/backend/api/team/info"
 	//teamMatchStat "github.com/plinphon/StatsBanger/backend/api/team/match"
@@ -17,7 +17,7 @@ import (
 func SetupRoutes(app fiber.Router) {
 	api := app.Group("/api")
 
-	//RegisterMatchRoutes(api)
+	RegisterMatchRoutes(api)
 
 	RegisterTeamRoutes(api)
 	//RegisterTeamMatchStatRoutes(api)
@@ -28,7 +28,7 @@ func SetupRoutes(app fiber.Router) {
 	RegisterPlayerSeasonStatRoutes(api)
 
 }
-/*
+
 func RegisterMatchRoutes(router fiber.Router) {
 
 	repo, err := matches.NewMatchRepository("laligaDB.db")
@@ -39,12 +39,12 @@ func RegisterMatchRoutes(router fiber.Router) {
 	service := matches.NewMatchService(repo)
 	controller := matches.NewMatchController(service)
 
-	match := router.Group("/matches")
+	match := router.Group("/match")
 
 	match.Get("/:matchID", controller.GetMatchByID)
 	match.Get("/", controller.GetMatchByTeamID)
 }
-
+/*
 func RegisterTeamMatchStatRoutes(router fiber.Router) {
 	repo, err := teamMatchStat.NewTeamMatchStatRepository("laligaDB.db")
 	if err != nil {
@@ -86,6 +86,7 @@ func RegisterPlayerMatchStatRoutes(router fiber.Router) {
 
 	stat := router.Group("/player-match-stat")
 	stat.Get("/", controller.GetStatsByMatchID)
+	stat.Get("/player/:playerID", controller.GetStatsByPlayerID)
 }
 
 func RegisterPlayerSeasonStatRoutes(router fiber.Router) {

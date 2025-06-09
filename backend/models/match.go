@@ -11,8 +11,8 @@ type Match struct {
 	HomeTeamId             int            `gorm:"column:home_team_id" json:"homeTeamId"`
 	AwayTeamId             int            `gorm:"column:away_team_id" json:"awayTeamId"`
 
-	HomeTeam           Team  `gorm:"foreignKey:HomeTeam;references:TeamId" json:"homeTeam"`
-	AwayTeam           Team  `gorm:"foreignKey:AwayTeam;references:TeamId" json:"awayTeam"`
+	HomeTeam   Team `gorm:"foreignKey:HomeTeamId;references:TeamId" json:"homeTeam"`
+	AwayTeam   Team `gorm:"foreignKey:AwayTeamId;references:TeamId" json:"awayTeam"`
 
 	HomeWin                *int           `gorm:"column:home_win" json:"homeWin,omitempty"`
 	HomeScore              *int           `gorm:"column:home_score" json:"homeScore,omitempty"`

@@ -3,12 +3,11 @@ package matches
 import (
 	"github.com/plinphon/StatsBanger/backend/models"
 	"errors"
-	"time"
 )
 
 var (
-	ErrDuplicateMatch     = errors.New("match ID already exists")
-	ErrInvalidTeamIDs     = errors.New("home and away teams cannot be the same")
+	ErrDuplicateMatch     = errors.New("match Id already exists")
+	ErrInvalidTeamIds     = errors.New("home and away teams cannot be the same")
 )
 
 type MatchService struct {
@@ -18,13 +17,13 @@ type MatchService struct {
 func NewMatchService(repo *MatchRepository) *MatchService {
     return &MatchService{repo: repo}
 }
-
+/*
 func (s *MatchService) CreateMatch(match models.Match) error {
-	if match.HomeTeamID == match.AwayTeamID {
-		return ErrInvalidTeamIDs
+	if match.HomeTeamId == match.AwayTeamId {
+		return ErrInvalidTeamIds
 	}
 
-	if existing, _ := s.repo.GetByID(match.ID); existing != nil {
+	if existing, _ := s.repo.GetById(match.Id); existing != nil {
 		return ErrDuplicateMatch
 	}
 
@@ -34,11 +33,11 @@ func (s *MatchService) CreateMatch(match models.Match) error {
 
 	return s.repo.Create(match)
 }
-
-func (s *MatchService) GetMatchesByID(matchID int) (*models.Match, error) {
-	return s.repo.GetByID(matchID)
+*/
+func (s *MatchService) GetMatchById(matchId int) (*models.Match, error) {
+	return s.repo.GetById(matchId)
 }
 
-func (s *MatchService) GetMatchesByTeamID(teamID int) ([]models.Match, error) {
-	return s.repo.GetByTeamID(teamID)
+func (s *MatchService) GetMatchesByTeamId(teamId int) ([]models.Match, error) {
+	return s.repo.GetByTeamId(teamId)
 }

@@ -19,12 +19,12 @@ func NewPlayerRepository(dbPath string) (*PlayerRepository, error) {
 	}
 	return &PlayerRepository{db: db}, nil
 }
-
+/*
 func (r *PlayerRepository) Create(player *models.Player) error {
 	// You can use Create directly; it will insert or update based on primary key
 	return r.db.Create(player).Error
 }
-
+*/
 func (r *PlayerRepository) GetByID(playerID int) (*models.Player, error) {
 	var player models.Player
 	err := r.db.First(&player, playerID).Error

@@ -15,7 +15,7 @@ type PlayerService struct {
 func NewPlayerService(repo *PlayerRepository) *PlayerService {
     return &PlayerService{repo: repo}
 }
-
+/*
 func (s *PlayerService) CreatePlayer(player models.Player) error {
 
 	if existing, _ := s.repo.GetByID(player.PlayerId); existing != nil {
@@ -23,7 +23,7 @@ func (s *PlayerService) CreatePlayer(player models.Player) error {
 	}
 
 	return s.repo.Create(&player)
-}
+}*/
 
 func (s *PlayerService) GetPlayerByID(playerID int) (*models.Player, error) {
     player, err := s.repo.GetByID(playerID)
