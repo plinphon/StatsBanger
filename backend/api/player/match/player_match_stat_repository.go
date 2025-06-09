@@ -8,7 +8,8 @@ import (
 	"strings"
 	"gorm.io/gorm"
     "gorm.io/driver/sqlite"
-
+	"log"
+	
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -42,7 +43,7 @@ func (r *PlayerMatchStatRepository) Create(stat models.PlayerMatchStat) error {
 	`
 
 	_, err := r.db.Exec(query,
-		stat.MatchID, stat.PlayerID, stat.TotalPass, stat.AccuratePass, stat.TotalLongBalls,
+		stat.MatchId, stat.PlayerId, stat.TotalPass, stat.AccuratePass, stat.TotalLongBalls,
 		stat.AccurateLongBalls, stat.GoalAssist, stat.SavedShotsFromInsideTheBox, stat.Saves,
 		stat.MinutesPlayed, stat.Touches, stat.Rating, stat.PossessionLostCtrl, stat.KeyPass,
 		stat.GoalsPrevented, stat.AerialWon, stat.DuelLost, stat.DuelWon, stat.OnTargetScoringAttempt,
@@ -60,7 +61,7 @@ func (r *PlayerMatchStatRepository) Create(stat models.PlayerMatchStat) error {
 	return err
 }
 */
-func (r *PlayerMatchStatRepository) GetByMatchID(matchID int, playerIdFields []int, statFields []string) ([]*models.PlayerMatchStat, error) {
+func (r *PlayerMatchStatRepository) GetByMatchId(matchId int, statFields []string) ([]*models.PlayerMatchStat, error) {
 	var stats []*models.PlayerMatchStat
 
 	// Validate or populate stat fields
@@ -70,6 +71,8 @@ func (r *PlayerMatchStatRepository) GetByMatchID(matchID int, playerIdFields []i
 			statFields = append(statFields, field)
 		}
 	} else {
+		// Remove empty fields and validate
+		validFields := make([]string, 0, len(statFields))
 		for _, field := range statFields {
 			if field == "" {
 				continue
@@ -77,63 +80,59 @@ func (r *PlayerMatchStatRepository) GetByMatchID(matchID int, playerIdFields []i
 			if !models.ValidPlayerMatchFields[field] {
 				return nil, fmt.Errorf("invalid stat field: %s", field)
 			}
+			validFields = append(validFields, field)
 		}
+		statFields = validFields
 	}
 
-	// Load player match stats with relations
+	// Load basic player match stat rows and relations
 	err := r.db.
-		Preload("Player").
-		Preload("Player.Team").
 		Preload("Match").
-		Where("match_id = ?", matchID).
+		Preload("Player").
+		Preload("Team").
+		Where("match_id = ?", matchId).
 		Find(&stats).Error
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load player match stats: %w", err)
 	}
 
-	// Set derived teams
-	for _, stat := range stats {
-		stat.Team = stat.Player.Team
+	if len(stats) == 0 {
+		return stats, nil
 	}
 
-	// ---- Fetch Raw PlayerStat Data ----
-	// Build player IDs from loaded stats (unless specific IDs provided)
-	var playerIDs []int
-	if len(playerIdFields) > 0 {
-		playerIDs = playerIdFields
-	} else {
-		playerIDs = make([]int, 0, len(stats))
-		for _, s := range stats {
-			playerIDs = append(playerIDs, s.PlayerID)
-		}
-	}
-
-	// Raw stat query
+	// Raw SQL to get only stat fields by match_id
 	columns := "player_id, " + strings.Join(statFields, ", ")
-	query := "SELECT " + columns + " FROM player_stat WHERE player_id IN ?"
-	rows, err := r.db.Raw(query, playerIDs).Rows()
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
+	query := "SELECT " + columns + " FROM player_match_stat WHERE match_id = ?"
 
-	// Map playerID -> field map
+	rows, err := r.db.Raw(query, matchId).Rows()
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute stats query: %w", err)
+	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			// Log the error if closing fails
+			log.Printf("failed to close rows: %v", err)
+		}
+	}()
+
+	// Build stat map: player_id → {field: value}
 	statMap := make(map[int]map[string]*float64)
 	for rows.Next() {
-		columns := make([]interface{}, len(statFields)+1)
+		// Prepare scan targets
 		var playerID int
-		columns[0] = &playerID
+		scanTargets := make([]interface{}, len(statFields)+1)
+		scanTargets[0] = &playerID
 
 		values := make([]sql.NullFloat64, len(statFields))
-		for i := range statFields {
-			columns[i+1] = &values[i]
+		for i := range values {
+			scanTargets[i+1] = &values[i]
 		}
 
-		if err := rows.Scan(columns...); err != nil {
-			return nil, err
+		if err := rows.Scan(scanTargets...); err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
 		}
 
-		fieldMap := make(map[string]*float64)
+		fieldMap := make(map[string]*float64, len(statFields))
 		for i, field := range statFields {
 			if values[i].Valid {
 				val := values[i].Float64
@@ -143,12 +142,16 @@ func (r *PlayerMatchStatRepository) GetByMatchID(matchID int, playerIdFields []i
 		statMap[playerID] = fieldMap
 	}
 
-	// Attach stat map to each player
-	for _, s := range stats {
-		if fieldMap, exists := statMap[s.PlayerID]; exists {
-			s.Stats = fieldMap
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %w", err)
+	}
+
+	// Attach stats to loaded models
+	for _, stat := range stats {
+		if fieldMap, exists := statMap[stat.PlayerId]; exists {
+			stat.Stats = fieldMap
 		} else {
-			s.Stats = map[string]*float64{} // Default empty if none found
+			stat.Stats = make(map[string]*float64)
 		}
 	}
 

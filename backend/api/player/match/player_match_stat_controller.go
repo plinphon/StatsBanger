@@ -23,18 +23,6 @@ func (mc *PlayerMatchStatController) GetStatsByMatchID(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid or missing matchID")
 	}
 
-	playerIDsStr := c.Query("playerID") //can none 
-	var playerIDs []int
-	if playerIDsStr != "" {
-		for _, idStr := range strings.Split(playerIDsStr, ",") {
-			id, err := strconv.Atoi(strings.TrimSpace(idStr))
-			if err != nil {
-				return fiber.NewError(fiber.StatusBadRequest, "Invalid playerIDs parameter")
-			}
-			playerIDs = append(playerIDs, id)
-		}
-	}
-
 	statFieldsStr := c.Query("statFields") //can none
 	var statFields []string
 	if statFieldsStr != "" {
@@ -46,7 +34,7 @@ func (mc *PlayerMatchStatController) GetStatsByMatchID(c *fiber.Ctx) error {
 		}
 	}
 
-	stats, err := mc.service.GetStatsByMatchID(matchID, playerIDs, statFields)
+	stats, err := mc.service.GetStatsByMatchID(matchID, statFields) 
 	if err != nil {
 		log.Printf("❌ Error getting player stats: %v", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get player stats")

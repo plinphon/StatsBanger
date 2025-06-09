@@ -24,7 +24,7 @@ func SetupRoutes(app fiber.Router) {
 	//RegisterTeamSeasonStatRoutes(api)
 
 	RegisterPlayerRoutes(api)
-	//RegisterPlayerMatchStatRoutes(api)
+	RegisterPlayerMatchStatRoutes(api)
 	RegisterPlayerSeasonStatRoutes(api)
 
 }

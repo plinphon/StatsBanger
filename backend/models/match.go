@@ -3,20 +3,25 @@ package models
 import "time"
 
 type Match struct {
-	ID                         int       `json:"id"`
-	UniqueTournamentID          int       `json:"uniqueTournamentId"`
-	SeasonID                   int       `json:"seasonId"`
-	Matchday                   int       `json:"matchday"`
-	HomeTeamStat 				TeamMatchStat `json:"homeTeamStat"`
-	AwayTeamStat 				TeamMatchStat `json:"awayTeamStat"`	
-	HomeWin                    *int      `json:"homeWin,omitempty"`    
-	HomeScore                  *int      `json:"homeScore,omitempty"`
-	AwayScore                  *int      `json:"awayScore,omitempty"`
-	InjuryTime1                *int      `json:"injuryTime1,omitempty"`
-	InjuryTime2                *int      `json:"injuryTime2,omitempty"`
-	CurrentPeriodStartTimestamp time.Time `json:"currentPeriodStartTimestamp"`
+	Id                     int            `gorm:"primaryKey;column:match_id" json:"id"`
+	UniqueTournamentId     int            `gorm:"column:unique_tournament_id" json:"uniqueTournamentId"`
+	SeasonId               int            `gorm:"column:season_id" json:"seasonId"`
+	Matchday               int            `gorm:"column:matchday" json:"matchday"`
+
+	HomeTeamId             int            `gorm:"column:home_team_id" json:"homeTeamId"`
+	AwayTeamId             int            `gorm:"column:away_team_id" json:"awayTeamId"`
+
+	HomeTeam           Team  `gorm:"foreignKey:HomeTeam;references:TeamId" json:"homeTeam"`
+	AwayTeam           Team  `gorm:"foreignKey:AwayTeam;references:TeamId" json:"awayTeam"`
+
+	HomeWin                *int           `gorm:"column:home_win" json:"homeWin,omitempty"`
+	HomeScore              *int           `gorm:"column:home_score" json:"homeScore,omitempty"`
+	AwayScore              *int           `gorm:"column:away_score" json:"awayScore,omitempty"`
+	InjuryTime1            *int           `gorm:"column:injury_time_1" json:"injuryTime1,omitempty"`
+	InjuryTime2            *int           `gorm:"column:injury_time_2" json:"injuryTime2,omitempty"`
+	CurrentPeriodStartTimestamp time.Time `gorm:"column:current_period_start_timestamp" json:"currentPeriodStartTimestamp"`
 }
 
 func (Match) TableName() string {
-    return "match_info"
+	return "match_info"
 }

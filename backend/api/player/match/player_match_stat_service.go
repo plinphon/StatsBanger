@@ -25,6 +25,6 @@ func (s *PlayerMatchStatService) CreateStat(stat models.PlayerMatchStat) error {
 	return s.repo.Create(stat)
 }
 */
-func (s *PlayerMatchStatService) GetStatsByMatchID(matchID int, playerIDs []int, statFields []string) ([]*models.PlayerMatchStat, error) {
-	return s.repo.GetByMatchID(matchID, playerIDs, statFields)
+func (s *PlayerMatchStatService) GetStatsByMatchID(matchID int, statFields []string) ([]*models.PlayerMatchStat, error) {
+	return s.repo.GetByMatchId(matchID, statFields)
 }
