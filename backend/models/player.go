@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+    "time"
+    "gorm.io/gorm"
+)
 
 type Player struct {
 	PlayerId      int       `json:"id" gorm:"primaryKey;column:player_id"`
@@ -16,6 +19,21 @@ type Player struct {
 
 func (Player) TableName() string {
     return "player_info"
+}
+// CalculateAge calculates age from birthday and current date
+func CalculateAge(birthday time.Time) int {
+	now := time.Now()
+	age := now.Year() - birthday.Year()
+	if now.YearDay() < birthday.YearDay() {
+		age--
+	}
+	return age
+}
+
+// AfterFind is a GORM hook that runs after querying a Player
+func (p *Player) AfterFind(tx *gorm.DB) (err error) {
+	p.Age = CalculateAge(p.Birthday)
+	return nil
 }
 
 var ValidPositions = map[string]bool{

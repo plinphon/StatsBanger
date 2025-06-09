@@ -3,7 +3,6 @@ package info
 import (
 	"github.com/plinphon/StatsBanger/backend/models"
 	"errors"
-	"time"
 )
 
 var ErrDuplicateMatch = errors.New("duplicate player")
@@ -31,9 +30,6 @@ func (s *PlayerService) GetPlayerByID(playerID int) (*models.Player, error) {
         return nil, err
     }
 
-    birthday := player.Birthday
-    player.Age = CalculateAge(birthday)
-
     return player, nil
 }
 
@@ -43,23 +39,5 @@ func (s *PlayerService) SearchPlayersByName(name string) ([]*models.Player, erro
         return nil, err
     }
 
-    for _, player := range players {
-        birthday := player.Birthday
-        player.Age = CalculateAge(birthday)
-    }
-
     return players, nil
 }
-
-
-func CalculateAge(birthday time.Time) int {
-	now := time.Now()
-	age := now.Year() - birthday.Year()
-
-	// Check if birthday hasn't occurred yet this year
-	if now.YearDay() < birthday.YearDay() {
-		age--
-	}
-	return age
-}
-
