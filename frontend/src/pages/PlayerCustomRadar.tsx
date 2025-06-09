@@ -45,6 +45,24 @@ export default function PlayerCustomRadar() {
     .map(([k]) => k);
 
   return (
+    <>
+    <button
+  className="fixed top-4 left-4 p-4 rounded-full bg-white text-black hover:bg-gray-200 transition z-50 shadow"
+  onClick={() => navigate(-1)}
+  aria-label="Go Back"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-8 h-8"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={3}
+  >
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+  </svg>
+</button>
+
     <div className="relative min-h-screen bg-gray-100">
       {/* Overlay for stat selection */}
       {showOverlay && (
@@ -131,5 +149,6 @@ export default function PlayerCustomRadar() {
         )}
       </div>
     </div>
+    </>
   );
 }
