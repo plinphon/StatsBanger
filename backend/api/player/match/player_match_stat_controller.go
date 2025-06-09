@@ -43,7 +43,7 @@ func (mc *PlayerMatchStatController) GetStatsByMatchID(c *fiber.Ctx) error {
 	return c.JSON(stats)
 }
 
-func (mc *PlayerMatchStatController) GetStatsByPlayerID(c *fiber.Ctx) error {
+func (mc *PlayerMatchStatController) GetAllMatchesStatsByPlayerID(c *fiber.Ctx) error {
 	playerIDStr := c.Params("playerID")
 	playerID, err := strconv.Atoi(playerIDStr)
 	if err != nil || playerID <= 0 {
@@ -57,4 +57,26 @@ func (mc *PlayerMatchStatController) GetStatsByPlayerID(c *fiber.Ctx) error {
 	}
 
 	return c.JSON(stats)
+}
+
+func (mc *PlayerMatchStatController) GetStatByPlayerAndMatchID(c *fiber.Ctx) error {
+    playerIDStr := c.Params("playerID")
+    playerID, err := strconv.Atoi(playerIDStr)
+    if err != nil || playerID <= 0 {
+        return fiber.NewError(fiber.StatusBadRequest, "Invalid or missing playerID")
+    }
+
+    matchIDStr := c.Params("matchID")
+    matchID, err := strconv.Atoi(matchIDStr)
+    if err != nil || matchID <= 0 {
+        return fiber.NewError(fiber.StatusBadRequest, "Invalid or missing matchID")
+    }
+
+    stat, err := mc.service.GetByPlayerAndMatchID(playerID, matchID)
+    if err != nil {
+        log.Printf("❌ Error getting player match stat: %v", err)
+        return fiber.NewError(fiber.StatusInternalServerError, "Failed to get player match stat")
+    }
+
+    return c.JSON(stat)
 }

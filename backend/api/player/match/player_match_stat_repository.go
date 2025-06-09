@@ -9,6 +9,7 @@ import (
 	"gorm.io/gorm"
     "gorm.io/driver/sqlite"
 	"log"
+	"errors"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -87,7 +88,8 @@ func (r *PlayerMatchStatRepository) GetByMatchId(matchId int, statFields []strin
 
 	// Load basic player match stat rows and relations
 	err := r.db.
-		Preload("Match").
+		Preload("Match.HomeTeam").
+		Preload("Match.AwayTeam").
 		Preload("Player").
 		Preload("Team").
 		Where("match_id = ?", matchId).
@@ -119,9 +121,9 @@ func (r *PlayerMatchStatRepository) GetByMatchId(matchId int, statFields []strin
 	statMap := make(map[int]map[string]*float64)
 	for rows.Next() {
 		// Prepare scan targets
-		var playerID int
+		var playerId int
 		scanTargets := make([]interface{}, len(statFields)+1)
-		scanTargets[0] = &playerID
+		scanTargets[0] = &playerId
 
 		values := make([]sql.NullFloat64, len(statFields))
 		for i := range values {
@@ -139,7 +141,7 @@ func (r *PlayerMatchStatRepository) GetByMatchId(matchId int, statFields []strin
 				fieldMap[field] = &val
 			}
 		}
-		statMap[playerID] = fieldMap
+		statMap[playerId] = fieldMap
 	}
 
 	if err := rows.Err(); err != nil {
@@ -158,14 +160,14 @@ func (r *PlayerMatchStatRepository) GetByMatchId(matchId int, statFields []strin
 	return stats, nil
 }
 
-func (r *PlayerMatchStatRepository) GetByPlayerID(playerID int) ([]models.PlayerMatchStat, error) {
+func (r *PlayerMatchStatRepository) GetAllMatchesByPlayerId(playerId int) ([]models.PlayerMatchStat, error) {
 	var stats []models.PlayerMatchStat
 
 	err := r.db.
-		Preload("Match").
-		Preload("Player").
+		Preload("Match.HomeTeam").
+		Preload("Match.AwayTeam").
 		Preload("Team").
-		Where("player_id = ?", playerID).
+		Where("player_id = ?", playerId).
 		Find(&stats).Error
 
 	if err != nil {
@@ -174,4 +176,26 @@ func (r *PlayerMatchStatRepository) GetByPlayerID(playerID int) ([]models.Player
 
 	return stats, nil
 }
+
+func (r *PlayerMatchStatRepository) GetByPlayerAndMatchId(playerId int, matchId int) (*models.PlayerMatchStat, error) {
+	var stat models.PlayerMatchStat
+
+	err := r.db.
+		Preload("Match.HomeTeam").
+		Preload("Match.AwayTeam").
+		Preload("Player").
+		Preload("Team").
+		Where("player_id = ? AND match_id = ?", playerId, matchId).
+		First(&stat).Error
+
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil 
+		}
+		return nil, err
+	}
+
+	return &stat, nil
+}
+
 

@@ -6,8 +6,8 @@ import (
 	matches "github.com/plinphon/StatsBanger/backend/api/matches"
 
 	team "github.com/plinphon/StatsBanger/backend/api/team/info"
-	//teamMatchStat "github.com/plinphon/StatsBanger/backend/api/team/match"
-	//teamSeasonStat "github.com/plinphon/StatsBanger/backend/api/team/season"
+	teamMatchStat "github.com/plinphon/StatsBanger/backend/api/team/match"
+	teamSeasonStat "github.com/plinphon/StatsBanger/backend/api/team/season"
 
 	player "github.com/plinphon/StatsBanger/backend/api/player/info"
 	playerMatchStat "github.com/plinphon/StatsBanger/backend/api/player/match"
@@ -20,8 +20,8 @@ func SetupRoutes(app fiber.Router) {
 	RegisterMatchRoutes(api)
 
 	RegisterTeamRoutes(api)
-	//RegisterTeamMatchStatRoutes(api)
-	//RegisterTeamSeasonStatRoutes(api)
+	RegisterTeamMatchStatRoutes(api)
+	RegisterTeamSeasonStatRoutes(api)
 
 	RegisterPlayerRoutes(api)
 	RegisterPlayerMatchStatRoutes(api)
@@ -44,7 +44,7 @@ func RegisterMatchRoutes(router fiber.Router) {
 	match.Get("/:matchID", controller.GetMatchByID)
 	match.Get("/", controller.GetMatchByTeamID)
 }
-/*
+
 func RegisterTeamMatchStatRoutes(router fiber.Router) {
 	repo, err := teamMatchStat.NewTeamMatchStatRepository("laligaDB.db")
 	if err != nil {
@@ -55,8 +55,10 @@ func RegisterTeamMatchStatRoutes(router fiber.Router) {
 	controller := teamMatchStat.NewTeamMatchStatController(service)
 
 	stat := router.Group("/team-match-stat")
-	stat.Get("/", controller.GetStatByID)
+	stat.Get("/", controller.GetStatByTeamAndMatchID)
+	stat.Get("/team/:teamID", controller.GetAllMatchesByTeamID)
 }
+
 
 func RegisterTeamSeasonStatRoutes(router fiber.Router) {
 	repo, err := teamSeasonStat.NewTeamSeasonStatRepository("laligaDB.db")
@@ -68,13 +70,10 @@ func RegisterTeamSeasonStatRoutes(router fiber.Router) {
 	controller := teamSeasonStat.NewTeamSeasonStatController(service)
 
 	stat := router.Group("/team-season-stat")
-	stat.Get("/", controller.GetStatByID)
-	stat.Get("/meta", controller.GetTeamStatsWithMeta)
-
-	topTeamGroup := router.Group("/top-teams")
-	topTeamGroup.Get("/", controller.GetTopTeamsByStat)
+	stat.Get("/", controller.GetTeamStatsWithMeta)
 }
-*/
+
+
 func RegisterPlayerMatchStatRoutes(router fiber.Router) {
 	repo, err := playerMatchStat.NewPlayerMatchStatRepository("laligaDB.db")
 	if err != nil {
@@ -86,7 +85,8 @@ func RegisterPlayerMatchStatRoutes(router fiber.Router) {
 
 	stat := router.Group("/player-match-stat")
 	stat.Get("/", controller.GetStatsByMatchID)
-	stat.Get("/player/:playerID", controller.GetStatsByPlayerID)
+	stat.Get("/player/:playerID", controller.GetAllMatchesStatsByPlayerID)
+	stat.Get("/player/:playerID/match/:matchID", controller.GetStatByPlayerAndMatchID)
 }
 
 func RegisterPlayerSeasonStatRoutes(router fiber.Router) {
