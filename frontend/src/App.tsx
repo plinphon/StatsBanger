@@ -9,10 +9,6 @@ import PlayerMatchHistory from './pages/PlayerMatchHistory';
 function App() {
   return (
     <Router>
-      <nav>
-        <Link to="/">Home</Link> | <Link to="/player">Stats</Link> | <Link to="/match/:id">match</Link>
-      </nav>
-
       <Routes>
         <Route path="/match/:id" element={<MatchDetail />} />
         <Route path="/player/:id" element={<PlayerChart />} />
