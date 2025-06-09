@@ -25,11 +25,11 @@ func (s *PlayerSeasonStatService) CreateStat(stat models.PlayerSeasonStat) error
 	return s.repo.Create(stat)
 }*/
 
-/*
+
 func (s *PlayerSeasonStatService) GetTopPlayersByStat(statField string, uniqueTournamentId int, seasonId int, limit int, positionFilter string) ([]models.TopPlayerStatResult, error) {
 	return s.repo.GetTopPlayersByStat(statField, uniqueTournamentId, seasonId, limit, positionFilter)
 }
-*/
+
 func (s *PlayerSeasonStatService) GetPlayerStatsWithMeta(
 	statFields []string,
 	tournamentId int,
@@ -43,16 +43,3 @@ func (s *PlayerSeasonStatService) GetPlayerStatsWithMeta(
 
 	return stats, nil
 }
-
-
-/*
-func (s *PlayerSeasonStatService) GetPlayerStatWithPercentile(
-	statField []string,
-	tournamentId int,
-	seasonId int,
-	playerId int,
-	positionFilter *string,
-) (*models.PlayerSeasonStat, error) {
-	return s.repo.GetPlayerStatsPercentile(statField, tournamentId, seasonId, playerId, positionFilter)
-}
-*/

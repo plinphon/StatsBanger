@@ -10,7 +10,7 @@ import (
 	//teamSeasonStat "github.com/plinphon/StatsBanger/backend/api/team/season"
 
 	player "github.com/plinphon/StatsBanger/backend/api/player/info"
-	//playerMatchStat "github.com/plinphon/StatsBanger/backend/api/player/match"
+	playerMatchStat "github.com/plinphon/StatsBanger/backend/api/player/match"
 	playerSeasonStat "github.com/plinphon/StatsBanger/backend/api/player/season"
 )
 
@@ -74,7 +74,7 @@ func RegisterTeamSeasonStatRoutes(router fiber.Router) {
 	topTeamGroup := router.Group("/top-teams")
 	topTeamGroup.Get("/", controller.GetTopTeamsByStat)
 }
-
+*/
 func RegisterPlayerMatchStatRoutes(router fiber.Router) {
 	repo, err := playerMatchStat.NewPlayerMatchStatRepository("laligaDB.db")
 	if err != nil {
@@ -85,9 +85,9 @@ func RegisterPlayerMatchStatRoutes(router fiber.Router) {
 	controller := playerMatchStat.NewPlayerMatchStatController(service)
 
 	stat := router.Group("/player-match-stat")
-	stat.Get("/", controller.GetStatByID)
+	stat.Get("/", controller.GetStatsByMatchID)
 }
-*/
+
 func RegisterPlayerSeasonStatRoutes(router fiber.Router) {
 	repo, err := playerSeasonStat.NewPlayerSeasonStatRepository("laligaDB.db")
 	if err != nil {
@@ -99,10 +99,7 @@ func RegisterPlayerSeasonStatRoutes(router fiber.Router) {
 
 	stat := router.Group("/player-season-stat")
 	stat.Get("/", controller.GetPlayerStatsWithMeta)
-
-
-	//topPlayerGroup := router.Group("/top-players")
-	//topPlayerGroup.Get("/", controller.GetTopPlayersByStat)
+	stat.Get("/top-players", controller.GetTopPlayersByStat)
 	
 }
 

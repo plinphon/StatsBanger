@@ -28,9 +28,11 @@ func (r *PlayerRepository) Create(player *models.Player) error {
 func (r *PlayerRepository) GetByID(playerID int) (*models.Player, error) {
 	var player models.Player
 	err := r.db.First(&player, playerID).Error
+	Preload("Player.PlayerSeasonStat.Team").
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, errors.New("player not found")
 	}
+	player.Team = PLayer.PlayerSeasonStat.Team
 	return &player, err
 }
 

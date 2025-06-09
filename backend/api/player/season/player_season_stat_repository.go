@@ -164,187 +164,46 @@ func (r *PlayerSeasonStatRepository) GetMultipleStatsByPlayerId(
 	return stats, nil
 }
 
+func (r *PlayerSeasonStatRepository) GetTopPlayersByStat(
+	statField string,
+	uniqueTournamentId int,
+	seasonId int,
+	limit int,
+	positionFilter string,
+) ([]models.TopPlayerStatResult, error) {
 
-
-/*
-func (r *PlayerSeasonStatRepository) GetTopPlayersByStat(statField string, uniqueTournamentId int, seasonId int, limit int, positionFilter string) ([]models.TopPlayerStatResult, error) {
-	
 	if !models.ValidPlayerSeasonFields[statField] {
 		return nil, fmt.Errorf("invalid stat field: %s", statField)
 	}
 
-	query := fmt.Sprintf(`
-		SELECT ps.player_id, pi.player_name AS player_name, pi.position, ps.%s 
-		FROM player_stat ps
-		JOIN player_info pi ON ps.player_id = pi.player_id
-		WHERE ps.unique_tournament_id = ? AND ps.season_id = ?`, statField)
+	if positionFilter != "" && !models.ValidPositions[positionFilter] {
+		return nil, fmt.Errorf("invalid position filter: %s", positionFilter)
+	}
 
-	args := []interface{}{uniqueTournamentId, seasonId}
+	var results []models.TopPlayerStatResult
 
+	// Base query
+	query := r.db.Table("player_stat AS ps").
+		Select("ps.player_id, pi.player_name, pi.position, ps."+statField+" AS stat_value").
+		Joins("JOIN player_info pi ON ps.player_id = pi.player_id").
+		Where("ps.unique_tournament_id = ? AND ps.season_id = ?", uniqueTournamentId, seasonId)
+
+	// Optional position filter
 	if positionFilter != "" {
-		if !models.ValidPositions[positionFilter] {
-			return nil, fmt.Errorf("invalid position filter: %s", positionFilter)
-		}
-		query += " AND pi.position = ?"
-		args = append(args, positionFilter)
+		query = query.Where("pi.position = ?", positionFilter)
 	}
-	
-	// Add order by statField descending
-	query += fmt.Sprintf(" ORDER BY ps.%s DESC", statField)
 
-	// Add limit if > 0 (no limit if limit <= 0)
+	// Add ordering and limit
+	query = query.Order("ps." + statField + " DESC")
 	if limit > 0 {
-		query += " LIMIT ?"
-		args = append(args, limit)
+		query = query.Limit(limit)
 	}
 
-	log.Printf("Executing SQL:\n%s", query)
-	log.Printf("Parameters: %v", args)
-
-	rows, err := r.db.Query(query, args...)
+	// Execute
+	err := query.Scan(&results).Error
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
 
-	var results []models.TopPlayerStatResult 
-	for rows.Next() {
-		var playerId int
-		var playerName, position string
-		var value float64
-	
-		if err := rows.Scan(&playerId, &playerName, &position, &value); err != nil {
-			return nil, err
-		}
-	
-		results = append(results, models.TopPlayerStatResult{
-			PlayerId:   playerId,
-			PlayerName: playerName,
-			Position:   position,
-			StatValue:  value,
-		})
-	}
-	
 	return results, nil
-} 
-
-func (r *PlayerSeasonStatRepository) GetPlayerStatsPercentile(
-	statFields []string,
-	tournamentId int,
-	seasonId int,
-	playerId int,
-	positionFilter *string,
-) (*models.PlayerStatWithMeta, error) {
-	if len(statFields) == 0 {
-		return nil, fmt.Errorf("no stat fields provided")
-	}
-
-	// Validate stat fields
-	for _, statField := range statFields {
-		if statField == "" {
-			continue
-		}
-		if !models.ValidPlayerSeasonFields[statField] {
-			return nil, fmt.Errorf("invalid stat field: %s", statField)
-		}
-	}
-	if positionFilter != nil && !models.ValidPositions[*positionFilter] {
-		return nil, fmt.Errorf("invalid position filter: %s", *positionFilter)
-	}
-
-	// Build SELECT fields
-	selectFields := ""
-	if len(statFields) > 0 {
-		selectFields = ", ps." + strings.Join(statFields, ", ps.")
-	}
-
-	query := fmt.Sprintf(`
-		SELECT ps.player_id, pi.player_name, ps.team_id, ti.team_name %s
-		FROM player_stat ps
-		JOIN player_info pi ON ps.player_id = pi.player_id
-		JOIN team_info ti ON ps.team_id = ti.team_id
-		WHERE ps.unique_tournament_id = ? AND ps.season_id = ? AND ps.player_id = ?`, selectFields)
-
-	args := []interface{}{tournamentId, seasonId, playerId}
-	row := r.db.QueryRow(query, args...)
-
-	// Prepare destinations
-	var (
-		playerIdOut int
-		playerName  string
-		teamId      int
-		teamName    string
-	)
-	nullableValues := make([]sql.NullFloat64, len(statFields))
-	dest := []interface{}{&playerIdOut, &playerName, &teamId, &teamName}
-	for i := range nullableValues {
-		dest = append(dest, &nullableValues[i])
-	}
-
-	// Scan once
-	if err := row.Scan(dest...); err != nil {
-		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("player %d stats not found", playerId)
-		}
-		return nil, err
-	}
-
-	// Calculate percentiles
-	statsMap := make(map[string]*float64)
-	for i, statField := range statFields {
-		if !nullableValues[i].Valid {
-			statsMap[statField] = nil
-			continue
-		}
-		playerValue := nullableValues[i].Float64
-
-		// Count below
-		queryBelow := fmt.Sprintf(`
-			SELECT COUNT(*)
-			FROM player_stat ps
-			JOIN player_info pi ON ps.player_id = pi.player_id
-			WHERE ps.unique_tournament_id = ? AND ps.season_id = ? AND ps.%s IS NOT NULL AND ps.%s < ?`, statField, statField)
-
-		argsBelow := []interface{}{tournamentId, seasonId, playerValue}
-		if positionFilter != nil {
-			queryBelow += " AND pi.position = ?"
-			argsBelow = append(argsBelow, *positionFilter)
-		}
-		var numBelow int
-		if err := r.db.QueryRow(queryBelow, argsBelow...).Scan(&numBelow); err != nil {
-			return nil, fmt.Errorf("failed to count players below for %s: %w", statField, err)
-		}
-
-		// Count total
-		queryTotal := fmt.Sprintf(`
-			SELECT COUNT(*)
-			FROM player_stat ps
-			JOIN player_info pi ON ps.player_id = pi.player_id
-			WHERE ps.unique_tournament_id = ? AND ps.season_id = ? AND ps.%s IS NOT NULL`, statField)
-
-		argsTotal := []interface{}{tournamentId, seasonId}
-		if positionFilter != nil {
-			queryTotal += " AND pi.position = ?"
-			argsTotal = append(argsTotal, *positionFilter)
-		}
-		var total int
-		if err := r.db.QueryRow(queryTotal, argsTotal...).Scan(&total); err != nil {
-			return nil, fmt.Errorf("failed to count total players for %s: %w", statField, err)
-		}
-		if total == 0 {
-			statsMap[statField] = nil
-			continue
-		}
-		p := float64(numBelow) / float64(total)
-		statsMap[statField] = &p
-	}
-
-	return &models.PlayerStatWithMeta{
-		PlayerId:   playerIdOut,
-		PlayerName: playerName,
-		TeamId:     teamId,
-		TeamName:   teamName,
-		Stats:      statsMap,
-	}, nil
 }
-*/
