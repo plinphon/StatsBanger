@@ -37,3 +37,12 @@ func (s *TeamSeasonStatService) GetTeamStatsWithMeta(
 
 	return stats, nil
 }
+
+func (s *TeamSeasonStatService) GetTopTeamsByStat(
+    statField string,
+    uniqueTournamentId int,
+    seasonId int,
+    limit int,
+) ([]models.TopTeamStatResult, error) {
+    return s.repo.GetTopTeamsByStat(statField, uniqueTournamentId, seasonId, limit)
+}

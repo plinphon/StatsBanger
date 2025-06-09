@@ -215,3 +215,37 @@ func (r *TeamSeasonStatRepository) GetMultipleStatsByTeamId(
 
     return stats, nil
 }
+
+func (r *TeamSeasonStatRepository) GetTopTeamsByStat(
+    statField string,
+    uniqueTournamentId int,
+    seasonId int,
+    limit int,
+) ([]models.TopTeamStatResult, error) {
+
+    // Validate statField is allowed for teams
+    if !models.ValidTeamSeasonFields[statField] {
+        return nil, fmt.Errorf("invalid stat field: %s", statField)
+    }
+
+    var results []models.TopTeamStatResult
+
+    // Build the query
+    query := r.db.Table("team_stat AS ts").
+        Select("ts.team_id, ti.team_name, ts."+statField+" AS stat_value").
+        Joins("JOIN team_info ti ON ts.team_id = ti.team_id").
+        Where("ts.unique_tournament_id = ? AND ts.season_id = ?", uniqueTournamentId, seasonId).
+        Order("ts." + statField + " DESC")
+
+    if limit > 0 {
+        query = query.Limit(limit)
+    }
+
+    // Run the query
+    err := query.Scan(&results).Error
+    if err != nil {
+        return nil, err
+    }
+
+    return results, nil
+}

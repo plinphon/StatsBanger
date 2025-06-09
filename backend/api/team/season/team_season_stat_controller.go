@@ -67,3 +67,41 @@ func (tc *TeamSeasonStatController) GetTeamStatsWithMeta(c *fiber.Ctx) error {
 
 	return c.JSON(teamStats)
 }
+
+func (mc *TeamSeasonStatController) GetTopTeamsByStat(c *fiber.Ctx) error {
+	statName := c.Query("statFields")
+	if statName == "" {
+		return fiber.NewError(fiber.StatusBadRequest, "Missing statFields")
+	}
+
+	uniqueTournamentIDStr := c.Query("uniqueTournamentID")
+	uniqueTournamentID, err := strconv.Atoi(uniqueTournamentIDStr)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid uniqueTournamentID")
+	}
+
+	seasonIDStr := c.Query("seasonID")
+	seasonID, err := strconv.Atoi(seasonIDStr)
+	if err != nil {
+		return fiber.NewError(fiber.StatusBadRequest, "Invalid seasonID")
+	}
+
+	limitStr := c.Query("limit", "")
+	var limit int
+	if limitStr == "" {
+		limit = 0 // no limit
+	} else {
+		limit, err = strconv.Atoi(limitStr)
+		if err != nil || limit < 0 {
+			return fiber.NewError(fiber.StatusBadRequest, "Invalid limit")
+		}
+	}
+
+	topTeams, err := mc.service.GetTopTeamsByStat(statName, uniqueTournamentID, seasonID, limit)
+	if err != nil {
+		log.Printf("❌ Error getting top teams by stat: %v", err)
+		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get top teams by stat")
+	}
+
+	return c.JSON(topTeams)
+}

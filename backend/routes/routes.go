@@ -42,7 +42,6 @@ func RegisterMatchRoutes(router fiber.Router) {
 	match := router.Group("/match")
 
 	match.Get("/:matchID", controller.GetMatchByID)
-	match.Get("/", controller.GetMatchByTeamID)
 }
 
 func RegisterTeamMatchStatRoutes(router fiber.Router) {
@@ -71,6 +70,7 @@ func RegisterTeamSeasonStatRoutes(router fiber.Router) {
 
 	stat := router.Group("/team-season-stat")
 	stat.Get("/", controller.GetTeamStatsWithMeta)
+	stat.Get("/top-teams", controller.GetTopTeamsByStat)
 }
 
 
