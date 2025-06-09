@@ -1,97 +1,106 @@
 package models
 
 type PlayerSeasonStat struct {
-	PlayerID                    int      `json:"playerId"`
-	UniqueTournamentID          int      `json:"uniqueTournamentId"`
-	SeasonID                    int      `json:"seasonId"`
-	TeamID                      int      `json:"teamId"`
-	AccurateLongBalls           *float64 `json:"accurateLongBalls"`
-	AccurateLongBallsPercentage *float64 `json:"accurateLongBallsPercentage"`
-	AccuratePasses              *float64 `json:"accuratePasses"`
-	AccuratePassesPercentage    *float64 `json:"accuratePassesPercentage"`
-	AerialDuelsWon              *float64 `json:"aerialDuelsWon"`
-	Assists                     *float64 `json:"assists"`
-	BigChancesCreated           *float64 `json:"bigChancesCreated"`
-	BigChancesMissed            *float64 `json:"bigChancesMissed"`
-	CleanSheet                  *float64 `json:"cleanSheet"`
-	DribbledPast                *float64 `json:"dribbledPast"`
-	ErrorLeadToGoal             *float64 `json:"errorLeadToGoal"`
-	ExpectedAssists             *float64 `json:"expectedAssists"`
-	ExpectedGoals               *float64 `json:"expectedGoals"`
-	Goals                       *float64 `json:"goals"`
-	GoalsAssistsSum             *float64 `json:"goalsAssistsSum"`
-	GoalsConceded               *float64 `json:"goalsConceded"`
-	GoalsPrevented              *float64 `json:"goalsPrevented"`
-	Interceptions               *float64 `json:"interceptions"`
-	KeyPasses                   *float64 `json:"keyPasses"`
-	MinutesPlayed               *float64 `json:"minutesPlayed"`
-	PassToAssist                *float64 `json:"passToAssist"`
-	PenaltyFaced                *float64 `json:"penaltyFaced"`
-	PenaltySave                 *float64 `json:"penaltySave"`
-	Rating                      *float64 `json:"rating"`
-	RedCards                    *float64 `json:"redCards"`
-	SavedShotsFromInsideTheBox  *float64 `json:"savedShotsFromInsideTheBox"`
-	Saves                       *float64 `json:"saves"`
-	SuccessfulDribbles          *float64 `json:"successfulDribbles"`
-	Tackles                     *float64 `json:"tackles"`
-	YellowCards                 *float64 `json:"yellowCards"`
-	TotalRating                 *float64 `json:"totalRating"`
-	CountRating                 *float64 `json:"countRating"`
-	TotalLongBalls              *float64 `json:"totalLongBalls"`
-	TotalPasses                 *float64 `json:"totalPasses"`
-	ShotsFromInsideTheBox       *float64 `json:"shotsFromInsideTheBox"`
-	Appearances                 *float64 `json:"appearances"`
-	Type                        string   `json:"type"`
-	ID                          *float64 `json:"id"`
-	AccurateCrosses             *float64 `json:"accurateCrosses"`
-	AccurateCrossesPercentage   *float64 `json:"accurateCrossesPercentage"`
-	BlockedShots                *float64 `json:"blockedShots"`
-	ShotsOnTarget               *float64 `json:"shotsOnTarget"`
-	TotalShots                  *float64 `json:"totalShots"`
-	TotalCross                  *float64 `json:"totalCross"`
+    PlayerId           int    `json:"playerId" gorm:"column:player_id"`
+    Player             Player `json:"player" gorm:"foreignKey:PlayerId;references:PlayerId"`
+    TeamId             int    `json:"teamId" gorm:"column:team_id"`
+    Team               Team   `json:"team" gorm:"foreignKey:TeamId;references:TeamId"`
+    UniqueTournamentId int    `json:"uniqueTournamentId" gorm:"column:unique_tournament_id"`
+    SeasonId           int    `json:"seasonId" gorm:"column:season_id"`
+    Stats              map[string]*float64 `json:"stats,omitempty" gorm:"-"`
 }
 
-var ValidTopPlayerFields = map[string]bool{
-	"accurate_long_balls":               true,
-	"accurate_long_balls_percentage":    true,
-	"accurate_passes":                   true,
-	"accurate_passes_percentage":        true,
-	"aerial_duels_won":                  true,
-	"assists":                           true,
-	"big_chances_created":               true,
-	"big_chances_missed":                true,
-	"clean_sheet":                       true,
-	"dribbled_past":                     true,
-	"error_lead_to_goal":                true,
-	"expected_assists":                  true,
-	"expected_goals":                    true,
-	"goals":                             true,
-	"goals_assists_sum":                 true,
-	"goals_conceded":                    true,
-	"goals_prevented":                   true,
-	"interceptions":                     true,
-	"key_passes":                        true,
-	"minutes_played":                    true,
-	"pass_to_assist":                    true,
-	"penalty_faced":                     true,
-	"penalty_save":                      true,
-	"rating":                            true,
-	"red_cards":                         true,
-	"saved_shots_from_inside_the_box":   true,
-	"saves":                             true,
-	"successful_dribbles":               true,
-	"tackles":                           true,
-	"yellow_cards":                      true,
-	"total_rating":                      true,
-	"count_rating":                      true,
-	"total_long_balls":                  true,
-	"total_passes":                      true,
-	"shots_from_inside_the_box":         true,
-	"appearances":                       true,
-	"accurate_crosses":                  true,
-	"accurate_crosses_percentage":       true,
-	"blocked_shots":                     true,
-	"shots_on_target":                   true,
-	"total_shots":                       true,
-	"total_cross":                       true,
+func (PlayerSeasonStat) TableName() string {
+    return "player_stat"
+}
+
+var ValidPlayerSeasonFields = map[string]bool{
+	"player_id":                         true,
+	"unique_tournament_id":              true,
+	"season_id":                        true,
+	"team_id":                         true,
+	"minutes_played":                   true,
+	"appearances":                     true,
+	"matches_started":                 true,
+	"goals":                          true,
+	"expected_goals":                 true,
+	"goals_assists_sum":              true,
+	"big_chances_missed":             true,
+	"successful_dribbles":            true,
+	"successful_dribbles_percentage": true,
+	"total_shots":                   true,
+	"shots_on_target":               true,
+	"shots_off_target":              true,
+	"blocked_shots":                 true,
+	"goal_conversion_percentage":    true,
+	"penalties_taken":               true,
+	"penalty_goals":                true,
+	"penalty_won":                  true,
+	"shot_from_set_piece":           true,
+	"free_kick_goal":               true,
+	"shots_from_inside_the_box":    true,
+	"shots_from_outside_the_box":   true,
+	"goals_from_inside_the_box":    true,
+	"goals_from_outside_the_box":   true,
+	"headed_goals":                 true,
+	"left_foot_goals":              true,
+	"right_foot_goals":             true,
+	"hit_woodwork":                 true,
+	"offsides":                    true,
+	"penalty_conversion":           true,
+	"set_piece_conversion":         true,
+	"tackles":                     true,
+	"interceptions":               true,
+	"penaltyConceded":             true,
+	"clearances":                  true,
+	"error_lead_to_goal":          true,
+	"error_lead_to_shot":          true,
+	"own_goals":                   true,
+	"dribbled_past":               true,
+	"big_chances_created":         true,
+	"assists":                    true,
+	"expected_assists":            true,
+	"accurate_passes":             true,
+	"inaccurate_passes":           true,
+	"total_passes":                true,
+	"accurate_passes_percentage":  true,
+	"accurate_own_half_passes":    true,
+	"accurate_opposition_half_passes": true,
+	"accurate_final_third_passes": true,
+	"key_passes":                 true,
+	"total_cross":                true,
+	"accurate_crosses":           true,
+	"accurate_crosses_percentage": true,
+	"total_long_balls":           true,
+	"accurate_long_balls":        true,
+	"accurate_long_balls_percentage": true,
+	"pass_to_assist":             true,
+	"saves":                     true,
+	"goals_prevented":            true,
+	"clean_sheet":                true,
+	"penalty_faced":              true,
+	"penalty_save":               true,
+	"saved_shots_from_inside_the_box": true,
+	"saved_shots_from_outside_the_box": true,
+	"goals_conceded_inside_the_box": true,
+	"goals_conceded_outside_the_box": true,
+	"goals_conceded":             true,
+	"punches":                   true,
+	"runs_out":                  true,
+	"successful_runs_out":        true,
+	"high_claims":               true,
+	"crosses_not_claimed":        true,
+	"yellow_cards":              true,
+	"red_cards":                 true,
+	"ground_duels_won":          true,
+	"ground_duels_won_percentage": true,
+	"aerial_duels_won":           true,
+	"aerial_duels_won_percentage": true,
+	"total_duels_won":            true,
+	"total_duels_won_percentage": true,
+	"was_fouled":                true,
+	"fouls":                     true,
+	"dispossessed":              true,
+	"possession_lost":           true,
+	"rating":                    true,
 }

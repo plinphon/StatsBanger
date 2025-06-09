@@ -3,7 +3,8 @@ package season
 import (
 	"github.com/plinphon/StatsBanger/backend/models"
 	"errors"
-	"fmt"
+
+
 )
 
 var ErrDuplicateSeasonStat = errors.New("duplicate season stat")
@@ -15,7 +16,7 @@ type TeamSeasonStatService struct {
 func NewTeamSeasonStatService(repo *TeamSeasonStatRepository) *TeamSeasonStatService {
     return &TeamSeasonStatService{repo: repo}
 }
-
+/*
 func (s *TeamSeasonStatService) CreateStat(stat models.TeamSeasonStat) error {
 
 	if existing, _ := s.repo.GetByID(stat.UniqueTournamentID, stat.SeasonID, stat.TeamID); existing != nil {
@@ -24,25 +25,28 @@ func (s *TeamSeasonStatService) CreateStat(stat models.TeamSeasonStat) error {
 
 	return s.repo.Create(stat)
 }
-
-func (s *TeamSeasonStatService) GetStatByID(uniqueTournamentID int, seasonID int, teamID int) (*models.TeamSeasonStat, error) {
-	return s.repo.GetByID(uniqueTournamentID, seasonID, teamID)
-}
-func (s *TeamSeasonStatService) GetTopTeamsByStat(statField string, uniqueTournamentID int, seasonID int, limit int) ([]models.TopTeamStatResult, error) {
-	return s.repo.GetTopTeamsByStat(statField, uniqueTournamentID, seasonID, limit)
-}
-
+*/
 func (s *TeamSeasonStatService) GetTeamStatsWithMeta(
 	statFields []string,
-	uniqueTournamentID int,
-	seasonID int,
-	teamID int,
-) (*models.TeamStatWithMeta, error) {
-
-	teamStats, err := s.repo.GetMultipleStatsByTeamID(statFields, uniqueTournamentID, seasonID, teamID)
+	tournamentId int,
+	seasonId int,
+	teamIds []int,
+) ([]*models.TeamSeasonStat, error) {
+	stats, err := s.repo.GetMultipleStatsByTeamId(statFields, tournamentId, seasonId, teamIds)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get team stats: %w", err)
+		return nil, err
 	}
 
-	return teamStats, nil
+	return stats, nil
 }
+
+
+func (s *TeamSeasonStatService) GetTopTeamsByStat(
+    statField string,
+    uniqueTournamentId int,
+    seasonId int,
+    limit int,
+) ([]models.TopTeamStatResult, error) {
+    return s.repo.GetTopTeamsByStat(statField, uniqueTournamentId, seasonId, limit)
+}
+

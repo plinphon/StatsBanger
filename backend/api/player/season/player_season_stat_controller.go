@@ -16,44 +16,11 @@ func NewPlayerSeasonStatController(service *PlayerSeasonStatService) *PlayerSeas
 	return &PlayerSeasonStatController{service: service}
 }
 
-func (mc *PlayerSeasonStatController) GetStatByID(c *fiber.Ctx) error {
-
-	uniqueTournamentIDStr := c.Query("uniqueTournamentID")
-	uniqueTournamentID, err := strconv.Atoi(uniqueTournamentIDStr)
-
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid uniqueTournament ID")
-	}
-
-
-	seasonIDStr := c.Query("seasonID")
-	seasonID, err := strconv.Atoi(seasonIDStr)
-
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid season ID")
-	}
-
-	playerIDStr := c.Query("playerID")
-	playerID, err := strconv.Atoi(playerIDStr)
-
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid player ID")
-	}
-
-	stat, err := mc.service.GetStatByID(uniqueTournamentID, seasonID, playerID)
-	if err != nil {
-		log.Printf("❌ Error getting player stat: %v", err)
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get a player stat")
-	}
-
-	return c.JSON(stat)
-}
-
 func (mc *PlayerSeasonStatController) GetTopPlayersByStat(c *fiber.Ctx) error {
 
-	statName := c.Query("statName")
+	statName := c.Query("statFields")
 	if statName == "" {
-		return fiber.NewError(fiber.StatusBadRequest, "Missing statName")
+		return fiber.NewError(fiber.StatusBadRequest, "Missing statFields")
 	}
 
 	uniqueTournamentIDStr := c.Query("uniqueTournamentID")
@@ -94,12 +61,21 @@ func (mc *PlayerSeasonStatController) GetTopPlayersByStat(c *fiber.Ctx) error {
 }
 
 func (mc *PlayerSeasonStatController) GetPlayerStatsWithMeta(c *fiber.Ctx) error {
-    // Parse playerID
+
+    // Parse playerIDs (comma-separated)
     playerIDStr := c.Query("playerID")
-    playerID, err := strconv.Atoi(playerIDStr)
-    if err != nil {
-        return fiber.NewError(fiber.StatusBadRequest, "Invalid playerID")
-    }
+    var playerIDs []int
+    if playerIDStr != "" {
+        playerIDStrings := strings.Split(playerIDStr, ",")
+        for _, idStr := range playerIDStrings {
+            id, err := strconv.Atoi(strings.TrimSpace(idStr))
+            if err != nil {
+                return fiber.NewError(fiber.StatusBadRequest, "Invalid playerID")
+            }
+            playerIDs = append(playerIDs, id)
+        }
+    } // else: if empty, fetch all players
+
 
     // Parse uniqueTournamentID
     uniqueTournamentIDStr := c.Query("uniqueTournamentID")
@@ -115,77 +91,28 @@ func (mc *PlayerSeasonStatController) GetPlayerStatsWithMeta(c *fiber.Ctx) error
         return fiber.NewError(fiber.StatusBadRequest, "Invalid seasonID")
     }
 
-    // Parse statFields (comma-separated in query)
-    statFieldsQuery := c.Query("statFields", "")
 
+    // Parse statFields (comma-separated)
+    statFieldsQuery := c.Query("statFields", "")
     var statFields []string
     if statFieldsQuery == "" {
-        // If no statFields provided, fetch all valid fields
-        statFields = make([]string, 0, len(models.ValidTopPlayerFields))
-        for field := range models.ValidTopPlayerFields {
+        statFields = make([]string, 0, len(models.ValidPlayerSeasonFields))
+        for field := range models.ValidPlayerSeasonFields {
             statFields = append(statFields, field)
         }
     } else {
         statFields = strings.Split(statFieldsQuery, ",")
     }
 
-    // Call service
-    playerStats, err := mc.service.GetPlayerStatsWithMeta(statFields, uniqueTournamentID, seasonID, playerID)
+
+    // Call service with playerIDs
+    playerStats, err := mc.service.GetPlayerStatsWithMeta(statFields, uniqueTournamentID, seasonID, playerIDs)
+
     if err != nil {
         log.Printf("❌ Error getting player stats: %v", err)
         return fiber.NewError(fiber.StatusInternalServerError, "Failed to get player stats")
     }
 
     return c.JSON(playerStats)
-}
 
-func (mc *PlayerSeasonStatController) GetPlayerStatPercentile(c *fiber.Ctx) error {
-	playerIDStr := c.Query("playerId")
-	playerID, err := strconv.Atoi(playerIDStr)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid playerId")
-	}
-
-	tournamentIDStr := c.Query("tournamentId")
-	tournamentID, err := strconv.Atoi(tournamentIDStr)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid tournamentId")
-	}
-
-	seasonIDStr := c.Query("seasonId")
-	seasonID, err := strconv.Atoi(seasonIDStr)
-	if err != nil {
-		return fiber.NewError(fiber.StatusBadRequest, "Invalid seasonId")
-	}
-
-	statFieldsQuery := c.Query("statField")
-    var statFields []string
-    if statFieldsQuery == "" {
-        // If no statFields provided, fetch all valid fields
-        statFields = make([]string, 0, len(models.ValidTopPlayerFields))
-        for field := range models.ValidTopPlayerFields {
-            statFields = append(statFields, field)
-        }
-    } else {
-        statFields = strings.Split(statFieldsQuery, ",")
-    }
-
-
-	//optional position filter
-	position := c.Query("position")
-	var positionPtr *string
-	if position != "" {
-		if !models.ValidPositions[position] {
-			return fiber.NewError(fiber.StatusBadRequest, "Invalid position")
-		}
-		positionPtr = &position
-	}
-
-	result, err := mc.service.GetPlayerStatWithPercentile(statFields, tournamentID, seasonID, playerID, positionPtr)
-	if err != nil {
-		log.Printf("❌ Error getting percentile stat: %v", err)
-		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get player stat percentile")
-	}
-
-	return c.JSON(result)
 }
