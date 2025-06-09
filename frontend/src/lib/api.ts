@@ -115,3 +115,9 @@ export async function fetchMatchesByTeamId(teamID: number): Promise<Match[]> {
   if (!res.ok) throw new Error("Failed to fetch matches by team ID")
   return await res.json()
 }
+
+export async function fetchPlayerMatchHistory(playerId: number) {
+  const res = await fetch(`${API_BASE_URL}/api/player/${playerId}/matches`);
+  if (!res.ok) throw new Error("Failed to fetch player match history");
+  return await res.json();
+}
