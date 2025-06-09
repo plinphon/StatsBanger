@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import MatchDetail from './pages/MatchDetail';
 import PlayerChart from './pages/PlayerChart';
 import HomePage from './pages/Index';
+import PlayerCustomRadar from './pages/PlayerCustomRadar';
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
         <Route path="/match/:id" element={<MatchDetail />} />
         <Route path="/player/:id" element={<PlayerChart />} />
         <Route path="/" element={<HomePage />} />
+        <Route path="/player/:id/custom-radar" element={<PlayerCustomRadar />} />
       </Routes>
     </Router>
   );

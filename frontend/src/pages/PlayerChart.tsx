@@ -5,6 +5,7 @@ import { PlayerSeasonRadar } from "../components/allCharts"
 import type { PlayerSeasonStat } from "../models/player-season-stat"
 import type { Player } from "../models/player"
 import { fetchPlayerSeasonStat, fetchPlayerById } from "../lib/api"
+import { useNavigate } from "react-router-dom"
 
 const UNIQUE_TOURNAMENT_ID = 8
 const SEASON_ID = 52376
@@ -18,6 +19,8 @@ export default function PlayerChart() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showStats, setShowStats] = useState(true)
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function loadData() {
@@ -46,12 +49,14 @@ export default function PlayerChart() {
     <div className="max-w-5xl mx-auto p-4">
       {/* Player Info Card */}
       <div className="flex flex-col md:flex-row items-center bg-gradient-to-r from-green-900/60 to-cyan-900/60 rounded-2xl shadow-lg p-6 mb-8 gap-6">
-        <div className="w-32 h-32 rounded-full bg-gradient-to-br from-green-400 to-cyan-500 flex items-center justify-center text-white font-bold text-2xl border-4 border-green-400 shadow">
-          {player.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-        </div>
+        <img
+          src={player.photoUrl || "/default-player.png"}
+          alt={player.name}
+          className="w-32 h-32 rounded-full object-cover border-4 border-green-400 shadow"
+        />
         <div className="flex-1">
           <h2 className="text-3xl font-bold text-green-200 mb-2">{player.name}</h2>
-          <div className="flex flex-wrap gap-4 text-gray-200">
+          <div className="flex flex-wrap gap-4 text-gray-200 mb-4">
             <span className="bg-green-700/40 px-3 py-1 rounded-full text-sm font-medium border border-green-400/30">
               {player.position}
             </span>
@@ -65,21 +70,27 @@ export default function PlayerChart() {
               Team: {player.teamName}
             </span>
           </div>
+      
         </div>
       </div>
 
       {/* Stats Graph */}
-      <div className="bg-gray-900/80 rounded-2xl shadow-lg p-6 mb-8">
-        <div className="flex justify-center  items-center mb-4">
+     <div className="bg-gray-900/80 rounded-2xl shadow-lg p-6 mb-8 relative">
+        <div className="flex justify-center items-center mb-4">
           <h3 className="text-2xl font-semibold text-cyan-200">Season Performance</h3>
         </div>
-       
-                  <PlayerSeasonRadar
+        <PlayerSeasonRadar
           data={stats as unknown as Record<string, number | null>}
           position={player.position?.charAt(0).toUpperCase() || "M"}
         />
-        
+        <button
+          className="absolute bottom-6 right-6 px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg font-semibold transition shadow"
+          onClick={() => navigate(`/player/${PLAYER_ID}/custom-radar`)}
+        >
+          Create Custom Radar
+        </button>
       </div>
+
 
       {/* Descriptive Stats Section (Toggleable) */}
       <div className="bg-white/90 rounded-2xl shadow p-6">

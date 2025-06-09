@@ -1,5 +1,5 @@
 // src/components/TeamAnalytics.tsx
-import { useState } from "react"
+import React, { useState } from "react";
 import type { TeamMatchStat } from "../models/team-match-stat"
 import { Card, CardContent } from "./ui/Card"
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts"
@@ -78,67 +78,42 @@ export function TeamAnalytics({ data }: Props) {
 interface PlayerSeasonRadarProps {
   data: Record<string, number | null>;
   position: string;
+  customStats?: string[];
 }
 
-export function PlayerSeasonRadar({ data, position }: PlayerSeasonRadarProps) {
+export function PlayerSeasonRadar({ data, position, customStats }: PlayerSeasonRadarProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>("position");
 
   const getMetrics = () => {
-    if (selectedCategory === "position") {
-      switch (position) {
-        case "F": return topicF;
-        case "M": return topicM;
-        case "D": return topicD;
-        default: return topicG;
-      }
+    if (customStats && customStats.length >= 3) {
+      return customStats;
     }
-    
-    const categoryKeys = Object.keys(STAT_CATEGORIES) as Array<keyof typeof STAT_CATEGORIES>;
-    const category = categoryKeys.includes(selectedCategory as keyof typeof STAT_CATEGORIES) 
-      ? STAT_CATEGORIES[selectedCategory as keyof typeof STAT_CATEGORIES] 
-      : null;
-    
-    return category?.stats || [];
+    switch (position) {
+      case "F": return topicF;
+      case "M": return topicM;
+      case "D": return topicD;
+      default: return topicG;
+    }
   };
-  
-  const generateChartData = (data, metrics) => {
-    return metrics.map(metric => ({
-      label: metric,
-      value: data[metric] ?? 0
-    }));
-  };
-  
-  const ChartData = generateChartData(data, getMetrics());
 
-  
+  const metrics = getMetrics();
+
+  const ChartData = metrics.map(metric => ({
+    label: metric.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()),
+    value: data[metric] ?? 0
+  }));
+
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => setIsHovered(false);
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-semibold text-gray-300">Player Statistics</h3>
-        
-        <select 
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="bg-gray-800 text-gray-200 px-4 py-2 rounded-lg border border-gray-600 focus:border-green-400 focus:outline-none"
-        >
-          <option value="position">Position Default</option>
-          {Object.entries(STAT_CATEGORIES).map(([key, category]) => (
-            <option key={key} value={key}>
-              {category.name}
-            </option>
-          ))}
-        </select>
-      </div>
-      
-      <div 
+      <h3 className="text-xl font-semibold text-gray-300 mb-6">Player Statistics</h3>
+      <div
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         className="relative"
-        style={{ 
+        style={{
           transition: 'transform 0.3s ease-in-out',
           transform: isHovered ? 'scale(1.02)' : 'scale(1)'
         }}
@@ -148,7 +123,7 @@ export function PlayerSeasonRadar({ data, position }: PlayerSeasonRadarProps) {
             <PolarGrid />
             <PolarAngleAxis dataKey="label" />
             <PolarRadiusAxis />
-            <Tooltip 
+            <Tooltip
               content={({ payload, label }) => {
                 if (payload && payload[0]) {
                   return (
@@ -163,11 +138,11 @@ export function PlayerSeasonRadar({ data, position }: PlayerSeasonRadarProps) {
                 return null;
               }}
             />
-            <Radar 
-              name="Player Stats" 
-              dataKey="value" 
-              stroke={isHovered ? "#10b981" : "#8884d8"} 
-              fill={isHovered ? "#10b981" : "#8884d8"} 
+            <Radar
+              name="Player Stats"
+              dataKey="value"
+              stroke={isHovered ? "#10b981" : "#8884d8"}
+              fill={isHovered ? "#10b981" : "#8884d8"}
               fillOpacity={isHovered ? 0.8 : 0.6}
               strokeWidth={isHovered ? 3 : 2}
               style={{ transition: 'all 0.3s ease-in-out' }}
@@ -176,5 +151,5 @@ export function PlayerSeasonRadar({ data, position }: PlayerSeasonRadarProps) {
         </ResponsiveContainer>
       </div>
     </div>
-  )
+  );
 }
