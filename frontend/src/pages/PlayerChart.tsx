@@ -107,12 +107,6 @@ export default function PlayerChart() {
             data={stats as unknown as Record<string, number | null>}
             position={player.position?.charAt(0).toUpperCase() || "M"}
           />
-          <button
-            className="absolute bottom-6 right-6 px-4 py-2 bg-gray-700 hover:bg-gray-800 text-white rounded-lg font-semibold transition shadow"
-            onClick={() => navigate(`/player/${PLAYER_ID}/custom-radar`)}
-          >
-            Create Custom Radar
-          </button>
         </div>
 
         {/* Descriptive Stats Section (Toggleable) */}
