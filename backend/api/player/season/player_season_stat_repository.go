@@ -2,7 +2,6 @@ package season
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"log"
 	"strings"
@@ -63,8 +62,8 @@ func (r *PlayerSeasonStatRepository) GetMultipleStatsByPlayerId(
 	statFields []string,
 	uniqueTournamentId int,
 	seasonId int,
-	playerId int,
-) (*models.PlayerSeasonStat, error) {
+	playerIdFields []int,
+) ([]*models.PlayerSeasonStat, error) {
 	log.Printf("Requested statFields: %v", statFields)
 
 	// Validate or populate stat fields
@@ -83,54 +82,88 @@ func (r *PlayerSeasonStatRepository) GetMultipleStatsByPlayerId(
 			}
 		}
 	}
-		// Join stat fields to SELECT clause
-	//selectFields := "player_id, team_id, unique_tournament_id, season_id"
 
-	// Fetch using GORM with Preload
-	var stat models.PlayerSeasonStat
-	err := r.db.Debug().
+	// Build base query
+	query := r.db.Debug().
 		Preload("Player").
 		Preload("Team").
-		Where("unique_tournament_id = ? AND season_id = ? AND player_id = ?", uniqueTournamentId, seasonId, playerId).
-		First(&stat).Error
-		
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("no stats found for player %d", playerId)
-		}
+		Where("unique_tournament_id = ? AND season_id = ?", uniqueTournamentId, seasonId)
+
+	if len(playerIdFields) > 0 {
+		query = query.Where("player_id IN (?)", playerIdFields)
+	}
+
+	var stats []*models.PlayerSeasonStat
+	if err := query.Find(&stats).Error; err != nil {
 		return nil, err
 	}
-	
-	
-		// Fetch raw values for stat fields using low-level query
-		rows := make(map[string]*float64)
-		columns := "SELECT " + strings.Join(statFields, ", ") + " FROM player_stat WHERE unique_tournament_id = ? AND season_id = ? AND player_id = ?"
-		rawRow := r.db.Raw(columns, uniqueTournamentId, seasonId, playerId).Row()
-	
-		// Create pointers to hold values
-		pointers := make([]interface{}, len(statFields))
+
+	// If no stat fields, return basic info only
+	if len(statFields) == 0 {
+		return stats, nil
+	}
+
+	// Prepare to fetch raw stats
+	columns := "player_id, " + strings.Join(statFields, ", ")
+	rows, err := r.db.Raw(
+		"SELECT " + columns + " FROM player_stat WHERE unique_tournament_id = ? AND season_id = ?" + 
+			func() string {
+				if len(playerIdFields) > 0 {
+					return " AND player_id IN ?"
+				}
+				return ""
+			}(),
+		func() []interface{} {
+			args := []interface{}{uniqueTournamentId, seasonId}
+			if len(playerIdFields) > 0 {
+				args = append(args, playerIdFields)
+			}
+			return args
+		}()...,
+	).Rows()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Build playerId -> stat map
+	statMap := make(map[int]map[string]*float64)
+	for rows.Next() {
+		columns := make([]interface{}, len(statFields)+1)
+		var playerID int
+		columns[0] = &playerID
+
 		values := make([]sql.NullFloat64, len(statFields))
 		for i := range statFields {
-			pointers[i] = &values[i]
+			columns[i+1] = &values[i]
 		}
-	
-		if err := rawRow.Scan(pointers...); err != nil {
+
+		if err := rows.Scan(columns...); err != nil {
 			return nil, err
 		}
-	
-		// Assign to map
+
+		fieldMap := make(map[string]*float64)
 		for i, field := range statFields {
 			if values[i].Valid {
-				v := values[i].Float64
-				rows[field] = &v
-			} else {
-				rows[field] = nil
+				val := values[i].Float64
+				fieldMap[field] = &val
 			}
 		}
-	
-		stat.Stats = rows
-		return &stat, nil
+		statMap[playerID] = fieldMap
 	}
+
+	// Attach stats to each player
+	for _, s := range stats {
+		if fieldMap, exists := statMap[s.PlayerId]; exists {
+			s.Stats = fieldMap
+		} else {
+			s.Stats = map[string]*float64{} // Empty if no stat row
+		}
+	}
+
+	return stats, nil
+}
+
 
 
 /*
