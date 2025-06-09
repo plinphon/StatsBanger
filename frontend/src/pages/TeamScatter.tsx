@@ -8,13 +8,13 @@ import { fetchTeamSeasonStat, fetchTeamById, fetchTopTeams } from "../lib/api"
 
 const UNIQUE_TOURNAMENT_ID = 8;
 const SEASON_ID = 52376;
-const METRIC_X = "goalsScored";
-const METRIC_Y = "shots";
+const METRIC_X = "shots";
+const METRIC_Y = "goalsScored";
 
 
 export default function TeamScatter() {
-  const { id } = useParams<{ id: string }>() 
-  const TEAM_ID = parseInt(id || "", 10)
+//   const { id } = useParams<{ id: string }>() 
+//   const team_id = parseInt(id || "", 10)
 
   const [teamStats, setStats] = useState<Record<number, { stats: TeamSeasonStat; info: Team }> | null>(null)
   const [team, setTeam] = useState<Team | null>(null)
@@ -27,7 +27,7 @@ export default function TeamScatter() {
       try {
         setLoading(true)
         const [teams] = await Promise.all([
-            fetchTopTeams(METRIC_Y, UNIQUE_TOURNAMENT_ID, SEASON_ID, 20)
+            fetchTopTeams("shots", UNIQUE_TOURNAMENT_ID, SEASON_ID, 20)
         ])
         const teamIds = teams.map(team => team.teamId);
         const teamDataPromises = teamIds.map(id => fetchTeamById(id));

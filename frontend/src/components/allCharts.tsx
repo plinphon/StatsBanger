@@ -162,6 +162,7 @@ export function TeamSeasonScatter({ data, xAxisMetric, yAxisMetric }) {
     ...stats,
     ...info,
   }));
+
   // Sort the transformed data based on the xAxisMetric
   const sortedData = transformedData.sort((a, b) => a[xAxisMetric] - b[xAxisMetric]);
 
@@ -169,10 +170,28 @@ export function TeamSeasonScatter({ data, xAxisMetric, yAxisMetric }) {
   const xValues = sortedData.map(item => item[xAxisMetric]);
   const yValues = sortedData.map(item => item[yAxisMetric]);
 
-  const xMin = Math.min(...xValues) * 0.95; // min - 5%
-  const xMax = Math.max(...xValues) * 1.05; // max + 5%
-  const yMin = Math.min(...yValues) * 0.95; // min - 5%
-  const yMax = Math.max(...yValues) * 1.05; // max + 5%
+  const pad = 0.1;
+  const xMin = Math.min(...xValues) * (1-pad);
+  const xMax = Math.max(...xValues) * (1+pad);
+  const yMin = Math.min(...yValues) * (1-pad);
+  const yMax = Math.max(...yValues) * (1+pad);
+
+  // Custom Tooltip component
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const { name } = payload[0].payload; // Extract teamId
+      const xValue = payload[0].payload[xAxisMetric]; // Extract xAxis value
+      const yValue = payload[0].payload[yAxisMetric]; // Extract yAxis value
+      return (
+        <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '10px', border: '1px solid #ccc' }}>
+          <h4>{name}</h4>
+          <div>{`${xAxisMetric}: ${xValue}`}</div>
+          <div>{`${yAxisMetric}: ${yValue}`}</div>
+        </div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="p-4">
@@ -181,11 +200,66 @@ export function TeamSeasonScatter({ data, xAxisMetric, yAxisMetric }) {
         <ScatterChart>
           <CartesianGrid />
           <XAxis dataKey={xAxisMetric} name={xAxisMetric} type="number" domain={[xMin, xMax]} />
-          <YAxis dataKey={yAxisMetric} name={yAxisMetric} type="number" domain={[yMin, yMax]} />
-          <Tooltip cursor={{ strokeDasharray: '3 3' }} />
+          <YAxis dataKey={yAxisMetric} name={yAxisMetric} domain={[yMin, yMax]} />
+          <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
           <Scatter name="Team Performance" data={sortedData} fill="#8884d8" />
         </ScatterChart>
       </ResponsiveContainer>
     </div>
   );
 }
+
+export function PlayerSeasonScatter({ data, xAxisMetric, yAxisMetric }) {
+  // Transform the data into an array suitable for the ScatterChart
+  const transformedData = Object.entries(data).map(([playerId, { stats, info }]) => ({
+    playerId,
+    ...stats,
+    ...info,
+  }));
+
+  // Sort the transformed data based on the xAxisMetric
+  const sortedData = transformedData.sort((a, b) => a[xAxisMetric] - b[xAxisMetric]);
+
+  // Calculate min and max for xAxis and yAxis
+  const xValues = sortedData.map(item => item[xAxisMetric]);
+  const yValues = sortedData.map(item => item[yAxisMetric]);
+
+  const pad = 0.1;
+  const xMin = Math.min(...xValues) * (1-pad);
+  const xMax = Math.max(...xValues) * (1+pad);
+  const yMin = Math.min(...yValues) * (1-pad);
+  const yMax = Math.max(...yValues) * (1+pad);
+
+  // Custom Tooltip component
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const { name } = payload[0].payload; // Extract playerId
+      const xValue = payload[0].payload[xAxisMetric]; // Extract xAxis value
+      const yValue = payload[0].payload[yAxisMetric]; // Extract yAxis value
+      return (
+        <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '10px', border: '1px solid #ccc' }}>
+          <h4>{name}</h4>
+          <div>{`${xAxisMetric}: ${xValue}`}</div>
+          <div>{`${yAxisMetric}: ${yValue}`}</div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Player Season Scatter Plot</h2>
+      <ResponsiveContainer width="100%" height={300}>
+        <ScatterChart>
+          <CartesianGrid />
+          <XAxis dataKey={xAxisMetric} name={xAxisMetric} type="number" domain={[xMin, xMax]} />
+          <YAxis dataKey={yAxisMetric} name={yAxisMetric} domain={[yMin, yMax]} />
+          <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
+          <Scatter name="Player Performance" data={sortedData} fill="#8884d8" />
+        </ScatterChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
