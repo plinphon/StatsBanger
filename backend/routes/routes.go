@@ -3,32 +3,32 @@ package routes
 import (
 	"github.com/gofiber/fiber/v2"
 
-	matches "github.com/plinphon/StatsBanger/backend/api/matches"
+	//matches "github.com/plinphon/StatsBanger/backend/api/matches"
 
 	team "github.com/plinphon/StatsBanger/backend/api/team/info"
-	teamMatchStat "github.com/plinphon/StatsBanger/backend/api/team/match"
-	teamSeasonStat "github.com/plinphon/StatsBanger/backend/api/team/season"
+	//teamMatchStat "github.com/plinphon/StatsBanger/backend/api/team/match"
+	//teamSeasonStat "github.com/plinphon/StatsBanger/backend/api/team/season"
 
 	player "github.com/plinphon/StatsBanger/backend/api/player/info"
-	playerMatchStat "github.com/plinphon/StatsBanger/backend/api/player/match"
+	//playerMatchStat "github.com/plinphon/StatsBanger/backend/api/player/match"
 	playerSeasonStat "github.com/plinphon/StatsBanger/backend/api/player/season"
 )
 
 func SetupRoutes(app fiber.Router) {
 	api := app.Group("/api")
 
-	RegisterMatchRoutes(api)
+	//RegisterMatchRoutes(api)
 
 	RegisterTeamRoutes(api)
-	RegisterTeamMatchStatRoutes(api)
-	RegisterTeamSeasonStatRoutes(api)
+	//RegisterTeamMatchStatRoutes(api)
+	//RegisterTeamSeasonStatRoutes(api)
 
 	RegisterPlayerRoutes(api)
-	RegisterPlayerMatchStatRoutes(api)
+	//RegisterPlayerMatchStatRoutes(api)
 	RegisterPlayerSeasonStatRoutes(api)
 
 }
-
+/*
 func RegisterMatchRoutes(router fiber.Router) {
 
 	repo, err := matches.NewMatchRepository("laligaDB.db")
@@ -87,7 +87,7 @@ func RegisterPlayerMatchStatRoutes(router fiber.Router) {
 	stat := router.Group("/player-match-stat")
 	stat.Get("/", controller.GetStatByID)
 }
-
+*/
 func RegisterPlayerSeasonStatRoutes(router fiber.Router) {
 	repo, err := playerSeasonStat.NewPlayerSeasonStatRepository("laligaDB.db")
 	if err != nil {
@@ -98,12 +98,11 @@ func RegisterPlayerSeasonStatRoutes(router fiber.Router) {
 	controller := playerSeasonStat.NewPlayerSeasonStatController(service)
 
 	stat := router.Group("/player-season-stat")
-	stat.Get("/", controller.GetStatByID)
-	stat.Get("/meta", controller.GetPlayerStatsWithMeta)
-	stat.Get("/percentile", controller.GetPlayerStatPercentile)
+	stat.Get("/", controller.GetPlayerStatsWithMeta)
 
-	topPlayerGroup := router.Group("/top-players")
-	topPlayerGroup.Get("/", controller.GetTopPlayersByStat)
+
+	//topPlayerGroup := router.Group("/top-players")
+	//topPlayerGroup.Get("/", controller.GetTopPlayersByStat)
 	
 }
 

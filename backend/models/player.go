@@ -3,16 +3,18 @@ package models
 import "time"
 
 type Player struct {
-	ID            int       `json:"id"`
-	Name          string    `json:"name"`
-	Birthday      time.Time `json:"birthdayTimestamp"`
-	Age           int       `json:"age"`
-	TeamID        int       `json:"teamId"`
-	TeamName      string    `json:"teamName"`
-	Position      string    `json:"position"`
-	Height        float64   `json:"height"`
-	PreferredFoot string    `json:"preferredFoot"`
-	Nationality   string    `json:"nationality"`
+	PlayerId      int       `json:"id" gorm:"primaryKey;column:player_id"`
+	PlayerName    string    `json:"name" gorm:"column:player_name"`
+	Birthday      time.Time `json:"birthdayTimestamp" gorm:"column:birthday_timestamp"`
+	Age           int       `json:"age" gorm:"-"`
+	Position      string    `json:"position" gorm:"column:position"`
+	Height        float64   `json:"height" gorm:"column:height"`
+	PreferredFoot string    `json:"preferredFoot" gorm:"column:preferred_foot"`
+	Nationality   string    `json:"nationality" gorm:"column:nationality"`
+}
+
+func (Player) TableName() string {
+    return "player_info"
 }
 
 var ValidPositions = map[string]bool{

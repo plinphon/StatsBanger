@@ -18,11 +18,11 @@ func NewPlayerService(repo *PlayerRepository) *PlayerService {
 
 func (s *PlayerService) CreatePlayer(player models.Player) error {
 
-	if existing, _ := s.repo.GetByID(player.ID); existing != nil {
+	if existing, _ := s.repo.GetByID(player.PlayerId); existing != nil {
 		return ErrDuplicateMatch
 	}
 
-	return s.repo.Create(player)
+	return s.repo.Create(&player)
 }
 
 func (s *PlayerService) GetPlayerByID(playerID int) (*models.Player, error) {

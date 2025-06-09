@@ -16,14 +16,14 @@ func NewTeamService(repo *TeamRepository) *TeamService {
 }
 
 func (s *TeamService) CreateTeam(team models.Team) error {
-	existing, err := s.repo.GetByID(team.ID)
+	existing, err := s.repo.GetByID(team.TeamId)
 	if err == nil && existing != nil {
 		return ErrDuplicateTeam
 	}
 	if err != nil && err.Error() != "team not found" {
 		return err
 	}
-	return s.repo.Create(team)
+	return s.repo.Create(&team)
 }
 
 func (s *TeamService) GetTeamByID(teamID int) (*models.Team, error) {

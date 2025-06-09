@@ -1,55 +1,11 @@
 package models
 
 type TeamMatchStat struct {
-	MatchID              int      `json:"matchId"`
-	TeamID               int      `json:"teamId"`
-	BallPossession       *float64 `json:"ballPossession"`
-	ExpectedGoals        *float64 `json:"expectedGoals"`
-	BigChances           *float64 `json:"bigChances"`
-	TotalShots           *float64 `json:"totalShots"`
-	GoalkeeperSaves      *float64 `json:"goalkeeperSaves"`
-	CornerKicks          *float64 `json:"cornerKicks"`
-	Fouls                *float64 `json:"fouls"`
-	Passes               *float64 `json:"passes"`
-	Tackles              *float64 `json:"tackles"`
-	FreeKicks            *float64 `json:"freeKicks"`
-	YellowCards          *float64 `json:"yellowCards"`
-	RedCards             *float64 `json:"redCards"`
-	ShotsOnTarget        *float64 `json:"shotsOnTarget"`
-	HitWoodwork          *float64 `json:"hitWoodwork"`
-	ShotsOffTarget       *float64 `json:"shotsOffTarget"`
-	BlockedShots         *float64 `json:"blockedShots"`
-	ShotsInsideBox       *float64 `json:"shotsInsideBox"`
-	ShotsOutsideBox      *float64 `json:"shotsOutsideBox"`
-	BigChancesScored     *float64 `json:"bigChancesScored"`
-	BigChancesMissed     *float64 `json:"bigChancesMissed"`
-	ThroughBalls         *float64 `json:"throughBalls"`
-	TouchesInPenaltyArea *float64 `json:"touchesInPenaltyArea"`
-	FouledInFinalThird   *float64 `json:"fouledInFinalThird"`
-	Offsides             *float64 `json:"offsides"`
-	AccuratePasses       *float64 `json:"accuratePasses"`
-	ThrowIns             *float64 `json:"throwIns"`
-	FinalThirdEntries    *float64 `json:"finalThirdEntries"`
-	FinalThirdPhase      *float64 `json:"finalThirdPhase"`
-	LongBalls            *float64 `json:"longBalls"`
-	Crosses              *float64 `json:"crosses"`
-	Duels                *float64 `json:"duels"`
-	Dispossessed         *float64 `json:"dispossessed"`
-	GroundDuels          *float64 `json:"groundDuels"`
-	AerialDuels          *float64 `json:"aerialDuels"`
-	Dribbles             *float64 `json:"dribbles"`
-	TacklesWon           *float64 `json:"tacklesWon"`
-	TotalTackles         *float64 `json:"totalTackles"`
-	Interceptions        *float64 `json:"interceptions"`
-	Recoveries           *float64 `json:"recoveries"`
-	Clearances           *float64 `json:"clearances"`
-	TotalSaves           *float64 `json:"totalSaves"`
-	GoalsPrevented       *float64 `json:"goalsPrevented"`
-	GoalKicks            *float64 `json:"goalKicks"`
-	BigSaves             *float64 `json:"bigSaves"`
-	HighClaims           *float64 `json:"highClaims"`
-	Punches              *float64 `json:"punches"`
-	ErrorsLeadToAShot    *float64 `json:"errorsLeadToAShot"`
-	ErrorsLeadToAGoal    *float64 `json:"errorsLeadToAGoal"`
-	PenaltySaves         *float64 `json:"penaltySaves"`
+	MatchID int    `gorm:"column:match_id"`
+	Match   *Match `gorm:"foreignKey:MatchID"`
+
+	TeamID int  `gorm:"column:team_id"`
+	Team   Team `gorm:"foreignKey:TeamID"`
+
+	Stats map[string]*float64 `gorm:"-" json:"stats"` // Assuming it's computed or not in DB
 }
