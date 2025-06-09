@@ -43,3 +43,22 @@ func (s *PlayerSeasonStatService) GetPlayerStatsWithMeta(
 
 	return stats, nil
 }
+
+func (s *PlayerSeasonStatService) GetPlayerStatsWithMeta(
+	statFields []string,
+	tournamentID int,
+	seasonID int,
+	playerID int,
+) (*models.PlayerStatWithMeta, error) {
+	return s.repo.GetMultipleStatsByPlayerID(statFields, tournamentID, seasonID, playerID)
+}
+
+func (s *PlayerSeasonStatService) GetPlayerStatWithPercentile(
+	statField []string,
+	tournamentID int,
+	seasonID int,
+	playerID int,
+	positionFilter *string,
+) (*models.PlayerStatWithMeta, error) {
+	return s.repo.GetPlayerStatsPercentile(statField, tournamentID, seasonID, playerID, positionFilter)
+}

@@ -164,6 +164,7 @@ func (r *PlayerSeasonStatRepository) GetMultipleStatsByPlayerId(
 	return stats, nil
 }
 
+
 func (r *PlayerSeasonStatRepository) GetTopPlayersByStat(
 	statField string,
 	uniqueTournamentId int,
@@ -173,6 +174,7 @@ func (r *PlayerSeasonStatRepository) GetTopPlayersByStat(
 ) ([]models.TopPlayerStatResult, error) {
 
 	if !models.ValidPlayerSeasonFields[statField] {
+
 		return nil, fmt.Errorf("invalid stat field: %s", statField)
 	}
 
@@ -199,8 +201,10 @@ func (r *PlayerSeasonStatRepository) GetTopPlayersByStat(
 		query = query.Limit(limit)
 	}
 
+
 	// Execute
 	err := query.Scan(&results).Error
+
 	if err != nil {
 		return nil, err
 	}

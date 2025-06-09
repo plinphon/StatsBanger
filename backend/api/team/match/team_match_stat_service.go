@@ -32,3 +32,4 @@ func (s *TeamMatchStatService) GetStatByID(matchID int, teamID int, statFields [
 func (s *TeamMatchStatService) GetAllMatchesByTeamID(teamID int) ([]models.TeamMatchStat, error) {
     return s.repo.GetAllMatchesByTeamID(teamID)
 }
+

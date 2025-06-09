@@ -1,6 +1,7 @@
 package models
 
 type TeamSeasonStat struct {
+
     ID                 int  `gorm:"primaryKey;column:id" json:"id"`
     TeamID             int  `gorm:"column:team_id" json:"teamId"`
     Team               Team `gorm:"foreignKey:TeamID;references:TeamId" json:"team"`
@@ -12,6 +13,7 @@ type TeamSeasonStat struct {
 func (TeamSeasonStat) TableName() string {
     return "team_stat"
 }
+
 
 var ValidTeamSeasonFields = map[string]bool{
     "team_id":                           true,

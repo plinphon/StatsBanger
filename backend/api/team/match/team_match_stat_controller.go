@@ -15,6 +15,7 @@ func NewTeamMatchStatController(service *TeamMatchStatService) *TeamMatchStatCon
 	return &TeamMatchStatController{service: service}
 }
 
+
 func (mc *TeamMatchStatController) GetStatByTeamAndMatchID(c *fiber.Ctx) error {
     matchIDStr := c.Query("matchID")
     matchID, err := strconv.Atoi(matchIDStr)
@@ -58,4 +59,5 @@ func (mc *TeamMatchStatController) GetAllMatchesByTeamID(c *fiber.Ctx) error {
     }
 
     return c.JSON(stats)
+
 }

@@ -61,6 +61,7 @@ func (mc *PlayerSeasonStatController) GetTopPlayersByStat(c *fiber.Ctx) error {
 }
 
 func (mc *PlayerSeasonStatController) GetPlayerStatsWithMeta(c *fiber.Ctx) error {
+
     // Parse playerIDs (comma-separated)
     playerIDStr := c.Query("playerID")
     var playerIDs []int
@@ -74,6 +75,7 @@ func (mc *PlayerSeasonStatController) GetPlayerStatsWithMeta(c *fiber.Ctx) error
             playerIDs = append(playerIDs, id)
         }
     } // else: if empty, fetch all players
+
 
     // Parse uniqueTournamentID
     uniqueTournamentIDStr := c.Query("uniqueTournamentID")
@@ -89,6 +91,7 @@ func (mc *PlayerSeasonStatController) GetPlayerStatsWithMeta(c *fiber.Ctx) error
         return fiber.NewError(fiber.StatusBadRequest, "Invalid seasonID")
     }
 
+
     // Parse statFields (comma-separated)
     statFieldsQuery := c.Query("statFields", "")
     var statFields []string
@@ -101,12 +104,15 @@ func (mc *PlayerSeasonStatController) GetPlayerStatsWithMeta(c *fiber.Ctx) error
         statFields = strings.Split(statFieldsQuery, ",")
     }
 
+
     // Call service with playerIDs
     playerStats, err := mc.service.GetPlayerStatsWithMeta(statFields, uniqueTournamentID, seasonID, playerIDs)
+
     if err != nil {
         log.Printf("❌ Error getting player stats: %v", err)
         return fiber.NewError(fiber.StatusInternalServerError, "Failed to get player stats")
     }
 
     return c.JSON(playerStats)
+
 }
