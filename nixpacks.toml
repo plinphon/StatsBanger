@@ -2,16 +2,11 @@
 GO_VERSION = "1.21"
 
 [phases.setup]
-nixPkgs = ["go_1_21"]
+nixPkgs = ["go"]
 
 [phases.build]
 dependsOn = ["setup"]
-cmds = [
-  "cd backend",
-  "go mod download",
-  "go build -o main ."
-]
+cmds = ["cd backend && go mod download && go build -o main ."]
 
 [start]
 cmd = "cd backend && ./main"
-EOF
