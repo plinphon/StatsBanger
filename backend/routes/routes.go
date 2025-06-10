@@ -39,10 +39,9 @@ func RegisterMatchRoutes(router fiber.Router) {
 	service := matches.NewMatchService(repo)
 	controller := matches.NewMatchController(service)
 
-	match := router.Group("/matches")
+	match := router.Group("/match")
 
 	match.Get("/:matchID", controller.GetMatchByID)
-	match.Get("/", controller.GetMatchByTeamID)
 }
 
 func RegisterTeamMatchStatRoutes(router fiber.Router) {
@@ -55,8 +54,10 @@ func RegisterTeamMatchStatRoutes(router fiber.Router) {
 	controller := teamMatchStat.NewTeamMatchStatController(service)
 
 	stat := router.Group("/team-match-stat")
-	stat.Get("/", controller.GetStatByID)
+	stat.Get("/", controller.GetStatByTeamAndMatchID)
+	stat.Get("/team/:teamID", controller.GetAllMatchesByTeamID)
 }
+
 
 func RegisterTeamSeasonStatRoutes(router fiber.Router) {
 	repo, err := teamSeasonStat.NewTeamSeasonStatRepository("laligaDB.db")
@@ -68,12 +69,10 @@ func RegisterTeamSeasonStatRoutes(router fiber.Router) {
 	controller := teamSeasonStat.NewTeamSeasonStatController(service)
 
 	stat := router.Group("/team-season-stat")
-	stat.Get("/", controller.GetStatByID)
-	stat.Get("/meta", controller.GetTeamStatsWithMeta)
-
-	topTeamGroup := router.Group("/top-teams")
-	topTeamGroup.Get("/", controller.GetTopTeamsByStat)
+	stat.Get("/", controller.GetTeamStatsWithMeta)
+	stat.Get("/top-teams", controller.GetTopTeamsByStat)
 }
+
 
 func RegisterPlayerMatchStatRoutes(router fiber.Router) {
 	repo, err := playerMatchStat.NewPlayerMatchStatRepository("laligaDB.db")
@@ -85,7 +84,9 @@ func RegisterPlayerMatchStatRoutes(router fiber.Router) {
 	controller := playerMatchStat.NewPlayerMatchStatController(service)
 
 	stat := router.Group("/player-match-stat")
-	stat.Get("/", controller.GetStatByID)
+	stat.Get("/", controller.GetStatsByMatchID)
+	stat.Get("/player/:playerID", controller.GetAllMatchesStatsByPlayerID)
+	stat.Get("/player/:playerID/match/:matchID", controller.GetStatByPlayerAndMatchID)
 }
 
 func RegisterPlayerSeasonStatRoutes(router fiber.Router) {
@@ -98,12 +99,8 @@ func RegisterPlayerSeasonStatRoutes(router fiber.Router) {
 	controller := playerSeasonStat.NewPlayerSeasonStatController(service)
 
 	stat := router.Group("/player-season-stat")
-	stat.Get("/", controller.GetStatByID)
-	stat.Get("/meta", controller.GetPlayerStatsWithMeta)
-	stat.Get("/percentile", controller.GetPlayerStatPercentile)
-
-	topPlayerGroup := router.Group("/top-players")
-	topPlayerGroup.Get("/", controller.GetTopPlayersByStat)
+	stat.Get("/", controller.GetPlayerStatsWithMeta)
+	stat.Get("/top-players", controller.GetTopPlayersByStat)
 	
 }
 

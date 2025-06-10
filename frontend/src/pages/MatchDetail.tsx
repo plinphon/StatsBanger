@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react"
 import TeamAnalytics from "../components/TeamAnalytics"
 import MirrorBarChart from "../components/OverallBarChart"
 import type { TeamMatchStat } from "../models/team-match-stat"
-import { fetchTeamMatchStat } from "../lib/api"
+import { fetchTeamMatchStats } from "../lib/api"
 
 const TEAM_ID = 2858
 const MATCH_ID = 11369285
@@ -16,7 +16,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     async function loadStats() {
       try {
-        const teamMatchStat = await fetchTeamMatchStat(MATCH_ID, TEAM_ID)
+        const teamMatchStat = await fetchTeamMatchStats(MATCH_ID, TEAM_ID)
         setStats([teamMatchStat]);
       } catch (err: any) {
         setError(err.message)

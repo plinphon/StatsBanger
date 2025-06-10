@@ -1,18 +1,38 @@
+
+
+// src/components/TeamAnalytics.tsx
+// src/components/TeamAnalytics.tsx
+
+import {
+  ResponsiveContainer,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Tooltip,
+  Radar,
+  ScatterChart,
+  Scatter,
+  CartesianGrid,
+  XAxis,
+  YAxis
+} from "recharts";
+
 import React, { useState } from "react";
-import { Card, CardContent } from "./ui/Card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Radar, RadarChart, PolarAngleAxis, PolarRadiusAxis, Customized } from 'recharts';
+import { Customized } from "recharts";
 import type { TooltipProps } from 'recharts';
 import { normalizePlayerData, getMetricDisplayLabel } from '../utils/dataTransformation';
+import type { TeamMatchStat } from "../models/team-match-stat";
 
-// Define a basic interface for TeamMatchStat to resolve potential import errors
-export interface TeamMatchStat {
-  MatchID: number | string;
-  [key: string]: number | string | null;
+interface Props {
+  data: TeamMatchStat[]
 }
 
-interface TeamAnalyticsProps {
-  data: TeamMatchStat[];
-}
+const topicF = ["goals", "penaltyGoals", "goalConversionPercentage", "totalShots", "keyPasses", "accurateFinalThirdPasses", "successfulDribbles", "aerialDuelsWon", "possessionLost"];
+const topicM = ["accuratePassesPercentage", "accurateLongBalls", "keyPasses", "totalShots", "successfulDribbles", "totalDuelsWon", "tackles", "interceptions"];
+const topicD = ["tackles", "interceptions", "clearances", "groundDuelsWonPercentage", "aerialDuelsWonPercentage", "fouls", "accuratePassesPercentage", "accurateLongBalls", "keyPasses"];
+const topicG = ["saves", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut", "accuratePassesPercentage", "accurateLongBalls"];
+
 
 // Stat categories for dynamic radar chart
 const STAT_CATEGORIES = {
@@ -42,11 +62,6 @@ const STAT_CATEGORIES = {
   }
 };
 
-// Position-specific metrics for the radar chart fallback
-const topicF = ["goals", "penaltyGoals", "goalConversionPercentage", "totalShots", "keyPasses", "accurateFinalThirdPasses", "successfulDribbles", "aerialDuelsWon", "possessionLost"];
-const topicM = ["accuratePassesPercentage", "accurateLongBalls", "keyPasses", "totalShots", "successfulDribbles", "totalDuelsWon", "tackles", "interceptions"];
-const topicD = ["tackles", "interceptions", "clearances", "groundDuelsWonPercentage", "aerialDuelsWonPercentage", "fouls", "accuratePassesPercentage", "accurateLongBalls", "keyPasses"];
-const topicG = ["saves", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut", "accuratePassesPercentage", "accurateLongBalls"];
 
 // Built-in presets for quick selection
 const BUILT_IN_PRESETS = {
@@ -77,39 +92,6 @@ const ALL_METRICS = {
   goalkeeping: ["saves", "goalsConceded", "penaltySave", "savedShotsFromInsideTheBox", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut"],
   performance: ["rating", "minutesPlayed", "appearances", "yellowCards", "redCards", "fouls", "totalDuelsWon"]
 };
-
-// Metrics for the bar charts in TeamAnalytics
-const teamAnalyticsMetrics = [
-    "expectedGoals",
-    "totalShots", 
-    "shotsOnTarget",
-    "shotsOffTarget",
-    "fouls",
-    "passes",
-    "tackles"
-];
-
-export function TeamAnalytics({ data }: TeamAnalyticsProps) {
-  return (
-    <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-      {teamAnalyticsMetrics.map((metric) => (
-        <Card key={metric} className="rounded-2xl shadow">
-          <CardContent>
-           <h2 className="text-xl font-semibold mb-4">{metric}</h2>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={data}>
-                <XAxis dataKey="MatchID" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey={metric} fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-}
 
 interface PlayerSeasonRadarProps {
   data: Record<string, number | null>;
@@ -461,5 +443,199 @@ export function PlayerSeasonRadar({ data, position }: PlayerSeasonRadarProps) {
         </>
       )}
     </div>
+  )
+}
+
+export function TeamSeasonRadar({ data, metrics }) {
+  const teamMetrics1 = [
+    "expectedGoals",
+    "totalShots",
+    "shotsOnTarget",
+    "shotsOffTarget",
+    "fouls",
+    "passes",
+    "tackles"
+  ]
+  const generateChartData = (data, metrics) => {
+    return metrics.map(metric => ({
+      label: metric,
+      value: data[metric] ?? 0 // Default to 0 if the metric is null or undefined
+    }));
+  };
+  const ChartData = generateChartData(data, teamMetrics1);
+  
+  return (
+    <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <ResponsiveContainer width="100%" height={300}>
+        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={ChartData}>
+          <PolarGrid />
+          <PolarAngleAxis dataKey="label" />
+          <PolarRadiusAxis />
+          <Tooltip />
+          <Radar name="Team" dataKey="value" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+        </RadarChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
+export function TeamsMatchScatter({ data, metrics }) {
+  const teamMetrics1 = [
+    "expectedGoals",
+    "totalShots",
+    "shotsOnTarget",
+    "shotsOffTarget",
+    "fouls",
+    "passes",
+    "tackles"
+  ]
+  const generateChartData = (data, metrics) => {
+    return metrics.map(metric => ({
+      label: metric,
+      value: data[metric] ?? 0 // Default to 0 if the metric is null or undefined
+    }));
+  };
+  const ChartData = generateChartData(data, teamMetrics1);
+  
+  return (
+    <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+      <ResponsiveContainer width="100%" height={300}>
+        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={ChartData}>
+          <PolarGrid />
+          <PolarAngleAxis dataKey="label" />
+          <PolarRadiusAxis />
+          <Tooltip />
+          <Radar name="Team" dataKey="value" stroke="#8884d8" fill="#8884d8" fillOpacity={0.6} />
+        </RadarChart>
+      </ResponsiveContainer>
+    </div>
+  )
+}
+
+type Props2 = {
+  data: Array<{ [key: string]: number }>; // Adjust according to your data structure
+  xAxisMetric: string;
+  yAxisMetric: string;
+};
+
+type TeamSeasonStat = {
+  [teamId: string]: {
+    stats: { [key: string]: number }; // Numeric stats for the team
+    info: { [key: string]: string }; // Additional info about the team
+  };
+};
+
+type Props3 = {
+  data: TeamSeasonStat;
+  xAxisMetric: string;
+  yAxisMetric: string;
+};
+
+export function TeamSeasonScatter({ data, xAxisMetric, yAxisMetric }) {
+  // Transform the data into an array suitable for the ScatterChart
+  const transformedData = Object.entries(data).map(([teamId, { stats, info }]) => ({
+    teamId,
+    ...stats,
+    ...info,
+  }));
+
+  // Sort the transformed data based on the xAxisMetric
+  const sortedData = transformedData.sort((a, b) => a[xAxisMetric] - b[xAxisMetric]);
+
+  // Calculate min and max for xAxis and yAxis
+  const xValues = sortedData.map(item => item[xAxisMetric]);
+  const yValues = sortedData.map(item => item[yAxisMetric]);
+
+  const pad = 0.1;
+  const xMin = Math.min(...xValues) * (1-pad);
+  const xMax = Math.max(...xValues) * (1+pad);
+  const yMin = Math.min(...yValues) * (1-pad);
+  const yMax = Math.max(...yValues) * (1+pad);
+
+  // Custom Tooltip component
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const { name } = payload[0].payload; // Extract teamId
+      const xValue = payload[0].payload[xAxisMetric]; // Extract xAxis value
+      const yValue = payload[0].payload[yAxisMetric]; // Extract yAxis value
+      return (
+        <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '10px', border: '1px solid #ccc' }}>
+          <h4>{name}</h4>
+          <div>{`${xAxisMetric}: ${xValue}`}</div>
+          <div>{`${yAxisMetric}: ${yValue}`}</div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Team Season Scatter Plot</h2>
+      <ResponsiveContainer width="100%" height={300}>
+        <ScatterChart>
+          <CartesianGrid />
+          <XAxis dataKey={xAxisMetric} name={xAxisMetric} type="number" domain={[xMin, xMax]} />
+          <YAxis dataKey={yAxisMetric} name={yAxisMetric} domain={[yMin, yMax]} />
+          <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
+          <Scatter name="Team Performance" data={sortedData} fill="#8884d8" />
+        </ScatterChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
+
+export function PlayerSeasonScatter({ data, xAxisMetric, yAxisMetric }) {
+  // Transform the data into an array suitable for the ScatterChart
+  const transformedData = Object.entries(data).map(([playerId, { stats, info }]) => ({
+    playerId,
+    ...stats,
+    ...info,
+  }));
+
+  // Sort the transformed data based on the xAxisMetric
+  const sortedData = transformedData.sort((a, b) => a[xAxisMetric] - b[xAxisMetric]);
+
+  // Calculate min and max for xAxis and yAxis
+  const xValues = sortedData.map(item => item[xAxisMetric]);
+  const yValues = sortedData.map(item => item[yAxisMetric]);
+
+  const pad = 0.1;
+  const xMin = Math.min(...xValues) * (1-pad);
+  const xMax = Math.max(...xValues) * (1+pad);
+  const yMin = Math.min(...yValues) * (1-pad);
+  const yMax = Math.max(...yValues) * (1+pad);
+
+  // Custom Tooltip component
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const { name } = payload[0].payload; // Extract playerId
+      const xValue = payload[0].payload[xAxisMetric]; // Extract xAxis value
+      const yValue = payload[0].payload[yAxisMetric]; // Extract yAxis value
+      return (
+        <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '10px', border: '1px solid #ccc' }}>
+          <h4>{name}</h4>
+          <div>{`${xAxisMetric}: ${xValue}`}</div>
+          <div>{`${yAxisMetric}: ${yValue}`}</div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Player Season Scatter Plot</h2>
+      <ResponsiveContainer width="100%" height={300}>
+        <ScatterChart>
+          <CartesianGrid />
+          <XAxis dataKey={xAxisMetric} name={xAxisMetric} type="number" domain={[xMin, xMax]} />
+          <YAxis dataKey={yAxisMetric} name={yAxisMetric} domain={[yMin, yMax]} />
+          <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
+          <Scatter name="Player Performance" data={sortedData} fill="#8884d8" />
+        </ScatterChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+

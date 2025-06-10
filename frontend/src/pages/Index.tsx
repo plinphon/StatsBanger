@@ -1,8 +1,8 @@
 import React from 'react';
 import '../style.css';
 import { useState } from "react";
-import { searchPlayerByName } from "../lib/api"; 
-import { searchTeamByName } from "../lib/api"; 
+import { searchPlayersByName } from "../lib/api"; 
+import { searchTeamsByName } from "../lib/api"; 
 import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
@@ -69,7 +69,7 @@ export function PlayerSelect() {
         try {
           setLoading(true);
           setError(null);
-          const players = await searchPlayerByName(value);
+          const players = await searchPlayersByName(value);
           setFilteredPlayers(players.map((p) => ({ name: p.name, id: Number(p.id) })));
         } catch (err) {
           setError("Failed to load players");
@@ -223,7 +223,7 @@ export function PlayerSelect() {
       try {
         setLoading(true);
         setError(null);
-        const teams = await searchTeamByName(value); 
+        const teams = await searchTeamsByName(value); 
         setFilteredTeams(teams.map((t) => t.name));
       } catch (err) {
         setError("Failed to load teams");

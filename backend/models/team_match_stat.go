@@ -1,55 +1,69 @@
 package models
 
 type TeamMatchStat struct {
-	MatchID              int      `json:"matchId"`
-	TeamID               int      `json:"teamId"`
-	BallPossession       *float64 `json:"ballPossession"`
-	ExpectedGoals        *float64 `json:"expectedGoals"`
-	BigChances           *float64 `json:"bigChances"`
-	TotalShots           *float64 `json:"totalShots"`
-	GoalkeeperSaves      *float64 `json:"goalkeeperSaves"`
-	CornerKicks          *float64 `json:"cornerKicks"`
-	Fouls                *float64 `json:"fouls"`
-	Passes               *float64 `json:"passes"`
-	Tackles              *float64 `json:"tackles"`
-	FreeKicks            *float64 `json:"freeKicks"`
-	YellowCards          *float64 `json:"yellowCards"`
-	RedCards             *float64 `json:"redCards"`
-	ShotsOnTarget        *float64 `json:"shotsOnTarget"`
-	HitWoodwork          *float64 `json:"hitWoodwork"`
-	ShotsOffTarget       *float64 `json:"shotsOffTarget"`
-	BlockedShots         *float64 `json:"blockedShots"`
-	ShotsInsideBox       *float64 `json:"shotsInsideBox"`
-	ShotsOutsideBox      *float64 `json:"shotsOutsideBox"`
-	BigChancesScored     *float64 `json:"bigChancesScored"`
-	BigChancesMissed     *float64 `json:"bigChancesMissed"`
-	ThroughBalls         *float64 `json:"throughBalls"`
-	TouchesInPenaltyArea *float64 `json:"touchesInPenaltyArea"`
-	FouledInFinalThird   *float64 `json:"fouledInFinalThird"`
-	Offsides             *float64 `json:"offsides"`
-	AccuratePasses       *float64 `json:"accuratePasses"`
-	ThrowIns             *float64 `json:"throwIns"`
-	FinalThirdEntries    *float64 `json:"finalThirdEntries"`
-	FinalThirdPhase      *float64 `json:"finalThirdPhase"`
-	LongBalls            *float64 `json:"longBalls"`
-	Crosses              *float64 `json:"crosses"`
-	Duels                *float64 `json:"duels"`
-	Dispossessed         *float64 `json:"dispossessed"`
-	GroundDuels          *float64 `json:"groundDuels"`
-	AerialDuels          *float64 `json:"aerialDuels"`
-	Dribbles             *float64 `json:"dribbles"`
-	TacklesWon           *float64 `json:"tacklesWon"`
-	TotalTackles         *float64 `json:"totalTackles"`
-	Interceptions        *float64 `json:"interceptions"`
-	Recoveries           *float64 `json:"recoveries"`
-	Clearances           *float64 `json:"clearances"`
-	TotalSaves           *float64 `json:"totalSaves"`
-	GoalsPrevented       *float64 `json:"goalsPrevented"`
-	GoalKicks            *float64 `json:"goalKicks"`
-	BigSaves             *float64 `json:"bigSaves"`
-	HighClaims           *float64 `json:"highClaims"`
-	Punches              *float64 `json:"punches"`
-	ErrorsLeadToAShot    *float64 `json:"errorsLeadToAShot"`
-	ErrorsLeadToAGoal    *float64 `json:"errorsLeadToAGoal"`
-	PenaltySaves         *float64 `json:"penaltySaves"`
+    MatchId int    `gorm:"column:match_id;primaryKey"` 
+    Match   *Match `gorm:"foreignKey:MatchId;references:Id"`
+
+    TeamId int  `gorm:"column:team_id;primaryKey"`
+    Team   Team `gorm:"foreignKey:TeamId;references:TeamId"`
+    
+	Stats map[string]*float64 `gorm:"-" json:"stats"` // Assuming it's computed or not in DB
+}
+
+func (TeamMatchStat) TableName() string {
+    return "team_match_stat"
+}
+
+var ValidTeamMatchFields = map[string]bool{
+	"match_id":               true,
+	"team_id":                true,
+	"ball_possession":        true,
+	"expected_goals":         true,
+	"big_chances":            true,
+	"total_shots":            true,
+	"goalkeeper_saves":       true,
+	"corner_kicks":           true,
+	"fouls":                  true,
+	"passes":                 true,
+	"tackles":                true,
+	"free_kicks":             true,
+	"yellow_cards":           true,
+	"red_cards":              true,
+	"shots_on_target":        true,
+	"hit_woodwork":           true,
+	"shots_off_target":       true,
+	"blocked_shots":          true,
+	"shots_inside_box":       true,
+	"shots_outside_box":      true,
+	"big_chances_scored":     true,
+	"big_chances_missed":     true,
+	"through_balls":          true,
+	"touches_in_penalty_area": true,
+	"fouled_in_final_third":  true,
+	"offsides":               true,
+	"accurate_passes":        true,
+	"throw_ins":              true,
+	"final_third_entries":    true,
+	"final_third_phase":      true,
+	"long_balls":             true,
+	"crosses":                true,
+	"duels":                  true,
+	"dispossessed":           true,
+	"ground_duels":           true,
+	"aerial_duels":           true,
+	"dribbles":               true,
+	"tackles_won":            true,
+	"total_tackles":          true,
+	"interceptions":          true,
+	"recoveries":             true,
+	"clearances":             true,
+	"total_saves":            true,
+	"goals_prevented":        true,
+	"goal_kicks":             true,
+	"big_saves":              true,
+	"high_claims":            true,
+	"punches":                true,
+	"errors_lead_to_a_shot":  true,
+	"errors_lead_to_a_goal":  true,
+	"penalty_saves":          true,
 }

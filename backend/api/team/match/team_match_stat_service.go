@@ -15,7 +15,7 @@ type TeamMatchStatService struct {
 func NewTeamMatchStatService(repo *TeamMatchStatRepository) *TeamMatchStatService {
     return &TeamMatchStatService{repo: repo}
 }
-
+/*
 func (s *TeamMatchStatService) CreateStat(stat models.TeamMatchStat) error {
 
 	if existing, _ := s.repo.GetByID(stat.MatchID, stat.TeamID); existing != nil {
@@ -24,7 +24,12 @@ func (s *TeamMatchStatService) CreateStat(stat models.TeamMatchStat) error {
 
 	return s.repo.Create(stat)
 }
-
-func (s *TeamMatchStatService) GetStatByID(matchID int, teamID int) (*models.TeamMatchStat, error) {
-	return s.repo.GetByID(matchID, teamID)
+*/
+func (s *TeamMatchStatService) GetStatByID(matchID int, teamID int, statFields []string) (*models.TeamMatchStat, error) {
+	return s.repo.GetById(matchID, teamID, statFields)
 }
+
+func (s *TeamMatchStatService) GetAllMatchesByTeamID(teamID int) ([]models.TeamMatchStat, error) {
+    return s.repo.GetAllMatchesByTeamID(teamID)
+}
+

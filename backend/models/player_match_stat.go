@@ -1,58 +1,74 @@
 package models
 
 type PlayerMatchStat struct {
-	MatchID                    int      `json:"matchId"`
-	PlayerID                   int      `json:"playerId"`
-	TotalPass                  *float64 `json:"totalPass"`
-	AccuratePass               *float64 `json:"accuratePass"`
-	TotalLongBalls             *float64 `json:"totalLongBalls"`
-	AccurateLongBalls          *float64 `json:"accurateLongBalls"`
-	GoalAssist                 *float64 `json:"goalAssist"`
-	SavedShotsFromInsideTheBox *float64 `json:"savedShotsFromInsideTheBox"`
-	Saves                      *float64 `json:"saves"`
-	MinutesPlayed              *float64 `json:"minutesPlayed"`
-	Touches                    *float64 `json:"touches"`
-	Rating                     *float64 `json:"rating"`
-	PossessionLostCtrl         *float64 `json:"possessionLostCtrl"`
-	KeyPass                    *float64 `json:"keyPass"`
-	GoalsPrevented             *float64 `json:"goalsPrevented"`
-	AerialWon                  *float64 `json:"aerialWon"`
-	DuelLost                   *float64 `json:"duelLost"`
-	DuelWon                    *float64 `json:"duelWon"`
-	OnTargetScoringAttempt     *float64 `json:"onTargetScoringAttempt"`
-	Goals                      *float64 `json:"goals"`
-	TotalClearance             *float64 `json:"totalClearance"`
-	InterceptionWon            *float64 `json:"interceptionWon"`
-	TotalTackle                *float64 `json:"totalTackle"`
-	WasFouled                  *float64 `json:"wasFouled"`
-	Fouls                      *float64 `json:"fouls"`
-	ExpectedGoals              *float64 `json:"expectedGoals"`
-	ExpectedAssists            *float64 `json:"expectedAssists"`
-	AerialLost                 *float64 `json:"aerialLost"`
-	ChallengeLost              *float64 `json:"challengeLost"`
-	TotalCross                 *float64 `json:"totalCross"`
-	TotalContest               *float64 `json:"totalContest"`
-	WonContest                 *float64 `json:"wonContest"`
-	OutfielderBlock            *float64 `json:"outfielderBlock"`
-	BigChanceCreated           *float64 `json:"bigChanceCreated"`
-	Dispossessed               *float64 `json:"dispossessed"`
-	ShotOffTarget              *float64 `json:"shotOffTarget"`
-	AccurateCross              *float64 `json:"accurateCross"`
-	TotalOffside               *float64 `json:"totalOffside"`
-	BlockedScoringAttempt      *float64 `json:"blockedScoringAttempt"`
-	PenaltyWon                 *float64 `json:"penaltyWon"`
-	PenaltyConceded            *float64 `json:"penaltyConceded"`
-	BigChanceMissed            *float64 `json:"bigChanceMissed"`
-	TotalKeeperSweeper         *float64 `json:"totalKeeperSweeper"`
-	AccurateKeeperSweeper      *float64 `json:"accurateKeeperSweeper"`
-	GoodHighClaim              *float64 `json:"goodHighClaim"`
-	Punches                    *float64 `json:"punches"`
-	ClearanceOffLine           *float64 `json:"clearanceOffLine"`
-	HitWoodwork                *float64 `json:"hitWoodwork"`
-	ErrorLeadToAShot           *float64 `json:"errorLeadToAShot"`
-	OwnGoals                   *float64 `json:"ownGoals"`
-	LastManTackle              *float64 `json:"lastManTackle"`
-	ErrorLeadToAGoal           *float64 `json:"errorLeadToAGoal"`
-	PenaltySave                *float64 `json:"penaltySave"`
-	PenaltyMiss                *float64 `json:"penaltyMiss"`
+	MatchId  int `gorm:"column:match_id"`
+	PlayerId int `gorm:"column:player_id"`
+	TeamId   int `gorm:"column:team_id"`
+
+	Match  Match  `gorm:"foreignKey:MatchId;references:Id" json:"match"`
+	Player Player `gorm:"foreignKey:PlayerId;references:PlayerId" json:"player"`
+	Team   Team   `gorm:"foreignKey:TeamId;references:TeamId" json:"team"`
+
+	Stats map[string]*float64 `gorm:"-" json:"match_stats"`
+}
+func (PlayerMatchStat) TableName() string {
+    return "player_match_stat"
+}
+
+var ValidPlayerMatchFields = map[string]bool{
+	"match_id":                       true,
+	"player_id":                      true,
+	"team_id":                        true,
+	"total_pass":                     true,
+	"accurate_pass":                  true,
+	"total_long_balls":              true,
+	"accurate_long_balls":          true,
+	"goal_assist":                    true,
+	"saved_shots_from_inside_the_box": true,
+	"saves":                          true,
+	"minutes_played":                 true,
+	"touches":                        true,
+	"rating":                         true,
+	"possession_lost_ctrl":          true,
+	"key_pass":                       true,
+	"goals_prevented":                true,
+	"aerial_won":                     true,
+	"duel_lost":                      true,
+	"duel_won":                       true,
+	"on_target_scoring_attempt":     true,
+	"goals":                          true,
+	"total_clearance":               true,
+	"interception_won":              true,
+	"total_tackle":                  true,
+	"was_fouled":                     true,
+	"fouls":                          true,
+	"expected_goals":                true,
+	"expected_assists":              true,
+	"aerial_lost":                    true,
+	"challenge_lost":                true,
+	"total_cross":                   true,
+	"total_contest":                 true,
+	"won_contest":                   true,
+	"outfielder_block":              true,
+	"big_chance_created":           true,
+	"dispossessed":                   true,
+	"shot_off_target":              true,
+	"accurate_cross":               true,
+	"total_offside":                true,
+	"blocked_scoring_attempt":      true,
+	"penalty_won":                   true,
+	"penalty_conceded":             true,
+	"big_chance_missed":            true,
+	"total_keeper_sweeper":         true,
+	"accurate_keeper_sweeper":     true,
+	"good_high_claim":              true,
+	"punches":                        true,
+	"clearance_off_line":           true,
+	"hit_woodwork":                  true,
+	"error_lead_to_a_shot":         true,
+	"own_goals":                     true,
+	"last_man_tackle":              true,
+	"error_lead_to_a_goal":         true,
+	"penalty_save":                  true,
+	"penalty_miss":                  true,
 }

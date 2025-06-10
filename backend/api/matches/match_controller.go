@@ -22,7 +22,7 @@ func (mc *MatchController) GetMatchByID(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid match ID")
 	}
 
-	matches, err := mc.service.GetMatchesByID(matchID)
+	matches, err := mc.service.GetMatchById(matchID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get a match")
 	}
@@ -38,7 +38,7 @@ func (mc *MatchController) GetMatchByTeamID(c *fiber.Ctx) error {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid team ID")
 	}
 
-	matches, err := mc.service.GetMatchesByTeamID(teamID)
+	matches, err := mc.service.GetMatchesByTeamId(teamID)
 	if err != nil {
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get matches")
 	}
