@@ -1,0 +1,10 @@
+[variables]
+GO_VERSION = "1.21"
+
+[phases.build]
+cmds = [
+  "cd backend && go build -o main ."
+]
+
+[start]
+cmd = "cd backend && ./main"
