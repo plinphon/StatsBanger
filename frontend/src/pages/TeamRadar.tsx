@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom"
 import { TeamSeasonRadar } from "../components/allCharts"
 import type { TeamSeasonStat } from "../models/team-season-stat"
 import type { Team } from "../models/team"
-import { fetchTeamSeasonStat, fetchTeamById } from "../lib/api"
+import { fetchTeamSeasonStatsWithMeta, fetchTeamById } from "../lib/api"
 
 const UNIQUE_TOURNAMENT_ID = 8
 const SEASON_ID = 52376
@@ -25,7 +25,7 @@ export default function TeamChart() {
         setLoading(true)
         const [teamInfo, teamSeasonStat] = await Promise.all([
           fetchTeamById(TEAM_ID),
-          fetchTeamSeasonStat(UNIQUE_TOURNAMENT_ID, SEASON_ID, TEAM_ID)
+          fetchTeamSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, TEAM_ID)
         ])
         setTeam(teamInfo)
         setStats(teamSeasonStat)

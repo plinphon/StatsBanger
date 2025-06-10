@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom"
 import { TeamSeasonRadar, PlayerSeasonScatter } from "../components/allCharts"
 import type { PlayerSeasonStat } from "../models/player-season-stat"
 import type { Player } from "../models/player"
-import { fetchPlayerSeasonStat, fetchPlayerById, fetchTopPlayers } from "../lib/api"
+import { fetchPlayerSeasonStatsWithMeta, fetchPlayerById, fetchTopPlayersByStat } from "../lib/api"
 
 const UNIQUE_TOURNAMENT_ID = 8;
 const SEASON_ID = 52376;
@@ -28,11 +28,11 @@ export default function PlayerScatter() {
             try {
                 setLoading(true)
                 const [players] = await Promise.all([
-                        fetchTopPlayers("appearances", UNIQUE_TOURNAMENT_ID, SEASON_ID, 600, POSITION)
+                        fetchTopPlayersByStat("appearances", UNIQUE_TOURNAMENT_ID, SEASON_ID, 600, POSITION)
                 ])
                 const playerIds = players.map(player => player.playerId);
                 const playerDataPromises = playerIds.map(id => fetchPlayerById(id));
-                const playerStatsPromises = playerIds.map(id => fetchPlayerSeasonStat(UNIQUE_TOURNAMENT_ID, SEASON_ID, id));
+                const playerStatsPromises = playerIds.map(id => fetchPlayerSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, id));
                 const [playerData, playerStats] = await Promise.all([
                         Promise.all(playerDataPromises),
                         Promise.all(playerStatsPromises)

@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom"
 import { TeamSeasonRadar, TeamSeasonScatter } from "../components/allCharts"
 import type { TeamSeasonStat } from "../models/team-season-stat"
 import type { Team } from "../models/team"
-import { fetchTeamSeasonStat, fetchTeamById, fetchTopTeams } from "../lib/api"
+import { fetchTeamSeasonStatsWithMeta, fetchTeamById, fetchTopTeamsByStat } from "../lib/api"
 
 const UNIQUE_TOURNAMENT_ID = 8;
 const SEASON_ID = 52376;
@@ -27,18 +27,18 @@ export default function TeamScatter() {
       try {
         setLoading(true)
         const [teams] = await Promise.all([
-            fetchTopTeams("shots", UNIQUE_TOURNAMENT_ID, SEASON_ID, 20)
+          fetchTopTeamsByStat("shots", UNIQUE_TOURNAMENT_ID, SEASON_ID, 20)
         ])
         const teamIds = teams.map(team => team.teamId);
         const teamDataPromises = teamIds.map(id => fetchTeamById(id));
-        const teamStatsPromises = teamIds.map(id => fetchTeamSeasonStat(UNIQUE_TOURNAMENT_ID, SEASON_ID, id));
+        const teamStatsPromises = teamIds.map(id => fetchTeamSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, id));
         const [teamData, teamStats] = await Promise.all([
             Promise.all(teamDataPromises),
             Promise.all(teamStatsPromises)
         ]);
         const teamDataMap = teamIds.reduce((acc, id, index) => {
             acc[id] = {
-                stats: teamStats[index] as TeamSeasonStat,
+                stats: (teamStats[index][0]) as TeamSeasonStat,
                 info: teamData[index] as Team,
             };
             return acc;

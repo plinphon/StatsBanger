@@ -67,36 +67,36 @@ export async function fetchStatByPlayerAndMatch(playerId: number, matchId: numbe
 }
 
 // Player Season Stat APIs
-export async function fetchTopPlayersByStat(params: {
+export async function fetchTopPlayersByStat(
   statFields: string,
   uniqueTournamentID: number,
   seasonID: number,
   limit?: number,
   position?: string
-}): Promise<TopPlayer[]> {
+): Promise<TopPlayer[]> {
   const url = new URL(`${API_BASE_URL}/api/player-season-stat/top-players`)
-  url.searchParams.append("statFields", params.statFields)
-  url.searchParams.append("uniqueTournamentID", params.uniqueTournamentID.toString())
-  url.searchParams.append("seasonID", params.seasonID.toString())
-  if (params.limit) url.searchParams.append("limit", params.limit.toString())
-  if (params.position) url.searchParams.append("position", params.position)
+  url.searchParams.append("statFields", statFields)
+  url.searchParams.append("uniqueTournamentID", uniqueTournamentID.toString())
+  url.searchParams.append("seasonID", seasonID.toString())
+  if (limit) url.searchParams.append("limit", limit.toString())
+  if (position) url.searchParams.append("position", position)
 
   const res = await fetch(url.toString())
   if (!res.ok) throw new Error("Failed to fetch top players")
   return await res.json()
 }
 
-export async function fetchPlayerSeasonStatsWithMeta(params: {
-  playerID?: string, 
+export async function fetchPlayerSeasonStatsWithMeta(
   uniqueTournamentID: number,
   seasonID: number,
+  playerID?: number,
   statFields?: string
-}): Promise<PlayerSeasonStat[]> {
+): Promise<PlayerSeasonStat[]> {
   const url = new URL(`${API_BASE_URL}/api/player-season-stat`)
-  if (params.playerID) url.searchParams.append("playerID", params.playerID)
-  url.searchParams.append("uniqueTournamentID", params.uniqueTournamentID.toString())
-  url.searchParams.append("seasonID", params.seasonID.toString())
-  if (params.statFields) url.searchParams.append("statFields", params.statFields)
+  if (playerID) url.searchParams.append("playerID", playerID.toString())
+  url.searchParams.append("uniqueTournamentID", uniqueTournamentID.toString())
+  url.searchParams.append("seasonID", seasonID.toString())
+  if (statFields) url.searchParams.append("statFields", statFields)
 
   const res = await fetch(url.toString())
   if (!res.ok) throw new Error("Failed to fetch player stats with meta")
@@ -117,15 +117,15 @@ export async function searchTeamsByName(name: string): Promise<Team[]> {
 }
 
 // Team Match Stat APIs
-export async function fetchTeamMatchStats(params: {
+export async function fetchTeamMatchStats(
   matchID: number,
   teamID: number,
   statFields?: string
-}): Promise<TeamMatchStat> {
+): Promise<TeamMatchStat> {
   const url = new URL(`${API_BASE_URL}/api/team-match-stat`)
-  url.searchParams.append("matchID", params.matchID.toString())
-  url.searchParams.append("teamID", params.teamID.toString())
-  if (params.statFields) url.searchParams.append("statFields", params.statFields)
+  url.searchParams.append("matchID", matchID.toString())
+  url.searchParams.append("teamID", teamID.toString())
+  if (statFields) url.searchParams.append("statFields", statFields)
 
   const res = await fetch(url.toString())
   if (!res.ok) throw new Error("Failed to fetch team match stats")
@@ -139,34 +139,34 @@ export async function fetchAllTeamMatches(teamID: number): Promise<any[]> {
 }
 
 // Team Season Stat APIs
-export async function fetchTeamStatsWithMeta(params: {
-  teamID?: string, 
+export async function fetchTeamSeasonStatsWithMeta(
   uniqueTournamentID: number,
   seasonID: number,
+  teamID?: number, 
   statFields?: string
-}): Promise<TeamSeasonStat[]> {
+): Promise<TeamSeasonStat[]> {
   const url = new URL(`${API_BASE_URL}/api/team-season-stat`)
-  if (params.teamID) url.searchParams.append("teamID", params.teamID)
-  url.searchParams.append("uniqueTournamentID", params.uniqueTournamentID.toString())
-  url.searchParams.append("seasonID", params.seasonID.toString())
-  if (params.statFields) url.searchParams.append("statFields", params.statFields)
+  if (teamID) url.searchParams.append("teamID", teamID.toString())
+  url.searchParams.append("uniqueTournamentID", uniqueTournamentID.toString())
+  url.searchParams.append("seasonID", seasonID.toString())
+  if (statFields) url.searchParams.append("statFields", statFields)
 
   const res = await fetch(url.toString())
   if (!res.ok) throw new Error("Failed to fetch team stats with meta")
   return await res.json()
 }
 
-export async function fetchTopTeamsByStat(params: {
+export async function fetchTopTeamsByStat(
   statFields: string,
   uniqueTournamentID: number,
   seasonID: number,
   limit?: number
-}): Promise<TopTeam[]> {
+): Promise<TopTeam[]> {
   const url = new URL(`${API_BASE_URL}/api/team-season-stat/top-teams`)
-  url.searchParams.append("statFields", params.statFields)
-  url.searchParams.append("uniqueTournamentID", params.uniqueTournamentID.toString())
-  url.searchParams.append("seasonID", params.seasonID.toString())
-  if (params.limit) url.searchParams.append("limit", params.limit.toString())
+  url.searchParams.append("statFields", statFields)
+  url.searchParams.append("uniqueTournamentID", uniqueTournamentID.toString())
+  url.searchParams.append("seasonID",seasonID.toString())
+  if (limit) url.searchParams.append("limit", limit.toString())
 
   const res = await fetch(url.toString())
   if (!res.ok) throw new Error("Failed to fetch top teams")
