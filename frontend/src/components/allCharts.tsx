@@ -1,9 +1,25 @@
-
-
 // src/components/TeamAnalytics.tsx
-import type { TeamMatchStat } from "../models/team-match-stat"
-import { Card, CardContent } from "./ui/Card"
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ScatterChart, Scatter, CartesianGrid } from "recharts"
+
+import {
+  ResponsiveContainer,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Tooltip,
+  Radar,
+  ScatterChart,
+  Scatter,
+  CartesianGrid,
+  XAxis,
+  YAxis
+} from "recharts";
+
+import React, { useState } from "react";
+import { Customized } from "recharts";
+import type { TooltipProps } from 'recharts';
+import { normalizePlayerData, getMetricDisplayLabel } from '../utils/dataTransformation';
+import type { TeamMatchStat } from "../models/team-match-stat";
 
 interface Props {
   data: TeamMatchStat[]
@@ -15,27 +31,64 @@ const topicD = ["tackles", "interceptions", "clearances", "groundDuelsWonPercent
 const topicG = ["saves", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut", "accuratePassesPercentage", "accurateLongBalls"];
 
 
-export function TeamAnalytics({ data }: TeamAnalyticsProps) {
-  return (
-    <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-      {teamAnalyticsMetrics.map((metric) => (
-        <Card key={metric} className="rounded-2xl shadow">
-          <CardContent>
-           <h2 className="text-xl font-semibold mb-4">{metric}</h2>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={data}>
-                <XAxis dataKey="MatchID" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey={metric} fill="#8884d8" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
-  );
-}
+// Stat categories for dynamic radar chart
+const STAT_CATEGORIES = {
+  attacking: {
+    name: "Attacking",
+    stats: ["goals", "assists", "expectedGoals", "bigChancesCreated", "shotsOnTarget", "totalShots"]
+  },
+  defending: {
+    name: "Defending", 
+    stats: ["tackles", "interceptions", "blockedShots", "aerialDuelsWon", "cleanSheet"]
+  },
+  passing: {
+    name: "Passing",
+    stats: ["accuratePassesPercentage", "keyPasses", "accurateLongBalls", "passToAssist", "totalPasses"]
+  },
+  dribbling: {
+    name: "Dribbling",
+    stats: ["successfulDribbles", "accurateCrosses", "dribbledPast"]
+  },
+  goalkeeping: {
+    name: "Goalkeeping",
+    stats: ["saves", "goalsConceded", "penaltySave", "savedShotsFromInsideTheBox", "cleanSheet"]
+  },
+  performance: {
+    name: "Performance",
+    stats: ["rating", "minutesPlayed", "appearances", "yellowCards", "redCards"]
+  }
+};
+
+
+// Built-in presets for quick selection
+const BUILT_IN_PRESETS = {
+  "attacking": {
+    name: "Attacking Focus",
+    metrics: ["goals", "assists", "expectedGoals", "totalShots", "shotsOnTarget", "keyPasses"]
+  },
+  "defending": {
+    name: "Defensive Profile", 
+    metrics: ["tackles", "interceptions", "clearances", "aerialDuelsWon", "blockedShots", "cleanSheet"]
+  },
+  "playmaking": {
+    name: "Playmaker Profile",
+    metrics: ["keyPasses", "accuratePassesPercentage", "accurateLongBalls", "assists", "passToAssist", "totalPasses"]
+  },
+  "physical": {
+    name: "Physical Dominance",
+    metrics: ["aerialDuelsWon", "totalDuelsWon", "successfulDribbles", "dribbledPast", "possessionLost", "fouls"]
+  }
+};
+
+// All available metrics organized by category
+const ALL_METRICS = {
+  attacking: ["goals", "assists", "expectedGoals", "bigChancesCreated", "shotsOnTarget", "totalShots", "goalConversionPercentage", "penaltyGoals"],
+  defending: ["tackles", "interceptions", "blockedShots", "aerialDuelsWon", "cleanSheet", "clearances", "groundDuelsWonPercentage", "aerialDuelsWonPercentage"],
+  passing: ["accuratePassesPercentage", "keyPasses", "accurateLongBalls", "passToAssist", "totalPasses", "accurateFinalThirdPasses"],
+  dribbling: ["successfulDribbles", "accurateCrosses", "dribbledPast", "possessionLost"],
+  goalkeeping: ["saves", "goalsConceded", "penaltySave", "savedShotsFromInsideTheBox", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut"],
+  performance: ["rating", "minutesPlayed", "appearances", "yellowCards", "redCards", "fouls", "totalDuelsWon"]
+};
 
 interface PlayerSeasonRadarProps {
   data: Record<string, number | null>;
