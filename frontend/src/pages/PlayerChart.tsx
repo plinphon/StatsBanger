@@ -25,10 +25,11 @@ export default function PlayerChart() {
     async function loadData() {
       try {
         setLoading(true)
-        const [playerInfo, playerSeasonStat] = await Promise.all([
+        const [playerInfo, seasonStats] = await Promise.all([
           fetchPlayerById(PLAYER_ID),
           fetchPlayerSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, PLAYER_ID)
         ])
+        const playerSeasonStat = seasonStats[0] ?? null
         setPlayer(playerInfo)
         setStats(playerSeasonStat)
       } catch (err: unknown) {
@@ -67,7 +68,6 @@ export default function PlayerChart() {
         {/* Player Info Card */}
         <div className="flex flex-col md:flex-row items-center bg-gradient-to-r from-green-900/60 to-cyan-900/60 rounded-2xl shadow-lg p-6 mb-8 gap-6">
           <img
-            src={player.photoUrl || "/default-player.png"}
             alt={player.name}
             className="w-32 h-32 rounded-full object-cover border-4 border-green-400 shadow"
           />
@@ -84,7 +84,7 @@ export default function PlayerChart() {
                 Age: {player.age}
               </span>
               <span className="bg-yellow-700/40 px-3 py-1 rounded-full text-sm font-medium border border-yellow-400/30">
-                Team: {player.teamName}
+                Team: 
               </span>
             </div>
             <div className="flex gap-2 mt-2">
@@ -104,7 +104,7 @@ export default function PlayerChart() {
             <h3 className="text-2xl font-semibold text-cyan-200">Season Performance</h3>
           </div>
           <PlayerSeasonRadar
-            data={stats as unknown as Record<string, number | null>}
+            data={stats.stats as unknown as Record<string, number | null>}
             position={player.position?.charAt(0).toUpperCase() || "M"}
           />
         </div>

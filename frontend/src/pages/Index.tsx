@@ -4,6 +4,7 @@ import { useState } from "react";
 import { searchPlayersByName } from "../lib/api"; 
 import { searchTeamsByName } from "../lib/api"; 
 import { useNavigate } from "react-router-dom";
+import AsyncSelect from 'react-select/async';
 
 const HomePage = () => {
 
@@ -52,6 +53,7 @@ export function PlayerSelect() {
     const [filteredPlayers, setFilteredPlayers] = useState<{ name: string; id: number }[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [selectedPlayer, setSelectedPlayer] = useState<{ label: string; value: number } | null>(null);
   
     const handleFocus = () => {
       setExpanded(true);
@@ -90,6 +92,27 @@ export function PlayerSelect() {
 
     const navigate = useNavigate();
 
+    const loadOptions = async (inputValue: string) => {
+      if (!inputValue) return [];
+      try {
+        const players = await searchPlayersByName(inputValue);
+        return players.map((p) => ({ label: p.name, value: p.id }));
+      } catch {
+        return [];
+      }
+    };
+
+    const handleInputChange = (newValue: any) => {
+      setSelectedPlayer(newValue);
+    };
+  
+
+    const handleSelectClick = () => {
+      if (selectedPlayer) {
+        navigate(`/player/${selectedPlayer.value}`);
+      }
+    };
+    
     return (
       <main
         onClick={handleClickMain}
@@ -122,47 +145,36 @@ export function PlayerSelect() {
           </div>
   
           {/* Expandable Panel */}
-          <div
+           <div
             className={`transition-all duration-500 overflow-hidden ${
               expanded ? "max-h-96 mt-6 opacity-100" : "max-h-0 opacity-0"
             }`}
           >
-            <div className="pl-7 mt-4 space-y-4 preserve-expand">
-              <input
-                type="text"
-                placeholder="Search player name..."
-                value={searchInput}
-                onChange={handleChange}
-                onFocus={handleFocus}
-                className="w-full px-4 py-2 rounded-lg bg-gray-900 text-white border border-gray-600 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
+          <div onClick={(e) => e.stopPropagation()} className="space-y-3">
 
-            {searchInput && (
-            <ul className="mt-1 border border-gray-500 rounded bg-white text-black max-h-48 overflow-y-auto">
-                {loading ? (
-                <li className="p-2 text-gray-500 italic">Loading...</li>
-                ) : error ? (
-                <li className="p-2 text-red-500 italic">{error}</li>
-                ) : filteredPlayers.length > 0 ? (
-                  filteredPlayers.map(({ name, id }, idx) => (
-                    <li
-                      key={idx}
-                      onClick={() => {
-                        navigate(`/player/${id}`);
-                      }}
-                      className="p-2 hover:bg-gray-200 cursor-pointer"
-                    >
-                      {name}
-                    </li>
-                  ))
-                  
-                ) : (
-                <li className="p-2 text-gray-500 italic">No results</li>
-                )}
-            </ul>
-            )}
+            {/* Search Section */}
+            <AsyncSelect cacheOptions loadOptions={loadOptions} 
+            defaultOptions
+            placeholder="Search player name..."
+            className="w-full text-black"
+            onFocus={handleFocus}
+            onChange={handleInputChange} />
 
-  
+            <button className="w-full px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors duration-300"
+                      onClick={handleSelectClick}
+                      disabled={!selectedPlayer}>
+                Select From Search
+              </button>
+          </div>
+            {/* OR Divider */}
+            <div className="flex items-center justify-center text-gray-500 font-semibold uppercase">
+              <div className="h-px bg-gray-400 flex-1 mr-3"></div>
+              or
+              <div className="h-px bg-gray-400 flex-1 ml-3"></div>
+            </div>
+
+            {/* Select Dropdowns Section */}
+            <div className="space-y-4">
               <select
                 onFocus={handleFocus}
                 className="w-full px-4 py-2 rounded-lg bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500"
@@ -172,7 +184,7 @@ export function PlayerSelect() {
                 <option>Germany</option>
                 <option>Brazil</option>
               </select>
-  
+
               <select
                 onFocus={handleFocus}
                 className="w-full px-4 py-2 rounded-lg bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -182,7 +194,7 @@ export function PlayerSelect() {
                 <option>La Liga</option>
                 <option>Serie A</option>
               </select>
-  
+
               <select
                 onFocus={handleFocus}
                 className="w-full px-4 py-2 rounded-lg bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
@@ -192,9 +204,13 @@ export function PlayerSelect() {
                 <option>Manchester City</option>
                 <option>Juventus</option>
               </select>
-              <button className="w-full px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors duration-300">Select</button>
+
+              <button className="w-full px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors duration-300">
+                Select From Filters
+              </button>
             </div>
-          </div>
+
+            </div>
         </section>
       </main>
     );
