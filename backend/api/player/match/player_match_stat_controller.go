@@ -43,14 +43,14 @@ func (mc *PlayerMatchStatController) GetStatsByMatchID(c *fiber.Ctx) error {
 	return c.JSON(stats)
 }
 
-func (mc *PlayerMatchStatController) GetAllMatchesByPlayerID(c *fiber.Ctx) error {
+func (mc *PlayerMatchStatController) GetAllMatchStatsByPlayerID(c *fiber.Ctx) error {
 	playerIDStr := c.Params("playerID")
 	playerID, err := strconv.Atoi(playerIDStr)
 	if err != nil || playerID <= 0 {
 		return fiber.NewError(fiber.StatusBadRequest, "Invalid or missing playerID")
 	}
 
-	stats, err := mc.service.GetAllMatchesByPlayerID(playerID)
+	stats, err := mc.service.GetAllMatchStatsByPlayerID(playerID)
 	if err != nil {
 		log.Printf("❌ Error getting player stats: %v", err)
 		return fiber.NewError(fiber.StatusInternalServerError, "Failed to get player stats")

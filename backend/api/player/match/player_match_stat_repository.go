@@ -9,7 +9,6 @@ import (
 	"gorm.io/gorm"
     "gorm.io/driver/sqlite"
 	"log"
-	"errors"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -160,42 +159,166 @@ func (r *PlayerMatchStatRepository) GetByMatchId(matchId int, statFields []strin
 	return stats, nil
 }
 
-func (r *PlayerMatchStatRepository) GetAllMatchesByPlayerId(playerId int) ([]models.PlayerMatchStat, error) {
-	var stats []models.PlayerMatchStat
-	
-	err := r.db.Debug().
+func (r *PlayerMatchStatRepository) GetAllMatchStatsByPlayerId(playerId int) ([]*models.PlayerMatchStat, error) {
+	var stats []*models.PlayerMatchStat
+
+	statFields := make([]string, 0, len(models.ValidPlayerMatchFields))
+	for field := range models.ValidPlayerMatchFields {
+		statFields = append(statFields, field)
+	}
+
+
+	// Load basic player match stat rows and relations
+	err := r.db.
 		Preload("Match.HomeTeam").
 		Preload("Match.AwayTeam").
+		Preload("Player").
 		Preload("Team").
 		Where("player_id = ?", playerId).
 		Find(&stats).Error
-
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load player match stats: %w", err)
+	}
+
+	if len(stats) == 0 {
+		return stats, nil
+	}
+
+	// Collect all match IDs for the stats query
+	matchIds := make([]int, len(stats))
+	for i, stat := range stats {
+		matchIds[i] = stat.MatchId
+	}
+
+	// Raw SQL to get only stat fields by player_id and match_ids
+	columns := "player_id, match_id, " + strings.Join(statFields, ", ")
+	query := "SELECT " + columns + " FROM player_match_stat WHERE player_id = ? AND match_id IN (?)"
+
+	rows, err := r.db.Raw(query, playerId, matchIds).Rows()
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute stats query: %w", err)
+	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("failed to close rows: %v", err)
+		}
+	}()
+
+	// Build stat map: match_id → {field: value}
+	statMap := make(map[int]map[string]*float64)
+	for rows.Next() {
+		var playerId, matchId int
+		scanTargets := make([]interface{}, len(statFields)+2)
+		scanTargets[0] = &playerId
+		scanTargets[1] = &matchId
+
+		values := make([]sql.NullFloat64, len(statFields))
+		for i := range values {
+			scanTargets[i+2] = &values[i]
+		}
+
+		if err := rows.Scan(scanTargets...); err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+
+		fieldMap := make(map[string]*float64, len(statFields))
+		for i, field := range statFields {
+			if values[i].Valid {
+				val := values[i].Float64
+				fieldMap[field] = &val
+			}
+		}
+		statMap[matchId] = fieldMap
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %w", err)
+	}
+
+	// Attach stats to loaded models
+	for _, stat := range stats {
+		if fieldMap, exists := statMap[stat.MatchId]; exists {
+			stat.Stats = fieldMap
+		} else {
+			stat.Stats = make(map[string]*float64)
+		}
 	}
 
 	return stats, nil
 }
 
 func (r *PlayerMatchStatRepository) GetByPlayerAndMatchId(playerId int, matchId int) (*models.PlayerMatchStat, error) {
-	var stat models.PlayerMatchStat
+	stats := &models.PlayerMatchStat{} // Initialize the pointer
 
+	statFields := make([]string, 0, len(models.ValidPlayerMatchFields))
+	for field := range models.ValidPlayerMatchFields {
+		statFields = append(statFields, field)
+	}
+
+	// Load basic player match stat rows and relations
 	err := r.db.
 		Preload("Match.HomeTeam").
 		Preload("Match.AwayTeam").
 		Preload("Player").
 		Preload("Team").
 		Where("player_id = ? AND match_id = ?", playerId, matchId).
-		First(&stat).Error
-
+		First(stats).Error // Changed Find to First since we're querying by IDs
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, nil 
-		}
-		return nil, err
+		return nil, fmt.Errorf("failed to load player match stats: %w", err)
 	}
 
-	return &stat, nil
-}
+	// Raw SQL to get only stat fields by player_id and match_id
+	columns := "player_id, match_id, " + strings.Join(statFields, ", ")
+	query := "SELECT " + columns + " FROM player_match_stat WHERE player_id = ? AND match_id = ?" // Changed IN (?) to = ?
 
+	rows, err := r.db.Raw(query, playerId, matchId).Rows()
+	if err != nil {
+		return nil, fmt.Errorf("failed to execute stats query: %w", err)
+	}
+	defer func() {
+		if err := rows.Close(); err != nil {
+			log.Printf("failed to close rows: %v", err)
+		}
+	}()
+
+	// Build stat map: match_id → {field: value}
+	statMap := make(map[int]map[string]*float64)
+	for rows.Next() {
+		var playerId, matchId int
+		scanTargets := make([]interface{}, len(statFields)+2)
+		scanTargets[0] = &playerId
+		scanTargets[1] = &matchId
+
+		values := make([]sql.NullFloat64, len(statFields))
+		for i := range values {
+			scanTargets[i+2] = &values[i]
+		}
+
+		if err := rows.Scan(scanTargets...); err != nil {
+			return nil, fmt.Errorf("failed to scan row: %w", err)
+		}
+
+		fieldMap := make(map[string]*float64, len(statFields))
+		for i, field := range statFields {
+			if values[i].Valid {
+				val := values[i].Float64
+				fieldMap[field] = &val
+			}
+		}
+		statMap[matchId] = fieldMap
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("rows iteration error: %w", err)
+	}
+
+	// Attach stats to loaded models
+	if fieldMap, exists := statMap[stats.MatchId]; exists { // Changed stat to stats
+		stats.Stats = fieldMap
+	} else {
+		stats.Stats = make(map[string]*float64)
+	}
+
+	return stats, nil
+}
 

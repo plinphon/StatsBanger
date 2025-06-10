@@ -85,7 +85,7 @@ func RegisterPlayerMatchStatRoutes(router fiber.Router) {
 
 	stat := router.Group("/player-match-stat")
 	stat.Get("/", controller.GetStatsByMatchID)
-	stat.Get("/player/:playerID", controller.GetAllMatchesByPlayerID)
+	stat.Get("/player/:playerID", controller.GetAllMatchStatsByPlayerID)
 	stat.Get("/player/:playerID/match/:matchID", controller.GetStatByPlayerAndMatchID)
 }
 
