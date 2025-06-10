@@ -1,105 +1,69 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { fetchPlayerById, fetchPlayerSeasonStat, fetchPlayerMatchHistory } from "../lib/api";
-import type { Player } from "../models/player";
-import type { PlayerSeasonStat } from "../models/player-season-stat";
-import type { PlayerMatchStat } from "../models/player-match-stat"; 
-
-const UNIQUE_TOURNAMENT_ID = 8;
-const SEASON_ID = 52376;
+import { useParams } from "react-router-dom";
+import { fetchAllMatchStatsByPlayerId } from "../lib/api"; // Use the existing API function
+import type { PlayerMatchStat } from "../models/player-match-stat"; // Import the type for match stats
 
 export default function PlayerMatchHistory() {
-  const { id } = useParams<{ id: string }>();
-  const PLAYER_ID = parseInt(id || "", 10);
-  const navigate = useNavigate();
-
-  const [player, setPlayer] = useState<Player | null>(null);
-  const [stats, setStats] = useState<PlayerSeasonStat | null>(null);
-  const [matches, setMatches] = useState<PlayerMatchStat[]>([]);
-  const [loadingMatches, setLoadingMatches] = useState(true);
+  const { id: playerId } = useParams<{ id: string }>(); // Extract playerId from route params
+  const [matchHistory, setMatchHistory] = useState<PlayerMatchStat[] | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    async function loadData() {
-      const [playerInfo, playerSeasonStat] = await Promise.all([
-        fetchPlayerById(PLAYER_ID),
-        fetchPlayerSeasonStat(UNIQUE_TOURNAMENT_ID, SEASON_ID, PLAYER_ID)
-      ]);
-      setPlayer(playerInfo);
-      setStats(playerSeasonStat);
+    if (!playerId) {
+      setError("Player ID is missing.");
+      setLoading(false);
+      return;
     }
-    if (PLAYER_ID) loadData();
-  }, [PLAYER_ID]);
 
-  useEffect(() => {
-    async function loadMatches() {
-      setLoadingMatches(true);
+    const fetchData = async () => {
       try {
-        const matchHistory = await fetchPlayerMatchHistory(PLAYER_ID);
-        setMatches(matchHistory);
-      } catch (e) {
-        setMatches([]);
+        setLoading(true);
+        const data = await fetchAllMatchStatsByPlayerId(Number(playerId)); // Fetch match history
+        setMatchHistory(data);
+      } catch (err) {
+        setError("Failed to fetch match history.");
+      } finally {
+        setLoading(false);
       }
-      setLoadingMatches(false);
-    }
-    if (PLAYER_ID) loadMatches();
-  }, [PLAYER_ID]);
+    };
 
-  if (!player || !stats) return <p className="p-4">Loading...</p>;
+    fetchData();
+  }, [playerId]);
+
+  if (loading) {
+    return <div>Loading match history...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  if (!matchHistory || matchHistory.length === 0) {
+    return <div>No match history available for this player.</div>;
+  }
 
   return (
-    <>
-    <button
-  className="fixed top-4 left-4 p-4 rounded-full bg-white text-black hover:bg-gray-200 transition z-50 shadow"
-  onClick={() => navigate(-1)}
-  aria-label="Go Back"
->
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-8 h-8"
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={3}
-  >
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-  </svg>
-</button>
-    <div className="relative min-h-screen bg-gray-100">
-      {/* Player Info Header */}
-      <div className="flex items-center gap-4 bg-white rounded-2xl shadow p-4 mt-8 max-w-2xl mx-auto">
-        <img
-          src={player.photoUrl || "/default-player.png"}
-          alt={player.name}
-          className="w-20 h-20 rounded-full object-cover border-2 border-gray-400"
-        />
-        <div>
-          <h2 className="text-xl font-bold text-gray-800">{player.name}</h2>
-          <div className="text-gray-600">{player.position} | {player.teamName}</div>
-        </div>
-      </div>
-
-      {/* Match History Section */}
-      <div className="bg-white rounded-2xl shadow p-6 mt-8 max-w-2xl mx-auto">
-        <h3 className="text-lg font-semibold mb-4 text-gray-800">Match History</h3>
-        {loadingMatches ? (
-          <div>Loading match history...</div>
-        ) : matches.length === 0 ? (
-          <div>No match history found.</div>
-        ) : (
-          <ul className="divide-y divide-gray-200">
-            {matches.map((match) => (
-              <li key={match.id} className="py-3">
-                <span className="font-semibold">{match.opponent}</span>
-                <span className="ml-2 text-gray-500">
-                  {match.date} | {match.result}
-                </span>
-                {/* Add more match details as needed */}
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
+    <div>
+      <h1>Player Match History</h1>
+      <table className="table-auto border-collapse border border-gray-300 w-full">
+        <thead>
+          <tr>
+            <th className="border border-gray-300 px-4 py-2">Match ID</th>
+            <th className="border border-gray-300 px-4 py-2">Stat Field</th>
+            <th className="border border-gray-300 px-4 py-2">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {matchHistory.map((match) => (
+            <tr key={match.matchId}>
+              <td className="border border-gray-300 px-4 py-2">{match.matchId}</td>
+              <td className="border border-gray-300 px-4 py-2">{match.statField}</td>
+              <td className="border border-gray-300 px-4 py-2">{match.value}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
-    </>
   );
 }

@@ -6,6 +6,7 @@ import TeamRadar from './pages/TeamRadar';
 import HomePage from './pages/Index';
 import TeamScatter from './pages/TeamScatter';
 import PlayerScatter from './pages/PlayerScatter';
+import PlayerMatchHistory from './pages/PlayerMatchHistory';
 
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
         <Route path="/player/:id" element={<PlayerChart />} />
         <Route path="/team/:id" element={<TeamRadar />} />
         <Route path="/" element={<HomePage />} />
+        <Route path="/player/:id/match-history" element={<PlayerMatchHistory />} />
       </Routes>
     </Router>
   );

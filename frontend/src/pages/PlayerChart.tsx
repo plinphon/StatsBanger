@@ -9,6 +9,16 @@ import { fetchPlayerSeasonStatsWithMeta, fetchPlayerById } from "../lib/api"
 const UNIQUE_TOURNAMENT_ID = 8
 const SEASON_ID = 52376
 
+interface PlayerChartProps {
+  playerId: number; // Define the type of playerId
+}
+/**
+ * PlayerChart component displays detailed statistics for a specific player.
+ * It fetches player data and season stats, then renders them in a user-friendly format.
+ * 
+ * @returns JSX Element representing the player chart page.
+ */
+
 // Utility function to convert snake_case to camelCase
 function convertSnakeToCamelCase(obj: Record<string, unknown>): Record<string, number | null> {
   const result: Record<string, number | null> = {};
@@ -31,7 +41,6 @@ export default function PlayerChart() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showStats, setShowStats] = useState(true)
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -109,7 +118,7 @@ export default function PlayerChart() {
             <div className="flex gap-2 mt-2">
               <button
                 className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-lg font-semibold transition"
-                onClick={() => navigate(`/player/${PLAYER_ID}/matches`)}
+                onClick={() => navigate(`/player/${PLAYER_ID}/match-history`)}
               >
                 View Match History
               </button>
