@@ -5,7 +5,9 @@ import { PlayerSeasonRadar } from "../components/allCharts"
 import type { PlayerSeasonStat } from "../models/player-season-stat"
 import type { Player } from "../models/player"
 import { fetchPlayerSeasonStatsWithMeta, fetchPlayerById } from "../lib/api"
-import { fetchAllMatchesByPlayerId, fetchStatByPlayerAndMatch } from "../lib/api";
+import { fetchAllMatchStatsByPlayerId, fetchStatByPlayerAndMatch } from "../lib/api";
+import type { Match } from '../models/match'
+import type { PlayerMatchStat } from '../models/player-match-stat'
 
 
 const UNIQUE_TOURNAMENT_ID = 8
@@ -40,7 +42,7 @@ export default function PlayerChart() {
 
   const [stats, setStats] = useState<PlayerSeasonStat | null>(null)
   const [player, setPlayer] = useState<Player | null>(null)
-  const [recentMatches, setRecentMatches] = useState<{ matchId: number; stats: Record<string, number | null> }[]>([]);
+  const [recentMatches, setRecentMatches] = useState< PlayerMatchStat[]>([]);
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showStats, setShowStats] = useState(true)
@@ -57,16 +59,17 @@ export default function PlayerChart() {
           throw new Error("Invalid PLAYER_ID");
         }
   
-        const [playerData, statsData] = await Promise.all([
+        const [playerData, statsData, PlayerMatchHistory] = await Promise.all([
           fetchPlayerById(PLAYER_ID),
           fetchPlayerSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, PLAYER_ID),
-
+          fetchAllMatchStatsByPlayerId(PLAYER_ID)
           
         ]
 );
   
         setPlayer(playerData);
         setStats(statsData?.length > 0 ? statsData[0] : null);
+        setRecentMatches(PlayerMatchHistory);
       } catch (err) {
         console.error("Error fetching data:", err);
         setError(err instanceof Error ? err.message : "Unknown error");
@@ -177,16 +180,12 @@ export default function PlayerChart() {
           <h3 className="text-2xl font-semibold text-gray-800 mb-4">Recent Matches</h3>
           {recentMatches.length > 0 ? (
             <ul className="space-y-4">
-              {recentMatches.map((match) => (
-                <li key={match.matchId} className="bg-white rounded-lg shadow p-4">
-                  <h4 className="text-lg font-bold text-gray-700">Match ID: {match.matchId}</h4>
-                  <ul className="mt-2 space-y-1">
-                    {Object.entries(match.stats).map(([statName, statValue]) => (
-                      <li key={statName} className="text-gray-600">
-                        <span className="font-medium">{statName}:</span> {statValue ?? "N/A"}
-                      </li>
-                    ))}
-                  </ul>
+              {recentMatches.map((matches) => (
+                <li key={matches.match.id} className="bg-white rounded-lg shadow p-4">
+                  <h4 className="text-lg font-bold text-gray-700">Match id: {matches.match.id}</h4>
+                  <pre className="text-xs text-gray-500">
+                    {JSON.stringify(matches.match_stats, null, 2)}
+                  </pre>
                 </li>
               ))}
             </ul>
