@@ -1,57 +1,15 @@
+import type { Match } from './match'
+import type { Player } from './player'
+import type { Team } from './team'
+
 export interface PlayerMatchStat {
-    matchId: number
-    playerId: number
-    totalPass: number | null
-    accuratePass: number | null
-    totalLongBalls: number | null
-    accurateLongBalls: number | null
-    goalAssist: number | null
-    savedShotsFromInsideTheBox: number | null
-    saves: number | null
-    minutesPlayed: number | null
-    touches: number | null
-    rating: number | null
-    possessionLostCtrl: number | null
-    keyPass: number | null
-    goalsPrevented: number | null
-    aerialWon: number | null
-    duelLost: number | null
-    duelWon: number | null
-    onTargetScoringAttempt: number | null
-    goals: number | null
-    totalClearance: number | null
-    interceptionWon: number | null
-    totalTackle: number | null
-    wasFouled: number | null
-    fouls: number | null
-    expectedGoals: number | null
-    expectedAssists: number | null
-    aerialLost: number | null
-    challengeLost: number | null
-    totalCross: number | null
-    totalContest: number | null
-    wonContest: number | null
-    outfielderBlock: number | null
-    bigChanceCreated: number | null
-    dispossessed: number | null
-    shotOffTarget: number | null
-    accurateCross: number | null
-    totalOffside: number | null
-    blockedScoringAttempt: number | null
-    penaltyWon: number | null
-    penaltyConceded: number | null
-    bigChanceMissed: number | null
-    totalKeeperSweeper: number | null
-    accurateKeeperSweeper: number | null
-    goodHighClaim: number | null
-    punches: number | null
-    clearanceOffLine: number | null
-    hitWoodwork: number | null
-    errorLeadToAShot: number | null
-    ownGoals: number | null
-    lastManTackle: number | null
-    errorLeadToAGoal: number | null
-    penaltySave: number | null
-    penaltyMiss: number | null
-  }
-  
+  matchId: number
+  playerId: number
+  teamId: number
+
+  match: Match
+  player: Player
+  team: Team
+
+  match_stats: Record<string, number | null>
+}
