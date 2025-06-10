@@ -127,7 +127,7 @@ export default function PlayerChart() {
           </button>
           {showStats && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-              {Object.entries(stats)
+              {stats.stats && Object.entries(stats.stats)
                 .filter(([, value]) => typeof value === "number" && isFinite(value))
                 .map(([statKey, value]) => (
                   <div key={statKey}>
