@@ -162,8 +162,8 @@ func (r *PlayerMatchStatRepository) GetByMatchId(matchId int, statFields []strin
 
 func (r *PlayerMatchStatRepository) GetAllMatchesByPlayerId(playerId int) ([]models.PlayerMatchStat, error) {
 	var stats []models.PlayerMatchStat
-
-	err := r.db.
+	
+	err := r.db.Debug().
 		Preload("Match.HomeTeam").
 		Preload("Match.AwayTeam").
 		Preload("Team").

@@ -29,7 +29,7 @@ func (s *PlayerMatchStatService) GetStatsByMatchID(matchID int, statFields []str
 	return s.repo.GetByMatchId(matchID, statFields)
 }
 
-func (s *PlayerMatchStatService) GetAllMatchesStatsByPlayerID(playerID int) ([]models.PlayerMatchStat, error) {
+func (s *PlayerMatchStatService) GetAllMatchesByPlayerID(playerID int) ([]models.PlayerMatchStat, error) {
 	return s.repo.GetAllMatchesByPlayerId(playerID)
 }
 
