@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { fetchAllMatchStatsByPlayerId } from "../lib/api"; // Use the existing API function
+import { fetchAllMatchesByPlayerId } from "../lib/api"; // Use the existing API function
 import type { PlayerMatchStat } from "../models/player-match-stat"; // Import the type for match stats
 
 export default function PlayerMatchHistory() {
@@ -19,7 +19,7 @@ export default function PlayerMatchHistory() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const data = await fetchAllMatchStatsByPlayerId(Number(playerId)); // Fetch match history
+        const data = await fetchAllMatchesByPlayerId(Number(playerId)); // Fetch match history
         setMatchHistory(data);
       } catch (err) {
         setError("Failed to fetch match history.");
