@@ -5,6 +5,8 @@ import { PlayerSeasonRadar } from "../components/allCharts"
 import type { PlayerSeasonStat } from "../models/player-season-stat"
 import type { Player } from "../models/player"
 import { fetchPlayerSeasonStatsWithMeta, fetchPlayerById } from "../lib/api"
+import { fetchAllMatchesByPlayerId, fetchStatByPlayerAndMatch } from "../lib/api";
+
 
 const UNIQUE_TOURNAMENT_ID = 8
 const SEASON_ID = 52376
@@ -38,9 +40,11 @@ export default function PlayerChart() {
 
   const [stats, setStats] = useState<PlayerSeasonStat | null>(null)
   const [player, setPlayer] = useState<Player | null>(null)
+  const [recentMatches, setRecentMatches] = useState<{ matchId: number; stats: Record<string, number | null> }[]>([]);
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showStats, setShowStats] = useState(true)
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -56,7 +60,10 @@ export default function PlayerChart() {
         const [playerData, statsData] = await Promise.all([
           fetchPlayerById(PLAYER_ID),
           fetchPlayerSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, PLAYER_ID),
-        ]);
+
+          
+        ]
+);
   
         setPlayer(playerData);
         setStats(statsData?.length > 0 ? statsData[0] : null);
@@ -115,14 +122,7 @@ export default function PlayerChart() {
                 Age: {player.age}
               </span>
             </div>
-            <div className="flex gap-2 mt-2">
-              <button
-                className="px-4 py-2 bg-green-700 hover:bg-green-800 text-white rounded-lg font-semibold transition"
-                onClick={() => navigate(`/player/${PLAYER_ID}/match-history`)}
-              >
-                View Match History
-              </button>
-            </div>
+  
           </div>
         </div>
 
@@ -172,6 +172,28 @@ export default function PlayerChart() {
     </div>
   )}
 </div>
+  {/* Recent Matches Section */}
+  <div className="bg-gray-100 rounded-2xl shadow p-6">
+          <h3 className="text-2xl font-semibold text-gray-800 mb-4">Recent Matches</h3>
+          {recentMatches.length > 0 ? (
+            <ul className="space-y-4">
+              {recentMatches.map((match) => (
+                <li key={match.matchId} className="bg-white rounded-lg shadow p-4">
+                  <h4 className="text-lg font-bold text-gray-700">Match ID: {match.matchId}</h4>
+                  <ul className="mt-2 space-y-1">
+                    {Object.entries(match.stats).map(([statName, statValue]) => (
+                      <li key={statName} className="text-gray-600">
+                        <span className="font-medium">{statName}:</span> {statValue ?? "N/A"}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-gray-600">No recent matches available.</p>
+          )}
+        </div>
       </div>
     </>
   )
