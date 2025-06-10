@@ -24,21 +24,30 @@ export default function PlayerChart() {
   useEffect(() => {
     async function loadData() {
       try {
-        setLoading(true)
-        const [playerInfo, playerSeasonStat] = await Promise.all([
+        setLoading(true);
+        setError(null);
+  
+        if (isNaN(PLAYER_ID)) {
+          throw new Error("Invalid PLAYER_ID");
+        }
+  
+        const [playerData, statsData] = await Promise.all([
           fetchPlayerById(PLAYER_ID),
-          fetchPlayerSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, PLAYER_ID)
-        ])
-        setPlayer(playerInfo)
-        setStats(playerSeasonStat)
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : 'An error occurred')
+          fetchPlayerSeasonStatsWithMeta(PLAYER_ID, SEASON_ID, UNIQUE_TOURNAMENT_ID),
+        ]);
+  
+        setPlayer(playerData);
+        setStats(statsData);
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError(err instanceof Error ? err.message : "Unknown error");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
     }
-    if (PLAYER_ID) loadData()
-  }, [PLAYER_ID])
+  
+    loadData();
+  }, [PLAYER_ID]);
 
   if (loading) return <p className="p-4">Loading player data...</p>
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>
