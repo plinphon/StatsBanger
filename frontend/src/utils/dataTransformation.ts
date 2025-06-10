@@ -1,20 +1,69 @@
 import { statsF, statsM, statsG, statsO } from '../data';
 
-// Position mapping to stats datasets
+// Map positions to their stat ranges
 const POSITION_STATS_MAP = {
-  'F': statsF,    // Forward
-  'M': statsM,    // Midfielder  
-  'D': statsO,    // Defender (using statsO as fallback for now)
-  'G': statsG,    // Goalkeeper
-  'O': statsO     // Other positions
+  'F': statsF,    
+  'M': statsM,    
+  'D': statsO,    // using statsO for defenders
+  'G': statsG,    
+  'O': statsO     
 } as const;
 
 type Position = keyof typeof POSITION_STATS_MAP;
 
+// Stats that are already percentages or per-game (don't touch these)
+const PER_GAME_OR_PERCENTAGE_METRICS = new Set([
+  'accuratePassesPercentage',
+  'accurateLongBallsPercentage', 
+  'successfulDribblesPercentage',
+  'goalConversionPercentage',
+  'groundDuelsWonPercentage',
+  'aerialDuelsWonPercentage',
+  'totalDuelsWonPercentage',
+  'accurateCrossesPercentage',
+  'penaltyConversion',
+  'setPieceConversion', 
+  'rating'
+]);
+
+// Keep these as season totals
+const TOTAL_METRICS = new Set([
+  'appearances',
+  'matchesStarted',
+  'minutesPlayed'
+]);
+
+// Convert season stats to per-90-minute averages
+export function convertSeasonTotalsToPerGame(
+  data: Record<string, number | null>
+): Record<string, number> {
+  const result: Record<string, number> = {};
+  const minutesPlayed = data.minutesPlayed ?? 90; // fallback to one full game
+  
+  // Calculate equivalent full games (90 min = 1 game)
+  const equivalentGames = Math.max(minutesPlayed / 90, 1);
+  
+  Object.entries(data).forEach(([metric, value]) => {
+    const numericValue = value ?? 0;
+    
+    if (PER_GAME_OR_PERCENTAGE_METRICS.has(metric)) {
+      result[metric] = numericValue;
+    } else if (TOTAL_METRICS.has(metric)) {
+      result[metric] = numericValue;
+    } else {
+      // Convert to per-90-minute rate
+      result[metric] = numericValue / equivalentGames;
+    }
+  });
+  
+  return result;
+}
+
 /**
  * Normalizes player data based on position-specific upper bounds
+ * Now handles season-to-per-game conversion automatically
  * 
- * @param data - Raw player statistics
+ * @param data - Raw player statistics (season totals)
  * @param position - Player position (F, M, D, G, O)
  * @returns Object with both raw values and normalized percentages
  */
@@ -25,27 +74,23 @@ export function normalizePlayerData(
   rawData: Record<string, number>;
   normalizedData: Record<string, number>;
 } {
-  // Ensure position is valid, default to 'O' (Other)
   const playerPosition = (position in POSITION_STATS_MAP ? position : 'O') as Position;
   const positionStats = POSITION_STATS_MAP[playerPosition];
+  
+  const perGameData = convertSeasonTotalsToPerGame(data);
   
   const rawData: Record<string, number> = {};
   const normalizedData: Record<string, number> = {};
   
-  // Process each metric in the player data
-  Object.entries(data).forEach(([metric, value]) => {
-    const numericValue = value ?? 0;
-    rawData[metric] = numericValue;
+  Object.entries(perGameData).forEach(([metric, value]) => {
+    rawData[metric] = value;
     
-    // Get position-specific upper bound for this metric
     const statInfo = positionStats[metric];
     if (statInfo && statInfo.upperBound > 0) {
-      // Normalize to percentage (0-100), capped at 100%
-      const normalized = Math.min((numericValue / statInfo.upperBound) * 100, 100);
-      normalizedData[metric] = Math.max(normalized, 0); // Ensure non-negative
+      const normalized = Math.min((value / statInfo.upperBound) * 100, 100);
+      normalizedData[metric] = Math.max(normalized, 0);
     } else {
-      // If no upper bound exists, use raw value (fallback)
-      normalizedData[metric] = numericValue;
+      normalizedData[metric] = value;
     }
   });
   

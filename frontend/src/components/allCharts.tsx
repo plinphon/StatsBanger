@@ -211,17 +211,17 @@ export function PlayerSeasonRadar({ data, position }: PlayerSeasonRadarProps) {
 
   const radarMetrics = getMetrics();
   
-  // Normalize the data for better visualization while preserving raw values
+  // Get normalized data for the chart
   const { rawData, normalizedData } = normalizePlayerData(data, position);
   
   const ChartData = radarMetrics.map(metric => ({
     label: getMetricDisplayLabel(metric),
-    value: normalizedData[metric] ?? 0,  // Use normalized for chart shape
-    rawValue: rawData[metric] ?? 0       // Keep raw value for tooltips
+    value: normalizedData[metric] ?? 0,  
+    rawValue: rawData[metric] ?? 0       
   }));
 
-  // Expand axis to create margin between radar shape and background layers
-  const topOfAxis = 120; // 100% data now reaches only 83% of radius
+  // Make the chart axis a bit bigger than 100% for visual spacing
+  const topOfAxis = 100;
 
   const handleMouseEnter = () => setIsHovered(true);
   const handleMouseLeave = () => setIsHovered(false);
@@ -305,7 +305,7 @@ export function PlayerSeasonRadar({ data, position }: PlayerSeasonRadarProps) {
                   if (payload && payload.length) {
                     const dataPoint = payload[0].payload;
                     const normalizedValue = payload[0].value;
-                    const rawValue = dataPoint.rawValue;
+                    const rawValue = dataPoint.rawValue.toFixed(2);
                     
                     return (
                       <div className="bg-gray-900/95 text-white p-4 rounded-xl shadow-2xl border border-gray-700/50 backdrop-blur-sm">

@@ -9,6 +9,19 @@ import { fetchPlayerSeasonStat, fetchPlayerById } from "../lib/api"
 const UNIQUE_TOURNAMENT_ID = 8
 const SEASON_ID = 52376
 
+// Utility function to convert snake_case to camelCase
+function convertSnakeToCamelCase(obj: Record<string, unknown>): Record<string, number | null> {
+  const result: Record<string, number | null> = {};
+  
+  for (const [key, value] of Object.entries(obj)) {
+    // Convert snake_case to camelCase
+    const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+    result[camelKey] = typeof value === 'number' ? value : null;
+  }
+  
+  return result;
+}
+
 export default function PlayerChart() {
   const { id } = useParams<{ id: string }>() 
   const PLAYER_ID = parseInt(id || "", 10)
@@ -67,7 +80,7 @@ export default function PlayerChart() {
         {/* Player Info Card */}
         <div className="flex flex-col md:flex-row items-center bg-gradient-to-r from-green-900/60 to-cyan-900/60 rounded-2xl shadow-lg p-6 mb-8 gap-6">
           <img
-            src={player.photoUrl || "/default-player.png"}
+            src="/default-player.png"
             alt={player.name}
             className="w-32 h-32 rounded-full object-cover border-4 border-green-400 shadow"
           />
@@ -104,7 +117,7 @@ export default function PlayerChart() {
             <h3 className="text-2xl font-semibold text-cyan-200">Season Performance</h3>
           </div>
           <PlayerSeasonRadar
-            data={stats as unknown as Record<string, number | null>}
+            data={stats && Array.isArray(stats) && stats[0]?.stats ? convertSnakeToCamelCase(stats[0].stats) : {}}
             position={player.position?.charAt(0).toUpperCase() || "M"}
           />
         </div>
