@@ -138,36 +138,40 @@ export default function PlayerChart() {
         </div>
 
         {/* Descriptive Stats Section (Toggleable) */}
-        <div className="bg-white/90 rounded-2xl shadow p-6">
-          <button
-            className="flex items-center gap-2 text-xl font-bold text-gray-800 mb-4 focus:outline-none"
-            onClick={() => setShowStats((prev) => !prev)}
-          >
-            <span>Player Stats</span>
-            <svg
-              className={`w-5 h-5 transition-transform ${showStats ? "rotate-180" : ""}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-          {showStats && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-              {Object.entries(stats)
-                .filter(([, value]) => typeof value === "number" && isFinite(value))
-                .map(([statKey, value]) => (
-                  <div key={statKey}>
-                    <span className="font-semibold capitalize">
-                      {statKey.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:
-                    </span>{" "}
-                    {value}
-                  </div>
-                ))}
-            </div>
-          )}
-        </div>
+<div className="bg-white/90 rounded-2xl shadow p-6">
+  <button
+    className="flex items-center gap-2 text-xl font-bold text-gray-800 mb-4 focus:outline-none"
+    onClick={() => setShowStats((prev) => !prev)}
+  >
+    <span>Player Stats</span>
+    <svg
+      className={`w-5 h-5 transition-transform ${showStats ? "rotate-180" : ""}`}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+  {showStats && stats?.stats && (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+      {Object.entries(stats.stats)
+  // Filter out specific keys like player_id, season_id, and team_id
+  .filter(([statKey]) => !["player_id", "season_id", "team_id"].includes(statKey.toLowerCase()))
+  .map(([statKey, value]) => (
+    <div key={statKey}>
+      <span className="font-semibold capitalize">
+        {statKey
+          .replace(/([A-Z])/g, " $1") // Add spaces before capital letters
+          .replace(/^./, (str) => str.toUpperCase())}{" "}
+        :
+      </span>{" "}
+      {value}
+    </div>
+  ))}
+    </div>
+  )}
+</div>
       </div>
     </>
   )
