@@ -5,8 +5,6 @@ import (
 	"log"
 	"strings"
 	"github.com/plinphon/StatsBanger/backend/models"
-	"log"
-	"strings"
 
 	"gorm.io/gorm"
 	"gorm.io/driver/sqlite"
@@ -251,85 +249,4 @@ func (r *TeamSeasonStatRepository) GetTopTeamsByStat(
     }
 
     return results, nil
-}
-
-func (r *TeamSeasonStatRepository) GetMultipleStatsByTeamID(
-	statFields []string,
-	uniqueTournamentID int,
-	seasonID int,
-	teamID int,
-) (*models.TeamStatWithMeta, error) {
-	log.Printf("statFields: %v", statFields)
-
-	if len(statFields) == 0 {
-		// Use all valid stat fields for SELECT
-		statFields = make([]string, 0, len(models.ValidTopTeamFields))
-		for field := range models.ValidTopTeamFields {
-			statFields = append(statFields, field)
-		}
-	} else {
-		// Validate requested fields
-		for _, field := range statFields {
-			if field == "" {
-				continue // Skip empty fields
-			}
-			if !models.ValidTopTeamFields[field] {
-				return nil, fmt.Errorf("invalid stat field: %s", field)
-			}
-		}
-	}
-
-	// Join stat fields to SELECT clause
-	selectFields := ""
-	if len(statFields) > 0 {
-		selectFields = ", ts." + strings.Join(statFields, ", ts.")
-	}
-
-	query := fmt.Sprintf(`
-		SELECT ts.team_id, ti.team_name %s
-		FROM team_stat ts
-		JOIN team_info ti ON ts.team_id = ti.team_id
-		WHERE ts.unique_tournament_id = ? AND ts.season_id = ? AND ts.team_id = ?`, selectFields)
-
-	args := []interface{}{uniqueTournamentID, seasonID, teamID}
-	row := r.db.QueryRow(query, args...)
-
-	var (
-		teamIDOut   int
-		teamName    string
-	)
-
-	nullableValues := make([]sql.NullFloat64, len(statFields))
-	dest := make([]interface{}, 0, 2+len(statFields))
-
-	// Append pointers to fixed fields
-	dest = append(dest, &teamIDOut, &teamName)
-
-	// Append pointers to dynamic stat values
-	for i := range nullableValues {
-		dest = append(dest, &nullableValues[i])
-	}
-
-	// Scan result
-	if err := row.Scan(dest...); err == sql.ErrNoRows {
-		return nil, errors.New("team stats not found")
-	} else if err != nil {
-		return nil, err
-	}
-
-	// Build stats map
-	statsMap := make(map[string]*float64)
-	for i, field := range statFields {
-		if nullableValues[i].Valid {
-			statsMap[field] = &nullableValues[i].Float64
-		} else {
-			statsMap[field] = nil
-		}
-	}
-
-	return &models.TeamStatWithMeta{
-		TeamID:   teamIDOut,
-		TeamName: teamName,
-		Stats:    statsMap,
-	}, nil
 }
