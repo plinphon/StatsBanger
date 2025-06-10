@@ -182,6 +182,7 @@ export default function PlayerChart() {
             <ul className="space-y-4">
               {recentMatches.map((matches) => (
                 <li key={matches.match.id} className="bg-white rounded-lg shadow p-4">
+                  <h4 className="text-lg font-bold text-gray-700">Match Name: {matches.player.name}</h4>
                   <h4 className="text-lg font-bold text-gray-700">Match id: {matches.match.id}</h4>
                   <pre className="text-xs text-gray-500">
                     {JSON.stringify(matches.match_stats, null, 2)}
