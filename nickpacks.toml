@@ -1,0 +1,6 @@
+
+[phases.setup]
+nixPkgs = ["go"]
+
+[start]
+cmd = "cd backend && go build -o main . && ./main"
