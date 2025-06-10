@@ -157,7 +157,7 @@ export default function PlayerChart() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
       {Object.entries(stats.stats)
   // Filter out specific keys like player_id, season_id, and team_id
-  .filter(([statKey]) => !["player_id", "season_id", "team_id"].includes(statKey.toLowerCase()))
+  .filter(([statKey]) => !["player_id", "season_id", "team_id", "unique_tournament_id"].includes(statKey.toLowerCase()))
   .map(([statKey, value]) => (
     <div key={statKey}>
       <span className="font-semibold capitalize">
