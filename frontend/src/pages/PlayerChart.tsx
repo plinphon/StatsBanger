@@ -46,11 +46,11 @@ export default function PlayerChart() {
   
         const [playerData, statsData] = await Promise.all([
           fetchPlayerById(PLAYER_ID),
-          fetchPlayerSeasonStatsWithMeta(PLAYER_ID, SEASON_ID, UNIQUE_TOURNAMENT_ID),
+          fetchPlayerSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, PLAYER_ID),
         ]);
   
         setPlayer(playerData);
-        setStats(statsData);
+        setStats(statsData?.length > 0 ? statsData[0] : null);
       } catch (err) {
         console.error("Error fetching data:", err);
         setError(err instanceof Error ? err.message : "Unknown error");
@@ -105,9 +105,6 @@ export default function PlayerChart() {
               <span className="bg-gray-700/40 px-3 py-1 rounded-full text-sm font-medium border border-gray-400/30">
                 Age: {player.age}
               </span>
-              <span className="bg-yellow-700/40 px-3 py-1 rounded-full text-sm font-medium border border-yellow-400/30">
-                Team: {player.teamName}
-              </span>
             </div>
             <div className="flex gap-2 mt-2">
               <button
@@ -126,7 +123,7 @@ export default function PlayerChart() {
             <h3 className="text-2xl font-semibold text-cyan-200">Season Performance</h3>
           </div>
           <PlayerSeasonRadar
-            data={stats && Array.isArray(stats) && stats[0]?.stats ? convertSnakeToCamelCase(stats[0].stats) : {}}
+            data={stats?.stats ? convertSnakeToCamelCase(stats.stats) : {}}
             position={player.position?.charAt(0).toUpperCase() || "M"}
           />
         </div>

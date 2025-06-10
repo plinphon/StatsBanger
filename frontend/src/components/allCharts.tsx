@@ -1,38 +1,24 @@
-
-
-// src/components/TeamAnalytics.tsx
-// src/components/TeamAnalytics.tsx
-
-import {
-  ResponsiveContainer,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Tooltip,
-  Radar,
-  ScatterChart,
-  Scatter,
-  CartesianGrid,
-  XAxis,
-  YAxis
-} from "recharts";
-
 import React, { useState } from "react";
-import { Customized } from "recharts";
+import { Card, CardContent } from "./ui/Card";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Radar, RadarChart, PolarAngleAxis, PolarRadiusAxis, Customized, PolarGrid, ScatterChart, Scatter, CartesianGrid } from 'recharts';
 import type { TooltipProps } from 'recharts';
 import { normalizePlayerData, getMetricDisplayLabel } from '../utils/dataTransformation';
-import type { TeamMatchStat } from "../models/team-match-stat";
 
-interface Props {
-  data: TeamMatchStat[]
+// Basic interface for TeamMatchStat
+export interface TeamMatchStat {
+  MatchID: number | string;
+  [key: string]: number | string | null;
 }
 
+interface TeamAnalyticsProps {
+  data: TeamMatchStat[];
+}
+
+// Position-specific metrics for the radar chart
 const topicF = ["goals", "penaltyGoals", "goalConversionPercentage", "totalShots", "keyPasses", "accurateFinalThirdPasses", "successfulDribbles", "aerialDuelsWon", "possessionLost"];
 const topicM = ["accuratePassesPercentage", "accurateLongBalls", "keyPasses", "totalShots", "successfulDribbles", "totalDuelsWon", "tackles", "interceptions"];
 const topicD = ["tackles", "interceptions", "clearances", "groundDuelsWonPercentage", "aerialDuelsWonPercentage", "fouls", "accuratePassesPercentage", "accurateLongBalls", "keyPasses"];
 const topicG = ["saves", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut", "accuratePassesPercentage", "accurateLongBalls"];
-
 
 // Stat categories for dynamic radar chart
 const STAT_CATEGORIES = {
@@ -61,7 +47,6 @@ const STAT_CATEGORIES = {
     stats: ["rating", "minutesPlayed", "appearances", "yellowCards", "redCards"]
   }
 };
-
 
 // Built-in presets for quick selection
 const BUILT_IN_PRESETS = {
@@ -92,6 +77,39 @@ const ALL_METRICS = {
   goalkeeping: ["saves", "goalsConceded", "penaltySave", "savedShotsFromInsideTheBox", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut"],
   performance: ["rating", "minutesPlayed", "appearances", "yellowCards", "redCards", "fouls", "totalDuelsWon"]
 };
+
+// Metrics for the bar charts in TeamAnalytics
+const teamAnalyticsMetrics = [
+    "expectedGoals",
+    "totalShots", 
+    "shotsOnTarget",
+    "shotsOffTarget",
+    "fouls",
+    "passes",
+    "tackles"
+];
+
+export function TeamAnalytics({ data }: TeamAnalyticsProps) {
+  return (
+    <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+      {teamAnalyticsMetrics.map((metric) => (
+        <Card key={metric} className="rounded-2xl shadow">
+          <CardContent>
+           <h2 className="text-xl font-semibold mb-4">{metric}</h2>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={data}>
+                <XAxis dataKey="MatchID" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey={metric} fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
 
 interface PlayerSeasonRadarProps {
   data: Record<string, number | null>;
