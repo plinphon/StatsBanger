@@ -1,17 +1,24 @@
 # --- Stage 1: Build ---
-FROM golang:1.23 AS builder
+    FROM golang:1.23 AS builder
 
-WORKDIR /app
-COPY . .
-
-RUN go mod tidy
-RUN go build -o main .
-
-# --- Stage 2: Runtime ---
-FROM alpine
-
-WORKDIR /app
-COPY --from=builder /app/main .
-
-EXPOSE 3000
-CMD ["./main"]
+    WORKDIR /app
+    COPY . .
+    
+    RUN go mod tidy
+    ENV CGO_ENABLED=1
+    RUN go build -o main .
+    
+    # --- Stage 2: Runtime ---
+    FROM alpine:latest
+    
+    # Install SQLite runtime libraries and any other dependencies
+    RUN apk add --no-cache libsqlite3
+    
+    WORKDIR /app
+    
+    COPY --from=builder /app/main .
+    
+    EXPOSE 3000
+    
+    CMD ["./main"]
+    
