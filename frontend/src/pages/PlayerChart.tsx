@@ -13,7 +13,7 @@ import type { PlayerMatchStat } from '../models/player-match-stat'
 const UNIQUE_TOURNAMENT_ID = 8
 const SEASON_ID = 52376
 
-function formatDateDDMMYYYY(timestamp) {
+function formatDateDDMMYYYY(timestamp: number | string): string {
   const date = new Date(timestamp);
   const day = String(date.getDate()).padStart(2, '0');
   const month = String(date.getMonth() + 1).padStart(2, '0');
