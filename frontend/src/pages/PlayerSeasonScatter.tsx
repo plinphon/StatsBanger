@@ -1,23 +1,30 @@
 import '../style.css'
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { TeamSeasonRadar, PlayerSeasonScatter } from "../components/allCharts"
+import { PlayerScatter2 } from "../components/allCharts2"
 import type { PlayerSeasonStat } from "../models/player-season-stat"
 import type { Player } from "../models/player"
 import { fetchPlayerSeasonStatsWithMeta, fetchPlayerById, fetchTopPlayersByStat } from "../lib/api"
 
 const UNIQUE_TOURNAMENT_ID = 8;
 const SEASON_ID = 52376;
-const METRIC_X = "totalPasses";
-const METRIC_Y = "accuratePassesPercentage";
+const METRIC_X = "total_passes";
+const METRIC_Y = "accurate_passes_percentage";
 const POSITION = "M";
 
 
-export default function PlayerScatter() {
+export default function PlayerSeasonScatter() {
 //   const { id } = useParams<{ id: string }>() 
 //   const player_id = parseInt(id || "", 10)
 
-    const [playerStats, setStats] = useState<Record<number, { stats: PlayerSeasonStat; info: Player }> | null>(null)
+    const [playerStats, setStats] = useState<Array<{
+        playerID: number;
+        playerName: string;
+        position: String;
+        teamId: number;
+        teamName: string;
+        [key: string]: any;
+    }> | null>(null)    
     const [player, setPlayer] = useState<Player | null>(null)
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
@@ -27,25 +34,19 @@ export default function PlayerScatter() {
         async function loadData() {
             try {
                 setLoading(true)
-                const [players] = await Promise.all([
-                        fetchTopPlayersByStat("appearances", UNIQUE_TOURNAMENT_ID, SEASON_ID, 600, POSITION)
+                const [stats] = await Promise.all([
+                    fetchPlayerSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, undefined, `${METRIC_X},${METRIC_Y}`)
                 ])
-                const playerIds = players.map(player => player.playerId);
-                const playerDataPromises = playerIds.map(id => fetchPlayerById(id));
-                const playerStatsPromises = playerIds.map(id => fetchPlayerSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, id));
-                const [playerData, playerStats] = await Promise.all([
-                        Promise.all(playerDataPromises),
-                        Promise.all(playerStatsPromises)
-                ]);
-                const playerDataMap = playerIds.reduce((acc, id, index) => {
-                        acc[id] = {
-                                stats: playerStats[index] as PlayerSeasonStat,
-                                info: playerData[index] as Player,
-                        };
-                        return acc;
-                }, {} as Record<number, { stats: PlayerSeasonStat; info: Player }>);
-
-                setStats(playerDataMap);
+                const formatedPlayerStats = stats.map(playerStat => ({
+                    playerID: playerStat.player.id,
+                    playerName: playerStat.player.name,
+                    position: playerStat.player.position,
+                    teamId: playerStat.team.id,
+                    teamName: playerStat.team.name,
+                    [METRIC_X]: playerStat.stats[METRIC_X] ?? 0, // Fallback to null
+                    [METRIC_Y]: playerStat.stats[METRIC_Y] ?? 0  // Fallback to null
+                }));
+                setStats(formatedPlayerStats);
             } catch (err: any) {
                 setError(err.message)
             } finally {
@@ -81,7 +82,7 @@ export default function PlayerScatter() {
             {/* Stats Graph */}
         <div className="bg-gray-900/80 rounded-2xl shadow-lg p-6 mb-8">
             <h3 className="text-2xl font-semibold text-cyan-200 mb-4">Season Performance</h3>
-            <PlayerSeasonScatter
+            <PlayerScatter2
                 data={playerStats}
                 xAxisMetric={METRIC_X}
                 yAxisMetric={METRIC_Y}

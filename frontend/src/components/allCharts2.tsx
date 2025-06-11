@@ -11,7 +11,7 @@ const topicM = ["accuratePassesPercentage", "accurateLongBalls", "keyPasses", "t
 const topicD = ["tackles", "interceptions", "clearances", "groundDuelsWonPercentage", "aerialDuelsWonPercentage", "fouls", "accuratePassesPercentage", "accurateLongBalls", "keyPasses"];
 const topicG = ["saves", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut", "accuratePassesPercentage", "accurateLongBalls"];
 
-export function PlayerMatchScatter({ data, xAxisMetric, yAxisMetric }: PlayerSeasonScatterProps) {
+export function PlayerScatter2({ data, xAxisMetric, yAxisMetric }: PlayerSeasonScatterProps) {
     // Sort the transformed data based on the xAxisMetric
     const sortedData = data.sort((a, b) => a[xAxisMetric] - b[xAxisMetric]);
   
@@ -32,7 +32,6 @@ export function PlayerMatchScatter({ data, xAxisMetric, yAxisMetric }: PlayerSea
         const teamName = payload[0].payload.teamName;
         const xValue = payload[0].payload[xAxisMetric]; // Extract xAxis value
         const yValue = payload[0].payload[yAxisMetric]; // Extract yAxis value
-        const dotColor = getDotColor(payload[0].payload.teamId); // Get dot color based on teamId
         return (
           <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '10px' }}>
             <h4>{`${playerName} (${teamName})`}</h4>

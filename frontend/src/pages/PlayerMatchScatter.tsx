@@ -2,7 +2,7 @@ import '../style.css'
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { TeamSeasonRadar, PlayerSeasonScatter } from "../components/allCharts"
-import { PlayerMatchScatter } from "../components/allCharts2"
+import { PlayerScatter2 } from "../components/allCharts2"
 import type { PlayerSeasonStat } from "../models/player-season-stat"
 import type { Player } from "../models/player"
 import { fetchPlayerSeasonStatsWithMeta, fetchPlayerById, fetchTopPlayersByStat, fetchPlayerStatsByMatch } from "../lib/api"
@@ -22,6 +22,7 @@ const { id } = useParams<{ id: string }>()
     const [playerStats, setStats] = useState<Array<{
         playerID: number;
         playerName: string;
+        position: string;
         teamId: number;
         teamName: string;
         [key: string]: any;
@@ -40,12 +41,12 @@ const { id } = useParams<{ id: string }>()
                 const formatedPlayerStats = stats.map(playerStat => ({
                     playerID: playerStat.player.id,
                     playerName: playerStat.player.name,
+                    position: playerStat.player.position,
                     teamId: playerStat.team.id,
                     teamName: playerStat.team.name,
                     [METRIC_X]: playerStat.match_stats[METRIC_X],
                     [METRIC_Y]: playerStat.match_stats[METRIC_Y]
                 }));
-                console.log(formatedPlayerStats)
                 setStats(formatedPlayerStats);
             } catch (err: any) {
                 setError(err.message)
@@ -82,7 +83,7 @@ const { id } = useParams<{ id: string }>()
             {/* Stats Graph */}
         <div className="bg-gray-900/80 rounded-2xl shadow-lg p-6 mb-8">
             <h3 className="text-2xl font-semibold text-cyan-200 mb-4">Season Performance</h3>
-            <PlayerMatchScatter
+            <PlayerScatter2
                 data={playerStats}
                 xAxisMetric={METRIC_X}
                 yAxisMetric={METRIC_Y}
