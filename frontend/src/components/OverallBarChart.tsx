@@ -8,30 +8,33 @@ import {
   LabelList,
 } from 'recharts';
 
-interface TeamStats {
-  label: string;
-  home: number;
-  away: number;
-}
+import type { TeamMatchStat } from '../models/team-match-stat';
+
 
 interface Props {
-  data: TeamStats[];
+  data: TeamMatchStat[];
 }
 
-const MirrorBarChart = ({ data }: Props) => {
-  const chartData = data.map(item => {
-    const total = item.home + item.away || 1; // prevent division by zero
-    const homeRatio = (item.home / total) * 100;
-    const awayRatio = (item.away / total) * 100;
+const MatchMirrorBarChart = ({ data }: Props) => {
+  if (data.length < 2) return <div>Not enough data</div>;
 
-    return {
-      label: item.label,
-      home: -homeRatio, // negative for left side
-      away: awayRatio,
-      homeValue: item.home, // store original values for tooltip
-      awayValue: item.away,
-    };
-  });
+    const [home, away] = data;
+
+    const statKeys = Object.keys(home.stats);
+
+    const chartData = statKeys.map((stat) => {
+      const homeValue = home.stats[stat] ?? 0;
+      const awayValue = away.stats[stat] ?? 0;
+      const total = homeValue + awayValue || 1;
+
+      return {
+        label: stat,
+        home: -((homeValue / total) * 100),
+        away: (awayValue / total) * 100,
+        homeValue,
+        awayValue,
+      };
+    });
 
   return (
     <ResponsiveContainer width={600} height={400}>
@@ -80,4 +83,4 @@ const MirrorBarChart = ({ data }: Props) => {
   );
 };
 
-export default MirrorBarChart;
+export default MatchMirrorBarChart;
