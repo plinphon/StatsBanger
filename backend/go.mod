@@ -1,10 +1,12 @@
 module github.com/plinphon/StatsBanger/backend
 
-go 1.23.6
+go 1.23
 
 require (
 	github.com/gofiber/fiber/v2 v2.52.8
 	github.com/mattn/go-sqlite3 v1.14.28
+	gorm.io/driver/sqlite v1.6.0
+	gorm.io/gorm v1.30.0
 )
 
 require (
@@ -22,6 +24,4 @@ require (
 	github.com/valyala/tcplisten v1.0.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/text v0.20.0 // indirect
-	gorm.io/driver/sqlite v1.6.0 // indirect
-	gorm.io/gorm v1.30.0 // indirect
 )
