@@ -7,12 +7,14 @@ import HomePage from './pages/Index';
 import TeamScatter from './pages/TeamScatter';
 import PlayerScatter from './pages/PlayerScatter';
 import PlayerMatchHistory from './pages/PlayerMatchHistory';
+import PlayerMatchScatter from './pages/PlayerMatchScatter';
 
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/player-match-scatter/:id" element={<PlayerMatchScatter />} />
         <Route path="/player-scatter" element={<PlayerScatter />} />
         <Route path="/team-scatter" element={<TeamScatter />} />
         <Route path="/match/:id" element={<MatchDetail />} />
