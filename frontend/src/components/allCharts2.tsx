@@ -11,6 +11,7 @@ const topicM = ["accuratePassesPercentage", "accurateLongBalls", "keyPasses", "t
 const topicD = ["tackles", "interceptions", "clearances", "groundDuelsWonPercentage", "aerialDuelsWonPercentage", "fouls", "accuratePassesPercentage", "accurateLongBalls", "keyPasses"];
 const topicG = ["saves", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut", "accuratePassesPercentage", "accurateLongBalls"];
 
+
 export function PlayerScatter2({ data, xAxisMetric, yAxisMetric }) {
     // Sort the transformed data based on the xAxisMetric
     const sortedData = data.sort((a, b) => a[xAxisMetric] - b[xAxisMetric]);
@@ -107,3 +108,40 @@ export function TeamScatter2({ data, xAxisMetric, yAxisMetric }) {
         </div>
     );
 }
+
+export function PlayerBar({ data, yAxisMetric, barLimit }) {
+    // Sort the transformed data based on the yAxisMetric in descending order
+    const sortedData = [...data]
+        .sort((a, b) => b[yAxisMetric] - a[yAxisMetric])
+        .slice(0, barLimit);
+    console.log(sortedData);
+    // Custom Tooltip component  
+    const CustomTooltip = ({ active, payload }: any) => {
+      if (active && payload && payload.length) {
+        const playerName = payload[0].payload.playerName;
+        const teamName = payload[0].payload.teamName;
+        const yValue = payload[0].payload[yAxisMetric]; // Extract yAxis value
+        return (
+          <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '10px' }}>
+            <h4>{`${playerName} (${teamName})`}</h4>
+            <div>{`${yAxisMetric}: ${yValue}`}</div>
+          </div>
+        );
+      }
+      return null;
+    };
+  
+    return (
+      <div className="p-4">
+        <h2 className="text-xl font-bold mb-4">Player Season Bar Chart</h2>
+        <ResponsiveContainer width="100%" height={500}>
+          <BarChart data={sortedData} layout="vertical">
+            <YAxis type="category" dataKey="playerName" name="Player Name" />
+            <XAxis type="number"/> {/* Reverse the X-axis to show largest value on the left */}
+            <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
+            <Bar dataKey={yAxisMetric} fill="#8884d8" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }

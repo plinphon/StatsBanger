@@ -8,12 +8,14 @@ import TeamSeasonScatter from './pages/TeamSeasonScatter';
 import PlayerSeasonScatter from './pages/PlayerSeasonScatter';
 import PlayerMatchHistory from './pages/PlayerMatchHistory';
 import PlayerMatchScatter from './pages/PlayerMatchScatter';
+import PlayerMatchBar from './pages/PlayerMatchBar';
 
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/player-match-bar/:id" element={<PlayerMatchBar />} />
         <Route path="/player-match-scatter/:id" element={<PlayerMatchScatter />} />
         <Route path="/player-season-scatter" element={<PlayerSeasonScatter />} />
         <Route path="/team-season-scatter" element={<TeamSeasonScatter />} />
