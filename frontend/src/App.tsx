@@ -4,7 +4,7 @@ import MatchDetail from './pages/MatchDetail';
 import PlayerChart from './pages/PlayerChart';
 import TeamRadar from './pages/TeamRadar';
 import HomePage from './pages/Index';
-import TeamScatter from './pages/TeamScatter';
+import TeamSeasonScatter from './pages/TeamSeasonScatter';
 import PlayerSeasonScatter from './pages/PlayerSeasonScatter';
 import PlayerMatchHistory from './pages/PlayerMatchHistory';
 import PlayerMatchScatter from './pages/PlayerMatchScatter';
@@ -16,7 +16,7 @@ function App() {
       <Routes>
         <Route path="/player-match-scatter/:id" element={<PlayerMatchScatter />} />
         <Route path="/player-season-scatter" element={<PlayerSeasonScatter />} />
-        <Route path="/team-scatter" element={<TeamScatter />} />
+        <Route path="/team-season-scatter" element={<TeamSeasonScatter />} />
         <Route path="/match/:id" element={<MatchDetail />} />
         <Route path="/player/:id" element={<PlayerChart />} />
         <Route path="/team/:id" element={<TeamRadar />} />
