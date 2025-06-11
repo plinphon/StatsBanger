@@ -61,12 +61,20 @@ export default function PlayerChart() {
       setCurrentMatchIndex(currentMatchIndex - 1);
     }
   };
+
+  const sortedRecentMatches = [...recentMatches].sort((a, b) => {
+    const dateA = new Date(a.match.currentPeriodStartTimestamp).getTime();
+    const dateB = new Date(b.match.currentPeriodStartTimestamp).getTime();
+    return dateB - dateA; // Descending order
+  });
+
  
   const isDNP = (match) => {
     const requiredKeys = ["match_id", "player_id", "team_id"];
     const matchKeys = Object.keys(match.match_stats || {});
     return matchKeys.length === 0 || matchKeys.every((key) => requiredKeys.includes(key));
   };
+
 
   useEffect(() => {
     async function loadData() {
@@ -191,11 +199,12 @@ export default function PlayerChart() {
       </button>
     </div>
     <h4 className="text-lg font-bold text-gray-700">
-      {recentMatches[currentMatchIndex].match.homeTeam.name} vs {recentMatches[currentMatchIndex].match.awayTeam.name}
-    </h4>
-    <p className="text-sm text-gray-600">
+  {sortedRecentMatches[currentMatchIndex].match.homeTeam.name} vs {sortedRecentMatches[currentMatchIndex].match.awayTeam.name}
+</h4>
+
+<p className="text-sm text-gray-600">
   Date:{" "}
-  {new Date(recentMatches[currentMatchIndex].match.currentPeriodStartTimestamp).toLocaleDateString("en-US", {
+  {new Date(sortedRecentMatches[currentMatchIndex].match.currentPeriodStartTimestamp).toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",
     day: "numeric",
