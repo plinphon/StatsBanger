@@ -145,3 +145,39 @@ export function PlayerBar({ data, yAxisMetric, barLimit }) {
       </div>
     );
   }
+
+  export function TeamBar({ data, yAxisMetric, barLimit }) {
+    // Sort the transformed data based on the yAxisMetric in descending order
+    const sortedData = [...data]
+        .sort((a, b) => b[yAxisMetric] - a[yAxisMetric])
+        .slice(0, barLimit);
+    console.log(sortedData);
+    // Custom Tooltip component  
+    const CustomTooltip = ({ active, payload }: any) => {
+      if (active && payload && payload.length) {
+        const teamName = payload[0].payload.teamName;
+        const yValue = payload[0].payload[yAxisMetric]; // Extract yAxis value
+        return (
+          <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '10px' }}>
+            <h4>{`${teamName})`}</h4>
+            <div>{`${yAxisMetric}: ${yValue}`}</div>
+          </div>
+        );
+      }
+      return null;
+    };
+  
+    return (
+      <div className="p-4">
+        <h2 className="text-xl font-bold mb-4">Player Season Bar Chart</h2>
+        <ResponsiveContainer width="100%" height={1000}>
+          <BarChart data={sortedData} layout="vertical">
+            <YAxis type="category" dataKey="teamName" name="Team Name" />
+            <XAxis type="number"/> {/* Reverse the X-axis to show largest value on the left */}
+            <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
+            <Bar dataKey={yAxisMetric} fill="#8884d8" />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
