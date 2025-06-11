@@ -1,20 +1,17 @@
-# Use official Golang image
-FROM golang:1.21
+# --- Stage 1: Build ---
+FROM golang:1.23 AS builder
 
-# Set working directory inside the container
 WORKDIR /app
+COPY . .
 
-# Copy go.mod and go.sum first to cache dependencies
-COPY backend/go.mod backend/go.sum ./
-
-# Download dependencies
-RUN go mod download
-
-# Copy the rest of the backend source code
-COPY backend/ ./
-
-# Build the Go application
+RUN go mod tidy
 RUN go build -o main .
 
-# Command to run the binary
+# --- Stage 2: Runtime ---
+FROM alpine
+
+WORKDIR /app
+COPY --from=builder /app/main .
+
+EXPOSE 3000
 CMD ["./main"]

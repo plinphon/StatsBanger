@@ -1,9 +1,0 @@
-
-[phases.setup]
-nixPkgs = ["go"]
-
-[start]
-cmd = "cd backend && go build -o main . && ./main"
-
-[env]
-GO_VERSION = "1.23"
