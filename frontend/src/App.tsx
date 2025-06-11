@@ -10,12 +10,14 @@ import PlayerMatchHistory from './pages/PlayerMatchHistory';
 import PlayerMatchScatter from './pages/PlayerMatchScatter';
 import PlayerMatchBar from './pages/PlayerMatchBar';
 import TeamSeasonBar from './pages/TeamSeasonBar';
+import PlayerSeasonBar from './pages/PlayerSeasonBar';
 
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/player-season-bar" element={<PlayerSeasonBar />} />
         <Route path="/team-season-bar" element={<TeamSeasonBar />} />
         <Route path="/player-match-bar/:id" element={<PlayerMatchBar />} />
         <Route path="/player-match-scatter/:id" element={<PlayerMatchScatter />} />
