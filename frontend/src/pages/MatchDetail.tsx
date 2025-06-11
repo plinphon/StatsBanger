@@ -8,6 +8,7 @@ import type { Match } from "../models/match"
 import MatchMirrorBarChart from "../components/OverallBarChart"
 import type { PlayerMatchStat } from "../models/player-match-stat"
 import { useParams } from "react-router-dom"
+import { PlayerScatter2 } from "../components/allCharts2"
 
 
 
@@ -62,7 +63,7 @@ export default function AnalyticsPage() {
       <h1 className="text-3xl font-bold mb-6">Team Match Stats Analytics</h1>
       < MatchMirrorBarChart data={[homeStats, awayStats]} />
 
-      <h1 className="text-3xl font-bold mb-6">Player Stats Analytics //รอกราฟ</h1>
+      <h1 className="text-3xl font-bold mb-6">Player Stats Analytics</h1>
 
       <h1 className="text-3xl font-bold mb-6">Player Stats //ใช้format เดียวกับในหน้าplayerได้</h1>
                   <pre className="text-xs text-gray-500">
