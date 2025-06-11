@@ -7,9 +7,9 @@ import { fetchMatchById, fetchPlayerStatsByMatch, fetchTeamMatchStats } from "..
 import type { Match } from "../models/match"
 import MatchMirrorBarChart from "../components/OverallBarChart"
 import type { PlayerMatchStat } from "../models/player-match-stat"
-const HOMETEAM_ID = 2828
-const AWAYTEAM_ID = 2833
-const MATCH_ID = 11369289
+import { useParams } from "react-router-dom"
+
+
 
 export default function AnalyticsPage() {
   const [match, setMatch] = useState<Match>()
@@ -19,10 +19,19 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
+
+  const { id } = useParams();
+
+  const MATCH_ID = parseInt(id ?? '0', 10);
+
   useEffect(() => {
     async function loadStats() {
       try {
         const match = await fetchMatchById(MATCH_ID)
+        
+        const HOMETEAM_ID = match.homeTeam.id
+        const AWAYTEAM_ID = match.awayTeam.id
+
         const homeStats = await fetchTeamMatchStats(MATCH_ID, HOMETEAM_ID)
         const awayStats = await fetchTeamMatchStats(MATCH_ID, AWAYTEAM_ID)
 
@@ -53,9 +62,9 @@ export default function AnalyticsPage() {
       <h1 className="text-3xl font-bold mb-6">Team Match Stats Analytics</h1>
       < MatchMirrorBarChart data={[homeStats, awayStats]} />
 
-      <h1 className="text-3xl font-bold mb-6">Player Stats Analytics</h1>
+      <h1 className="text-3xl font-bold mb-6">Player Stats Analytics //รอกราฟ</h1>
 
-      <h1 className="text-3xl font-bold mb-6">Player Stats</h1>
+      <h1 className="text-3xl font-bold mb-6">Player Stats //ใช้format เดียวกับในหน้าplayerได้</h1>
                   <pre className="text-xs text-gray-500">
                     {JSON.stringify(allPlayerStats, null, 2)}
                   </pre>
