@@ -56,7 +56,7 @@ export async function fetchPlayerStatsByMatch(matchID: number, statFields?: stri
 
 export async function fetchAllMatchStatsByPlayerId(playerId: number): Promise<PlayerMatchStat[]> {
   const res = await fetch(`${API_BASE_URL}/api/player-match-stat/player/${playerId}`)
-  if (!res.ok) throw new Error("Failed to fetch stats by player ID")
+  if (!res.ok) throw new Error("Failed to fetch matches by player ID")
   return await res.json()
 }
 

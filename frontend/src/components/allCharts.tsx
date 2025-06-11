@@ -1,35 +1,24 @@
-// src/components/TeamAnalytics.tsx
-
-import {
-  ResponsiveContainer,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Tooltip,
-  Radar,
-  ScatterChart,
-  Scatter,
-  CartesianGrid,
-  XAxis,
-  YAxis
-} from "recharts";
-
-import React, { useState } from "react";
-import { Customized } from "recharts";
+import React, { useState, useMemo, useCallback } from "react";
+import { Card, CardContent } from "./ui/Card";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Radar, RadarChart, PolarAngleAxis, PolarRadiusAxis, Customized, PolarGrid, ScatterChart, Scatter, CartesianGrid } from 'recharts';
 import type { TooltipProps } from 'recharts';
 import { normalizePlayerData, getMetricDisplayLabel } from '../utils/dataTransformation';
-import type { TeamMatchStat } from "../models/team-match-stat";
 
-interface Props {
-  data: TeamMatchStat[]
+// Basic interface for TeamMatchStat
+export interface TeamMatchStat {
+  MatchID: number | string;
+  [key: string]: number | string | null;
 }
 
+interface TeamAnalyticsProps {
+  data: TeamMatchStat[];
+}
+
+// Position-specific metrics for the radar chart
 const topicF = ["goals", "penaltyGoals", "goalConversionPercentage", "totalShots", "keyPasses", "accurateFinalThirdPasses", "successfulDribbles", "aerialDuelsWon", "possessionLost"];
 const topicM = ["accuratePassesPercentage", "accurateLongBalls", "keyPasses", "totalShots", "successfulDribbles", "totalDuelsWon", "tackles", "interceptions"];
 const topicD = ["tackles", "interceptions", "clearances", "groundDuelsWonPercentage", "aerialDuelsWonPercentage", "fouls", "accuratePassesPercentage", "accurateLongBalls", "keyPasses"];
 const topicG = ["saves", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut", "accuratePassesPercentage", "accurateLongBalls"];
-
 
 // Stat categories for dynamic radar chart
 const STAT_CATEGORIES = {
@@ -58,7 +47,6 @@ const STAT_CATEGORIES = {
     stats: ["rating", "minutesPlayed", "appearances", "yellowCards", "redCards"]
   }
 };
-
 
 // Built-in presets for quick selection
 const BUILT_IN_PRESETS = {
@@ -89,6 +77,39 @@ const ALL_METRICS = {
   goalkeeping: ["saves", "goalsConceded", "penaltySave", "savedShotsFromInsideTheBox", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut"],
   performance: ["rating", "minutesPlayed", "appearances", "yellowCards", "redCards", "fouls", "totalDuelsWon"]
 };
+
+// Metrics for the bar charts in TeamAnalytics
+const teamAnalyticsMetrics = [
+    "expectedGoals",
+    "totalShots", 
+    "shotsOnTarget",
+    "shotsOffTarget",
+    "fouls",
+    "passes",
+    "tackles"
+];
+
+export function TeamAnalytics({ data }: TeamAnalyticsProps) {
+  return (
+    <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+      {teamAnalyticsMetrics.map((metric) => (
+        <Card key={metric} className="rounded-2xl shadow">
+          <CardContent>
+           <h2 className="text-xl font-semibold mb-4">{metric}</h2>
+            <ResponsiveContainer width="100%" height={200}>
+              <BarChart data={data}>
+                <XAxis dataKey="MatchID" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey={metric} fill="#8884d8" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  );
+}
 
 interface PlayerSeasonRadarProps {
   data: Record<string, number | null>;
@@ -142,7 +163,8 @@ export function PlayerSeasonRadar({ data, position }: PlayerSeasonRadarProps) {
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const [customMode, setCustomMode] = useState(false);
 
-  const getMetrics = () => {
+  // Memoized function to get metrics based on current state
+  const radarMetrics = useMemo(() => {
     // If in custom mode, use selected metrics
     if (customMode && selectedMetrics.length > 0) {
       return selectedMetrics;
@@ -163,47 +185,52 @@ export function PlayerSeasonRadar({ data, position }: PlayerSeasonRadarProps) {
       : null;
     
     return category?.stats || [];
-  };
+  }, [customMode, selectedMetrics, selectedCategory, position]);
 
-  // Helper functions for the customization interface
-  const handleMetricToggle = (metric: string) => {
+  // Memoized normalized data calculation
+  const normalizedPlayerData = useMemo(() => {
+    return normalizePlayerData(data, position);
+  }, [data, position]);
+
+  // Memoized chart data generation
+  const ChartData = useMemo(() => {
+    const { rawData, normalizedData } = normalizedPlayerData;
+    return radarMetrics.map(metric => ({
+      label: getMetricDisplayLabel(metric),
+      value: normalizedData[metric] ?? 0,  
+      rawValue: rawData[metric] ?? 0       
+    }));
+  }, [radarMetrics, normalizedPlayerData]);
+
+  // Optimized callback functions using useCallback
+  const handleMetricToggle = useCallback((metric: string) => {
     setSelectedMetrics(prev => 
       prev.includes(metric) 
         ? prev.filter(m => m !== metric)
         : [...prev, metric]
     );
-  };
+  }, []);
 
-  const handlePresetSelect = (presetKey: string) => {
+  const handlePresetSelect = useCallback((presetKey: string) => {
     const preset = BUILT_IN_PRESETS[presetKey as keyof typeof BUILT_IN_PRESETS];
     if (preset) {
       setSelectedMetrics(preset.metrics);
     }
-  };
+  }, []);
 
-  const applyCustomization = () => {
+  const applyCustomization = useCallback(() => {
     if (selectedMetrics.length > 0) {
       setCustomMode(true);
     }
     setIsCustomizeOpen(false);
-  };
+  }, [selectedMetrics.length]);
 
-  const radarMetrics = getMetrics();
-  
-  // Normalize the data for better visualization while preserving raw values
-  const { rawData, normalizedData } = normalizePlayerData(data, position);
-  
-  const ChartData = radarMetrics.map(metric => ({
-    label: getMetricDisplayLabel(metric),
-    value: normalizedData[metric] ?? 0,  // Use normalized for chart shape
-    rawValue: rawData[metric] ?? 0       // Keep raw value for tooltips
-  }));
+  // Make the chart axis a bit bigger than 100% for visual spacing
+  const topOfAxis = 100;
 
-  // Expand axis to create margin between radar shape and background layers
-  const topOfAxis = 120; // 100% data now reaches only 83% of radius
-
-  const handleMouseEnter = () => setIsHovered(true);
-  const handleMouseLeave = () => setIsHovered(false);
+  // Memoized mouse event handlers
+  const handleMouseEnter = useCallback(() => setIsHovered(true), []);
+  const handleMouseLeave = useCallback(() => setIsHovered(false), []);
 
   return (
     <div className="p-4">
@@ -284,7 +311,7 @@ export function PlayerSeasonRadar({ data, position }: PlayerSeasonRadarProps) {
                   if (payload && payload.length) {
                     const dataPoint = payload[0].payload;
                     const normalizedValue = payload[0].value;
-                    const rawValue = dataPoint.rawValue;
+                    const rawValue = dataPoint.rawValue.toFixed(2);
                     
                     return (
                       <div className="bg-gray-900/95 text-white p-4 rounded-xl shadow-2xl border border-gray-700/50 backdrop-blur-sm">
@@ -443,7 +470,12 @@ export function PlayerSeasonRadar({ data, position }: PlayerSeasonRadarProps) {
   )
 }
 
-export function TeamSeasonRadar({ data, metrics }) {
+interface TeamSeasonRadarProps {
+  data: Record<string, number | null>;
+  metrics?: string[];
+}
+
+export function TeamSeasonRadar({ data }: TeamSeasonRadarProps) {
   const teamMetrics1 = [
     "expectedGoals",
     "totalShots",
@@ -453,7 +485,7 @@ export function TeamSeasonRadar({ data, metrics }) {
     "passes",
     "tackles"
   ]
-  const generateChartData = (data, metrics) => {
+  const generateChartData = (data: Record<string, number | null>, metrics: string[]) => {
     return metrics.map(metric => ({
       label: metric,
       value: data[metric] ?? 0 // Default to 0 if the metric is null or undefined
@@ -476,7 +508,12 @@ export function TeamSeasonRadar({ data, metrics }) {
   )
 }
 
-export function TeamsMatchScatter({ data, metrics }) {
+interface TeamsMatchScatterProps {
+  data: Record<string, number | null>;
+  metrics?: string[];
+}
+
+export function TeamsMatchScatter({ data }: TeamsMatchScatterProps) {
   const teamMetrics1 = [
     "expectedGoals",
     "totalShots",
@@ -486,7 +523,7 @@ export function TeamsMatchScatter({ data, metrics }) {
     "passes",
     "tackles"
   ]
-  const generateChartData = (data, metrics) => {
+  const generateChartData = (data: Record<string, number | null>, metrics: string[]) => {
     return metrics.map(metric => ({
       label: metric,
       value: data[metric] ?? 0 // Default to 0 if the metric is null or undefined
@@ -508,33 +545,40 @@ export function TeamsMatchScatter({ data, metrics }) {
     </div>
   )
 }
-
-type Props2 = {
-  data: Array<{ [key: string]: number }>; // Adjust according to your data structure
-  xAxisMetric: string;
-  yAxisMetric: string;
-};
 
 type TeamSeasonStat = {
   [teamId: string]: {
-    stats: { [key: string]: number }; // Numeric stats for the team
-    info: { [key: string]: string }; // Additional info about the team
+    stats: { [key: string]: number };
+    info: { [key: string]: string };
   };
 };
 
-type Props3 = {
+type PlayerSeasonStat = {
+  [playerId: string]: {
+    stats: { [key: string]: number };
+    info: { [key: string]: string };
+  };
+};
+
+interface TeamSeasonScatterProps {
   data: TeamSeasonStat;
   xAxisMetric: string;
   yAxisMetric: string;
-};
+}
 
-export function TeamSeasonScatter({ data, xAxisMetric, yAxisMetric }) {
+interface PlayerSeasonScatterProps {
+  data: PlayerSeasonStat;
+  xAxisMetric: string;
+  yAxisMetric: string;
+}
+
+export function TeamSeasonScatter({ data, xAxisMetric, yAxisMetric }: TeamSeasonScatterProps) {
   // Transform the data into an array suitable for the ScatterChart
-  const transformedData = Object.entries(data).map(([teamId, { stats, info }]) => ({
+  const transformedData = Object.entries(data).map(([teamId, teamData]) => ({
     teamId,
-    ...stats,
-    ...info,
-  }));
+    ...teamData.stats,
+    ...teamData.info,
+  })) as Array<{ [key: string]: any }>;
 
   // Sort the transformed data based on the xAxisMetric
   const sortedData = transformedData.sort((a, b) => a[xAxisMetric] - b[xAxisMetric]);
@@ -550,7 +594,7 @@ export function TeamSeasonScatter({ data, xAxisMetric, yAxisMetric }) {
   const yMax = Math.max(...yValues) * (1+pad);
 
   // Custom Tooltip component
-  const CustomTooltip = ({ active, payload }) => {
+  const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const { name } = payload[0].payload; // Extract teamId
       const xValue = payload[0].payload[xAxisMetric]; // Extract xAxis value
@@ -582,13 +626,13 @@ export function TeamSeasonScatter({ data, xAxisMetric, yAxisMetric }) {
   );
 }
 
-export function PlayerSeasonScatter({ data, xAxisMetric, yAxisMetric }) {
+export function PlayerSeasonScatter({ data, xAxisMetric, yAxisMetric }: PlayerSeasonScatterProps) {
   // Transform the data into an array suitable for the ScatterChart
-  const transformedData = Object.entries(data).map(([playerId, { stats, info }]) => ({
+  const transformedData = Object.entries(data).map(([playerId, playerData]) => ({
     playerId,
-    ...stats,
-    ...info,
-  }));
+    ...playerData.stats,
+    ...playerData.info,
+  })) as Array<{ [key: string]: any }>;
 
   // Sort the transformed data based on the xAxisMetric
   const sortedData = transformedData.sort((a, b) => a[xAxisMetric] - b[xAxisMetric]);
@@ -603,8 +647,8 @@ export function PlayerSeasonScatter({ data, xAxisMetric, yAxisMetric }) {
   const yMin = Math.min(...yValues) * (1-pad);
   const yMax = Math.max(...yValues) * (1+pad);
 
-  // Custom Tooltip component
-  const CustomTooltip = ({ active, payload }) => {
+  // Custom Tooltip component  
+  const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const { name } = payload[0].payload; // Extract playerId
       const xValue = payload[0].payload[xAxisMetric]; // Extract xAxis value
@@ -635,3 +679,4 @@ export function PlayerSeasonScatter({ data, xAxisMetric, yAxisMetric }) {
     </div>
   );
 }
+
