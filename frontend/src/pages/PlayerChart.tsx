@@ -49,6 +49,25 @@ export default function PlayerChart() {
 
   const navigate = useNavigate();
 
+
+  const [selectedMatch, setSelectedMatch] = useState<any | null>(null);
+
+  const handleMatchClick = (match: any) => {
+    setSelectedMatch(match);
+  };
+
+  const closeModal = () => {
+    setSelectedMatch(null);
+  };
+
+ 
+  const isDNP = (match) => {
+    const requiredKeys = ["match_id", "player_id", "team_id"];
+    const matchKeys = Object.keys(match.match_stats || {});
+    return matchKeys.length === 0 || matchKeys.every((key) => requiredKeys.includes(key));
+  };
+
+
   useEffect(() => {
     async function loadData() {
       try {
@@ -140,7 +159,75 @@ export default function PlayerChart() {
           />
         </div>
 
+<<<<<<< Updated upstream
         {/* Descriptive Stats Section (Toggleable) */}
+=======
+      
+    <div className="bg-gray-100 rounded-2xl shadow p-6">
+          <h3 className="text-2xl font-semibold text-gray-800 mb-4">Recent Matches</h3>
+
+          {recentMatches.length > 0 ? (
+            <div className="space-y-3">
+              {recentMatches.map((matchItem, index) => {
+                const isExpanded = expandedMatchIndex === index;
+                return (
+                  <div
+                    key={index}
+                    className="bg-white rounded-lg shadow transition overflow-hidden border"
+                  >
+                    <button
+                      onClick={() => toggleMatch(index)}
+                      className="w-full text-left px-4 py-3 flex justify-between items-center bg-gray-50 hover:bg-blue-100"
+                    >
+                      <div>
+                        <div className="font-semibold text-gray-700">
+                          {matchItem.match.homeTeam.name} vs {matchItem.match.awayTeam.name}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {new Date(matchItem.match.currentPeriodStartTimestamp).toLocaleDateString()}
+                        </div>
+                      </div>
+                      <span className="text-xl text-gray-400">
+                        {isExpanded ? "▲" : "▼"}
+                      </span>
+                    </button>
+
+                    {isExpanded && (
+                      <div className="p-4 border-t">
+                        {isDNP(matchItem) ? (
+                          <p className="text-red-500 font-semibold">DNP (Did Not Play)</p>
+                        ) : (
+                          <table className="text-xs text-gray-500 border-collapse border border-gray-300 w-full">
+                            <thead>
+                              <tr className="bg-gray-100">
+                                <th className="border border-gray-300 px-4 py-2 text-left font-semibold">Stat</th>
+                                <th className="border border-gray-300 px-4 py-2 text-left font-semibold">Value</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {Object.entries(matchItem.match_stats)
+                                .filter(([key]) => !key.includes("_id"))
+                                .map(([key, value], i) => (
+                                  <tr key={key} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                                    <td className="border border-gray-300 px-4 py-2">{key.replace(/_/g, " ")}</td>
+                                    <td className="border border-gray-300 px-4 py-2">{value || 0}</td>
+                                  </tr>
+                                ))}
+                            </tbody>
+                          </table>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p>No recent matches available.</p>
+          )}
+        </div>
+
+>>>>>>> Stashed changes
 <div className="bg-white/90 rounded-2xl shadow p-6">
   <button
     className="flex items-center gap-2 text-xl font-bold text-gray-800 mb-4 focus:outline-none"
