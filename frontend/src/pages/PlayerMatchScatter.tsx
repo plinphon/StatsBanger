@@ -6,6 +6,7 @@ import { PlayerScatter2 } from "../components/allCharts2"
 import type { PlayerSeasonStat } from "../models/player-season-stat"
 import type { Player } from "../models/player"
 import { fetchPlayerSeasonStatsWithMeta, fetchPlayerById, fetchTopPlayersByStat, fetchPlayerStatsByMatch } from "../lib/api"
+import { percentageToStat, statToPercentage } from '../utils/statPercentageCalculation'
 
 const UNIQUE_TOURNAMENT_ID = 8;
 const SEASON_ID = 52376;
@@ -14,10 +15,16 @@ const METRIC_X = "total_pass";
 const METRIC_Y = "accurate_pass";
 const POSITION = "M";
 
+const METRIC_PAIRS1 = [
+    ["total_passes", "accurate_passes"]
+]
+
+const STAT_PERCENTAGE = true;
 
 export default function PlayerScatter() {
 const { id } = useParams<{ id: string }>() 
 //   const player_id = parseInt(id || "", 10)
+    const newMetricY = STAT_PERCENTAGE ? `${METRIC_Y}_percentage` : METRIC_Y;
 
     const [playerStats, setStats] = useState<Array<{
         playerID: number;
@@ -45,8 +52,9 @@ const { id } = useParams<{ id: string }>()
                     teamId: playerStat.team.id,
                     teamName: playerStat.team.name,
                     [METRIC_X]: playerStat.match_stats[METRIC_X],
-                    [METRIC_Y]: playerStat.match_stats[METRIC_Y]
+                    [newMetricY]: STAT_PERCENTAGE ? statToPercentage(playerStat.match_stats[METRIC_Y], playerStat.match_stats[METRIC_X]) : playerStat.match_stats[METRIC_Y],
                 }));
+                console.log(formatedPlayerStats);
                 setStats(formatedPlayerStats);
             } catch (err: any) {
                 setError(err.message)
@@ -86,7 +94,8 @@ const { id } = useParams<{ id: string }>()
             <PlayerScatter2
                 data={playerStats}
                 xAxisMetric={METRIC_X}
-                yAxisMetric={METRIC_Y}
+                yAxisMetric={newMetricY}
+                statPercentage={STAT_PERCENTAGE}
             />
         </div>
         </div>

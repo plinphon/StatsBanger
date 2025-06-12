@@ -5,13 +5,22 @@ import { PlayerScatter2 } from "../components/allCharts2"
 import type { PlayerSeasonStat } from "../models/player-season-stat"
 import type { Player } from "../models/player"
 import { fetchPlayerSeasonStatsWithMeta, fetchPlayerById, fetchTopPlayersByStat } from "../lib/api"
+import { statToPercentage } from '../utils/statPercentageCalculation' // Import statToPercentage
 
 const UNIQUE_TOURNAMENT_ID = 8;
 const SEASON_ID = 52376;
-const METRIC_X = "total_passes";
-const METRIC_Y = "accurate_passes_percentage";
+const METRIC_X = "total_shots";
+const METRIC_Y = "goals";
 const POSITION = "M";
+const STAT_PERCENTAGE = true; // Add STAT_PERCENTAGE flag
 
+const METRIC_PAIRS = [
+    ["total_passes", "accurate_passes_percentage"],
+    ["total_shots", "shots_on_target"],
+    ["total_shots", "goals"]
+]
+
+const newMetricY = STAT_PERCENTAGE ? `${METRIC_Y}_percentage` : METRIC_Y;
 
 export default function PlayerSeasonScatter() {
 //   const { id } = useParams<{ id: string }>() 
@@ -43,8 +52,10 @@ export default function PlayerSeasonScatter() {
                     position: playerStat.player.position,
                     teamId: playerStat.team.id,
                     teamName: playerStat.team.name,
-                    [METRIC_X]: playerStat.stats[METRIC_X] ?? 0, // Fallback to null
-                    [METRIC_Y]: playerStat.stats[METRIC_Y] ?? 0  // Fallback to null
+                    [METRIC_X]: playerStat.stats[METRIC_X] ?? 0,
+                    [newMetricY]: playerStat.stats && STAT_PERCENTAGE && playerStat.stats[METRIC_Y] != null && playerStat.stats[METRIC_X] != null
+                        ? statToPercentage(playerStat.stats[METRIC_Y] as number, playerStat.stats[METRIC_X] as number)
+                        : playerStat.stats?.[METRIC_Y] ?? 0
                 }));
                 setStats(formatedPlayerStats);
             } catch (err: any) {
@@ -85,7 +96,8 @@ export default function PlayerSeasonScatter() {
             <PlayerScatter2
                 data={playerStats}
                 xAxisMetric={METRIC_X}
-                yAxisMetric={METRIC_Y}
+                yAxisMetric={newMetricY}
+                statPercentage={STAT_PERCENTAGE} // Pass STAT_PERCENTAGE
             />
         </div>
         </div>

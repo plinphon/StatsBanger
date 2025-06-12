@@ -12,7 +12,7 @@ const topicD = ["tackles", "interceptions", "clearances", "groundDuelsWonPercent
 const topicG = ["saves", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut", "accuratePassesPercentage", "accurateLongBalls"];
 
 
-export function PlayerScatter2({ data, xAxisMetric, yAxisMetric }) {
+export function PlayerScatter2({ data, xAxisMetric, yAxisMetric, statPercentage }) {
     // Sort the transformed data based on the xAxisMetric
     const sortedData = data.sort((a, b) => a[xAxisMetric] - b[xAxisMetric]);
   
@@ -37,7 +37,7 @@ export function PlayerScatter2({ data, xAxisMetric, yAxisMetric }) {
           <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '10px' }}>
             <h4>{`${playerName} (${teamName})`}</h4>
             <div>{`${xAxisMetric}: ${xValue}`}</div>
-            <div>{`${yAxisMetric}: ${yValue}`}</div>
+            <div>{`${yAxisMetric}: ${yValue}${statPercentage ? "%" : ""}`}</div>
           </div>
         );
       return null;
@@ -48,7 +48,7 @@ export function PlayerScatter2({ data, xAxisMetric, yAxisMetric }) {
     return (
       <div className="p-4">
         <h2 className="text-xl font-bold mb-4">Player Season Scatter Plot</h2>
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={700}>
           <ScatterChart>
             <CartesianGrid />
             <XAxis dataKey={xAxisMetric} name={xAxisMetric} type="number" domain={[xMin, xMax]} />
@@ -61,7 +61,7 @@ export function PlayerScatter2({ data, xAxisMetric, yAxisMetric }) {
     );
   }
 
-export function TeamScatter2({ data, xAxisMetric, yAxisMetric }) {
+export function TeamScatter2({ data, xAxisMetric, yAxisMetric, statPercentage }) {
     // Sort the transformed data based on the xAxisMetric
     const sortedData = data.sort((a, b) => a[xAxisMetric] - b[xAxisMetric]);
 
@@ -85,18 +85,17 @@ export function TeamScatter2({ data, xAxisMetric, yAxisMetric }) {
                 <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '10px' }}>
                     <h4>{`${teamName}`}</h4>
                     <div>{`${xAxisMetric}: ${xValue}`}</div>
-                    <div>{`${yAxisMetric}: ${yValue}`}</div>
+                    <div>{`${yAxisMetric}: ${yValue}${statPercentage ? "%" : ""}`}</div>
                 </div>
             );
-        return null;
-    };
+        }
         return null;
     };
 
     return (
         <div className="p-4">
             <h2 className="text-xl font-bold mb-4">Team Season Scatter Plot</h2>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={700}>
                 <ScatterChart>
                     <CartesianGrid />
                     <XAxis dataKey={xAxisMetric} name={xAxisMetric} type="number" domain={[xMin, xMax]} />

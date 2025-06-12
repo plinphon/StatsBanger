@@ -7,12 +7,14 @@ import { TeamScatter2 } from "../components/allCharts2"
 import type { TeamSeasonStat } from "../models/team-season-stat"
 import type { Team } from "../models/team"
 import { fetchTeamSeasonStatsWithMeta, fetchTeamById, fetchTopTeamsByStat } from "../lib/api"
+import { statToPercentage } from '../utils/statPercentageCalculation' // Import statToPercentage
 
 const UNIQUE_TOURNAMENT_ID = 8;
 const SEASON_ID = 52376;
 const METRIC_X = "shots";
 const METRIC_Y = "goals_scored";
-
+const STAT_PERCENTAGE = true; // Add STAT_PERCENTAGE flag
+const newMetricY = STAT_PERCENTAGE ? `${METRIC_Y}_percentage` : METRIC_Y;
 
 export default function TeamSeasonScatter() {
 //   const { id } = useParams<{ id: string }>() 
@@ -38,7 +40,7 @@ export default function TeamSeasonScatter() {
             teamId: teamStat.team.id,
             teamName: teamStat.team.name,
             [METRIC_X]: teamStat.stats?.[METRIC_X] ?? null,
-            [METRIC_Y]: teamStat.stats?.[METRIC_Y] ?? null
+            [newMetricY]: STAT_PERCENTAGE ? statToPercentage(teamStat.stats?.[METRIC_Y], teamStat.stats?.[METRIC_X]) : teamStat.stats?.[METRIC_Y] ?? null
         }));
         console.log(formatedTeamStats)
         setStats(formatedTeamStats);
@@ -80,7 +82,8 @@ export default function TeamSeasonScatter() {
       <TeamScatter2
         data={teamStats}
         xAxisMetric={METRIC_X}
-        yAxisMetric={METRIC_Y}
+        yAxisMetric={newMetricY}
+        statPercentage={STAT_PERCENTAGE} // Pass STAT_PERCENTAGE
       />
     </div>
     </div>
