@@ -7,14 +7,19 @@ const isDNP = (match :PlayerMatchStat) => {
   };
 
 interface PlayerStatProps {
-matchItem: PlayerMatchStat;
+  matchItem: PlayerMatchStat;
 }
 
 export function PlayerStat({ matchItem }: PlayerStatProps){
 return(
 <div className="p-4 border-t">
 {isDNP(matchItem) ? (
+  <div> 
+  <a href={`/match/${matchItem.match.id}`} className="text-blue-600 hover:underline inline-block mb-2">
+      see full match stat &gt;&gt;
+  </a>
   <p className="text-red-500 font-semibold">DNP (Did Not Play)</p>
+  </div>
 ) : (
   <div> 
     <div className="text-right mb-2">
