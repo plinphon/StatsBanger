@@ -8,6 +8,7 @@ import { fetchPlayerSeasonStatsWithMeta, fetchPlayerById } from "../lib/api"
 import { fetchAllMatchStatsByPlayerId, fetchStatByPlayerAndMatch } from "../lib/api";
 import type { Match } from '../models/match'
 import type { PlayerMatchStat } from '../models/player-match-stat'
+import { PlayerStat } from '../components/ui/PlayerStat'
 
 
 const UNIQUE_TOURNAMENT_ID = 8
@@ -64,14 +65,9 @@ export default function PlayerChart() {
     setExpandedMatchIndex(prev => (prev === index ? null : index));
   };
  
-  const isDNP = (match) => {
-    const requiredKeys = ["match_id", "player_id", "team_id"];
-    const matchKeys = Object.keys(match.match_stats || {});
-    return matchKeys.length === 0 || matchKeys.every((key) => requiredKeys.includes(key));
-  };
 
   const sortedRecentMatches = [...recentMatches].sort((a, b) => {
-    return new Date(a.match.currentPeriodStartTimestamp).getTime() - new Date(b.match.currentPeriodStartTimestamp).getTime();
+    return new Date(b.match.currentPeriodStartTimestamp).getTime() - new Date(a.match.currentPeriodStartTimestamp).getTime();
   });
   
 
@@ -85,7 +81,7 @@ export default function PlayerChart() {
           throw new Error("Invalid PLAYER_ID");
         }
   
-        const [playerData, statsData, PlayerMatchHistory] = await Promise.all([
+        const [playerData, statsData, playerMatchHistory] = await Promise.all([
           fetchPlayerById(PLAYER_ID),
           fetchPlayerSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, PLAYER_ID),
           fetchAllMatchStatsByPlayerId(PLAYER_ID)
@@ -95,7 +91,8 @@ export default function PlayerChart() {
   
         setPlayer(playerData);
         setStats(statsData?.length > 0 ? statsData[0] : null);
-        setRecentMatches(PlayerMatchHistory);
+        setRecentMatches(playerMatchHistory);
+        
       } catch (err) {
         console.error("Error fetching data:", err);
         setError(err instanceof Error ? err.message : "Unknown error");
@@ -220,40 +217,10 @@ export default function PlayerChart() {
                         {isExpanded ? "▲" : "▼"}
                       </span>
                     </button>
-  
                     {isExpanded && (
-                      <div className="p-4 border-t">
-                        {isDNP(matchItem) ? (
-                          <p className="text-red-500 font-semibold">DNP (Did Not Play)</p>
-                        ) : (
-                          <div> 
-                            <div className="text-right mb-2">
-                              <a href={`/match/${matchItem.match.id}`} className="text-blue-600 hover:underline inline-block mb-2">
-                                see full match stat &gt;&gt;
-                              </a>
-                          </div>
-                          <table className="text-xs text-gray-500 border-collapse border border-gray-300 w-full">
-                            <thead>
-                              <tr className="bg-gray-100">
-                                <th className="border border-gray-300 px-4 py-2 text-left font-semibold">Stat</th>
-                                <th className="border border-gray-300 px-4 py-2 text-left font-semibold">Value</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {Object.entries(matchItem.match_stats)
-                                .filter(([key]) => !key.includes("_id"))
-                                .map(([key, value], i) => (
-                                  <tr key={key} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                                    <td className="border border-gray-300 px-4 py-2">{key.replace(/_/g, " ")}</td>
-                                    <td className="border border-gray-300 px-4 py-2">{value || 0}</td>
-                                  </tr>
-                                ))}
-                            </tbody>
-                          </table>
-                          </div>
-                        )}
-                      </div>
+                        <PlayerStat matchItem={matchItem}></PlayerStat>
                     )}
+                    
                   </div>
                 );
               })}

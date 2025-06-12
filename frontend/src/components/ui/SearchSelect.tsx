@@ -1,8 +1,11 @@
 import React, { useState } from "react";
 import AsyncSelect from "react-select/async";
 import { useNavigate } from "react-router-dom";
+import type { Player } from "../../models/player";
+import type { Team } from "../../models/team";
 
 
+type ResultType = { name: string; playerId?: number; teamId?: number };
 type OptionType = { label: string; value: number };
 
 type SearchSelectProps = {
@@ -15,7 +18,10 @@ type SearchSelectProps = {
     badges: string;
   };
   placeholder: string;
-  searchFunction: (query: string) => Promise<{ name: string; id: number }[]>;
+
+  searchFunction: (query: string) => Promise<(Player | Team)[]>;
+
+
   navigatePathPrefix: string; // "/player/" or "/team/"
   filterOptions?: {
     countries: string[];
@@ -98,11 +104,22 @@ export function SearchSelect({
 
   const navigate = useNavigate();
 
+
   const loadOptions = async (inputValue: string): Promise<OptionType[]> => {
     if (!inputValue) return [];
     try {
-      const results = await searchFunction(inputValue);
-      return results.map((r) => ({ label: r.name, value: Number(r.id) }));
+      const results: ResultType[] = await searchFunction(inputValue);
+  
+      return results
+        .map((r) => {
+          const id = r.playerId ?? r.teamId;
+          if (id === undefined) return null;  // skip if no id
+          return {
+            label: r.name,
+            value: Number(id),
+          };
+        })
+        .filter((opt): opt is OptionType => opt !== null);  // filter out nulls
     } catch {
       return [];
     }

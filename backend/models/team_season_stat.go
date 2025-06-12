@@ -1,8 +1,6 @@
 package models
 
 type TeamSeasonStat struct {
-
-    ID                 int  `gorm:"primaryKey;column:id" json:"id"`
     TeamID             int  `gorm:"column:team_id" json:"teamId"`
     Team               Team `gorm:"foreignKey:TeamID;references:TeamId" json:"team"`
     UniqueTournamentID  int  `gorm:"column:unique_tournament_id" json:"uniqueTournamentId"`

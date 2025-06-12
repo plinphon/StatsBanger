@@ -6,7 +6,7 @@ import (
 )
 
 type Player struct {
-	PlayerId      int       `json:"id" gorm:"primaryKey;column:player_id"`
+	PlayerId      int       `json:"playerId" gorm:"primaryKey;column:player_id"`
 	PlayerName    string    `json:"name" gorm:"column:player_name"`
 	PlayerSeasonStat *PlayerSeasonStat `gorm:"foreignKey:PlayerId;references:PlayerId" json:"playerSeasonStat,omitempty"`
 	Birthday      time.Time `json:"birthdayTimestamp" gorm:"column:birthday_timestamp"`

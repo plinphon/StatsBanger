@@ -1,6 +1,6 @@
 
 export interface Player {
-  id: number 
+  playerId: number 
   name: string 
   birthdayTimestamp: string
   age?: number
