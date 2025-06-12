@@ -14,6 +14,14 @@ import { PlayerStat } from '../components/ui/PlayerStat'
 const UNIQUE_TOURNAMENT_ID = 8
 const SEASON_ID = 52376
 
+function formatDateDDMMYYYY(timestamp: number | string): string {
+  const date = new Date(timestamp);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}/${month}/${year}`;
+}
+
 interface PlayerChartProps {
   playerId: number; // Define the type of playerId
 }
@@ -47,18 +55,16 @@ export default function PlayerChart() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showStats, setShowStats] = useState(true)
+  const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
 
   const navigate = useNavigate();
-
 
   const [expandedMatchIndex, setExpandedMatchIndex] = useState<number | null>(null);
 
   const toggleMatch = (index: number) => {
     setExpandedMatchIndex(prev => (prev === index ? null : index));
   };
-
  
-
 
   const sortedRecentMatches = [...recentMatches].sort((a, b) => {
     return new Date(b.match.currentPeriodStartTimestamp).getTime() - new Date(a.match.currentPeriodStartTimestamp).getTime();
@@ -187,7 +193,7 @@ export default function PlayerChart() {
           <h3 className="text-2xl font-semibold text-gray-800 mb-4">Recent Matches</h3>
           {recentMatches.length > 0 ? (
             <div className="space-y-3">
-              {recentMatches.map((matchItem, index) => {
+              {sortedRecentMatches.map((matchItem, index) => {
                 const isExpanded = expandedMatchIndex === index;
                 return (
                   <div
@@ -202,9 +208,9 @@ export default function PlayerChart() {
                         <div className="font-semibold text-gray-700">
                           {matchItem.match.homeTeam.name} vs {matchItem.match.awayTeam.name}
                         </div>
-                        <div className="text-sm text-gray-500">
-                          {new Date(matchItem.match.currentPeriodStartTimestamp).toLocaleDateString()}
-                        </div>
+                          <p className="text-sm text-gray-600">
+                            {formatDateDDMMYYYY(matchItem.match.currentPeriodStartTimestamp)}
+                          </p>
                       </div>
                       <span className="text-xl text-gray-400">
                         {isExpanded ? "▲" : "▼"}
@@ -227,3 +233,4 @@ export default function PlayerChart() {
     </div>
   );
 }
+

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import AsyncSelect from "react-select/async";
 import { useNavigate } from "react-router-dom";
-import { getMetricDisplayLabel } from "../../utils/dataTransformation";
+
 
 
 type OptionType = { label: string; value: number };
