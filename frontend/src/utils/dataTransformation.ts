@@ -117,3 +117,13 @@ export function getMetricUpperBound(metric: string, position: string): number | 
   const positionStats = POSITION_STATS_MAP[playerPosition];
   return positionStats[metric]?.upperBound ?? null;
 } 
+
+
+type PositionKey = 'G' | 'D' | 'M' | 'F';
+
+export const positionOrder: Record<PositionKey, number> = {
+  G: 1,
+  D: 2,
+  M: 3,
+  F: 4,
+};
