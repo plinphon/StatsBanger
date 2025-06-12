@@ -2,7 +2,7 @@ import type { PlayerMatchStat } from "../../models/player-match-stat";
 
 const isDNP = (match :PlayerMatchStat) => {
     const requiredKeys = ["match_id", "player_id", "team_id"];
-    const matchKeys = Object.keys(match.match_stats || {});
+    const matchKeys = Object.keys(match.matchStats || {});
     return matchKeys.length === 0 || matchKeys.every((key) => requiredKeys.includes(key));
   };
 
@@ -35,7 +35,7 @@ return(
       </tr>
     </thead>
     <tbody>
-      {Object.entries(matchItem.match_stats)
+      {Object.entries(matchItem.matchStats)
         .filter(([key]) => !key.includes("_id"))
         .map(([key, value], i) => (
           <tr key={key} className={i % 2 === 0 ? "bg-white" : "bg-gray-50"}>

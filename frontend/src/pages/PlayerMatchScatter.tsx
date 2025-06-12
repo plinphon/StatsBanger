@@ -18,6 +18,7 @@ const POSITION = "M";
 export default function PlayerScatter() {
 const { id } = useParams<{ id: string }>() 
 //   const player_id = parseInt(id || "", 10)
+const matchId = id ? parseInt(id, 10) : undefined;
 
     const [playerStats, setStats] = useState<Array<{
         playerID: number;
@@ -35,14 +36,13 @@ const { id } = useParams<{ id: string }>()
         async function loadData() {
             try {
                 setLoading(true)
-                const [stats] = await Promise.all([
-                        fetchPlayerStatsByMatch(id, `${METRIC_X},${METRIC_Y}`)
-                ])
-                const formatedPlayerStats = stats.map(playerStat => ({
-                    playerID: playerStat.player.id,
+                const stats = await fetchPlayerStatsByMatch(matchId, `${METRIC_X},${METRIC_Y}`)
+        
+                const formatedPlayerStats = stats.map((playerStat: any) => ({
+                    playerID: playerStat.player.playerId,
                     playerName: playerStat.player.name,
                     position: playerStat.player.position,
-                    teamId: playerStat.team.id,
+                    teamId: playerStat.team.teamId,
                     teamName: playerStat.team.name,
                     [METRIC_X]: playerStat.match_stats[METRIC_X],
                     [METRIC_Y]: playerStat.match_stats[METRIC_Y]

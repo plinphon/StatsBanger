@@ -1,15 +1,15 @@
 package models
 
 type PlayerMatchStat struct {
-	MatchId  int `gorm:"column:match_id"`
-	PlayerId int `gorm:"column:player_id"`
-	TeamId   int `gorm:"column:team_id"`
+    MatchId  int `gorm:"column:match_id" json:"matchId"`
+    PlayerId int `gorm:"column:player_id" json:"playerId"`
+    TeamId   int `gorm:"column:team_id" json:"teamId"`
 
-	Match  Match  `gorm:"foreignKey:MatchId;references:Id" json:"match"`
-	Player Player `gorm:"foreignKey:PlayerId;references:PlayerId" json:"player"`
-	Team   Team   `gorm:"foreignKey:TeamId;references:TeamId" json:"team"`
+    Match  Match  `gorm:"foreignKey:MatchId;references:Id" json:"match"`
+    Player Player `gorm:"foreignKey:PlayerId;references:PlayerId" json:"player"`
+    Team   Team   `gorm:"foreignKey:TeamId;references:TeamId" json:"team"`
 
-	Stats map[string]*float64 `gorm:"-" json:"match_stats"`
+    Stats map[string]*float64 `gorm:"-" json:"matchStats"`
 }
 func (PlayerMatchStat) TableName() string {
     return "player_match_stat"

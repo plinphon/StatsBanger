@@ -31,15 +31,17 @@ export default function AnalyticsPage() {
       try {
         const match = await fetchMatchById(MATCH_ID)
         
-        const HOMETEAM_ID = match.homeTeam.id
-        const AWAYTEAM_ID = match.awayTeam.id
+        const HOMETEAM_ID = match.homeTeam.teamId
+        const AWAYTEAM_ID = match.awayTeam.teamId
 
         const homeStats = await fetchTeamMatchStats(MATCH_ID, HOMETEAM_ID)
         const awayStats = await fetchTeamMatchStats(MATCH_ID, AWAYTEAM_ID)
 
         const allPlayerStats = await fetchPlayerStatsByMatch(MATCH_ID)
+        console.log("Player Stats:", allPlayerStats);
 
         setMatch(match)
+        console.log("Match:", match);
         setHomeStats(homeStats);
         setAwayStats(awayStats)
         setAllPlayerStats(allPlayerStats)
@@ -65,21 +67,24 @@ export default function AnalyticsPage() {
       < MatchMirrorBarChart data={[homeStats, awayStats]} />
 
       <h1 className="text-3xl font-bold mb-6">Player Stats Analytics</h1>
+    
+
 
             <div className="flex-1 bg-gray-100 rounded-2xl shadow p-6 max-w-4xl mx-auto">
         <h3 className="text-2xl font-semibold text-gray-800 mb-4">Player Stats</h3>
 
-          {allPlayerStats.length > 0 ? (
+          {allPlayerStats.length > 0 && match ? (
             <div className="space-y-6">
               {/* Group by teams */}
               {[match.homeTeam, match.awayTeam].map((team) => {
-                const teamPlayers = allPlayerStats.filter(
-                  (stat) => stat.teamId === team.id
-                );
+
+                const teamPlayers = allPlayerStats.filter((stat) => {
+                  return stat.teamId === team.teamId;
+                });
 
                 return (
                   <div
-                    key={team.id}
+                    key={team.teamId}
                     className="bg-white rounded-lg shadow transition overflow-hidden border"
                   >
                     <div className="bg-gray-50 px-4 py-3">
@@ -92,7 +97,7 @@ export default function AnalyticsPage() {
                       {teamPlayers.length > 0 ? (
                         teamPlayers.map((playerStat, index) => (
                           <PlayerStat
-                            key={`${team.id}-${index}`}
+                            key={`${team.teamId}-${index}`}
                             matchItem={playerStat}
                           />
                         ))

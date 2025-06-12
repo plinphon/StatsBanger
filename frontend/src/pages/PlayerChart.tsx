@@ -81,7 +81,7 @@ export default function PlayerChart() {
           throw new Error("Invalid PLAYER_ID");
         }
   
-        const [playerData, statsData, PlayerMatchHistory] = await Promise.all([
+        const [playerData, statsData, playerMatchHistory] = await Promise.all([
           fetchPlayerById(PLAYER_ID),
           fetchPlayerSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, PLAYER_ID),
           fetchAllMatchStatsByPlayerId(PLAYER_ID)
@@ -91,7 +91,8 @@ export default function PlayerChart() {
   
         setPlayer(playerData);
         setStats(statsData?.length > 0 ? statsData[0] : null);
-        setRecentMatches(PlayerMatchHistory);
+        setRecentMatches(playerMatchHistory);
+        
       } catch (err) {
         console.error("Error fetching data:", err);
         setError(err instanceof Error ? err.message : "Unknown error");
@@ -216,10 +217,10 @@ export default function PlayerChart() {
                         {isExpanded ? "▲" : "▼"}
                       </span>
                     </button>
-  
                     {isExpanded && (
                         <PlayerStat matchItem={matchItem}></PlayerStat>
                     )}
+                    
                   </div>
                 );
               })}

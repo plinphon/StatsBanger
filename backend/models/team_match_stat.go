@@ -1,13 +1,13 @@
 package models
 
 type TeamMatchStat struct {
-    MatchId int    `gorm:"column:match_id;primaryKey"` 
-    Match   *Match `gorm:"foreignKey:MatchId;references:Id"`
+    MatchId int    `gorm:"column:match_id;primaryKey" json:"matchId"`
+    Match   *Match `gorm:"foreignKey:MatchId;references:Id" json:"match"`
 
-    TeamId int  `gorm:"column:team_id;primaryKey"`
-    Team   Team `gorm:"foreignKey:TeamId;references:TeamId"`
+    TeamId int  `gorm:"column:team_id;primaryKey" json:"teamId"`
+    Team   Team `gorm:"foreignKey:TeamId;references:TeamId" json:"team"`
     
-	Stats map[string]*float64 `gorm:"-" json:"stats"` // Assuming it's computed or not in DB
+    Stats map[string]*float64 `gorm:"-" json:"stats"` // Assuming it's computed or not in DB
 }
 
 func (TeamMatchStat) TableName() string {

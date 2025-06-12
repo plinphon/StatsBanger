@@ -11,5 +11,5 @@ export interface PlayerMatchStat {
   player: Player
   team: Team
 
-  match_stats: Record<string, number | null>
+  matchStats: Record<string, number | null>
 }
