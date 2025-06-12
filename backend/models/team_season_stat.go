@@ -90,7 +90,6 @@ var ValidTeamSeasonFields = map[string]bool{
     "yellow_cards":                true,
     "yellow_red_cards":            true,
     "red_cards":                  true,
-    "avg_rating":                 true,
     "accurate_final_third_passes_against": true,
     "accurate_opposition_half_passes_against": true,
     "accurate_own_half_passes_against": true,

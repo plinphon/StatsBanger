@@ -3,6 +3,7 @@ import { Card, CardContent } from "./ui/Card";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Radar, RadarChart, PolarAngleAxis, PolarRadiusAxis, Customized, PolarGrid, ScatterChart, Scatter, CartesianGrid } from 'recharts';
 import type { TooltipProps } from 'recharts';
 import { normalizePlayerData, getMetricDisplayLabel } from '../utils/dataTransformation';
+import type { PlayerMatchStat } from "../models/player-match-stat";
 
 
 // Position-specific metrics for the radar chart
@@ -12,56 +13,84 @@ const topicD = ["tackles", "interceptions", "clearances", "groundDuelsWonPercent
 const topicG = ["saves", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut", "accuratePassesPercentage", "accurateLongBalls"];
 
 
-export function PlayerScatter2({ data, xAxisMetric, yAxisMetric }) {
-    // Sort the transformed data based on the xAxisMetric
-    const sortedData = data.sort((a, b) => a[xAxisMetric] - b[xAxisMetric]);
-  
-    // Calculate min and max for xAxis and yAxis
-    const xValues = sortedData.map(item => item[xAxisMetric]);
-    const yValues = sortedData.map(item => item[yAxisMetric]);
-  
-    const pad = 0.05;
-    const xMin = Math.min(...xValues) * (1-pad);
-    const xMax = Math.max(...xValues) * (1+pad);
-    const yMin = Math.min(...yValues) * (1-pad);
-    const yMax = Math.max(...yValues) * (1+pad);
-  
-    // Custom Tooltip component  
-    const CustomTooltip = ({ active, payload }: any) => {
-      if (active && payload && payload.length) {
-        const playerName = payload[0].payload.playerName;
-        const teamName = payload[0].payload.teamName;
-        const xValue = payload[0].payload[xAxisMetric]; // Extract xAxis value
-        const yValue = payload[0].payload[yAxisMetric]; // Extract yAxis value
-        return (
-          <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '10px' }}>
-            <h4>{`${playerName} (${teamName})`}</h4>
-            <div>{`${xAxisMetric}: ${xValue}`}</div>
-            <div>{`${yAxisMetric}: ${yValue}`}</div>
-          </div>
-        );
-      return null;
-    };
-      return null;
-    };
-  
-    return (
-      <div className="p-4">
-        <h2 className="text-xl font-bold mb-4">Player Season Scatter Plot</h2>
-        <ResponsiveContainer width="100%" height={300}>
-          <ScatterChart>
-            <CartesianGrid />
-            <XAxis dataKey={xAxisMetric} name={xAxisMetric} type="number" domain={[xMin, xMax]} />
-            <YAxis dataKey={yAxisMetric} name={yAxisMetric} domain={[yMin, yMax]} />
-            <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
-            <Scatter name="Player Performance" data={sortedData} fill="#8884d8"/>
-          </ScatterChart>
-        </ResponsiveContainer>
-      </div>
-    );
-  }
 
-export function TeamScatter2({ data, xAxisMetric, yAxisMetric }) {
+interface PlayerScatter2Props {
+  data: PlayerMatchStat[];
+  xAxisMetric: string;
+  yAxisMetric: string;
+}
+
+export function PlayerScatter2({ data, xAxisMetric, yAxisMetric }: PlayerScatter2Props) {
+  // Filter out entries where the stats are null or undefined
+  const filteredData = data.filter(
+    (item) =>
+      item.matchStats[xAxisMetric] != null &&
+      item.matchStats[yAxisMetric] != null
+  );
+
+  // Sort by xAxisMetric
+  const sortedData = filteredData.sort(
+    (a, b) =>
+      (a.matchStats[xAxisMetric] as number) - (b.matchStats[xAxisMetric] as number)
+  );
+
+  // Extract values for domain calculation
+  const xValues = sortedData.map((item) => item.matchStats[xAxisMetric] as number);
+  const yValues = sortedData.map((item) => item.matchStats[yAxisMetric] as number);
+
+  const pad = 0.05;
+  const xMin = Math.min(...xValues) * (1 - pad);
+  const xMax = Math.max(...xValues) * (1 + pad);
+  const yMin = Math.min(...yValues) * (1 - pad);
+  const yMax = Math.max(...yValues) * (1 + pad);
+
+  // Custom Tooltip component
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const p = payload[0].payload;
+      return (
+        <div className="custom-tooltip" style={{ backgroundColor: '#fff', padding: '10px' }}>
+          <h4>{`${p.player.playerName} (${p.team.teamName})`}</h4>
+          <div>{`${xAxisMetric}: ${p.matchStats[xAxisMetric]}`}</div>
+          <div>{`${yAxisMetric}: ${p.matchStats[yAxisMetric]}`}</div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <div className="p-4">
+      <h2 className="text-xl font-bold mb-4">Player Scatter Plot</h2>
+      <ResponsiveContainer width="100%" height={300}>
+        <ScatterChart>
+          <CartesianGrid />
+          <XAxis
+            dataKey={`matchStats.${xAxisMetric}`}
+            name={xAxisMetric}
+            type="number"
+            domain={[xMin, xMax]}
+          />
+          <YAxis
+            dataKey={`matchStats.${yAxisMetric}`}
+            name={yAxisMetric}
+            domain={[yMin, yMax]}
+          />
+          <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
+          <Scatter name="Player Performance" data={sortedData} fill="#8884d8" />
+        </ScatterChart>
+      </ResponsiveContainer>
+    </div>
+  );
+}
+
+  type TeamScatter2Props = {
+    data: Array<Record<string, any>>; 
+    xAxisMetric: string;
+    yAxisMetric: string;
+  };
+  
+export function TeamScatter2({ data, xAxisMetric, yAxisMetric }: TeamScatter2Props) {
     // Sort the transformed data based on the xAxisMetric
     const sortedData = data.sort((a, b) => a[xAxisMetric] - b[xAxisMetric]);
 
