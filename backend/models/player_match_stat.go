@@ -28,7 +28,6 @@ var ValidPlayerMatchFields = map[string]bool{
 	"saves":                          true,
 	"minutes_played":                 true,
 	"touches":                        true,
-	"rating":                         true,
 	"possession_lost_ctrl":          true,
 	"key_pass":                       true,
 	"goals_prevented":                true,

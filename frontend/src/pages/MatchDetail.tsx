@@ -81,9 +81,10 @@ export default function AnalyticsPage() {
         />
 
         {/* Mirror Chart in the middle */}
-        <div className="flex ">
-          <MatchMirrorBarChart data={[homeStats, awayStats]} />
-        </div>
+        <div className="flex flex-col space-y-4">
+        <MatchMirrorBarChart data={[homeStats, awayStats]} />
+        <PlayerScatter2 data={allPlayerStats} xAxisMetric="accurate_pass" yAxisMetric="total_pass" />
+      </div>
 
         {/* Away Team Stats */}
         <TeamPlayerStats

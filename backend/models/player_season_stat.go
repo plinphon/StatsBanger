@@ -102,5 +102,4 @@ var ValidPlayerSeasonFields = map[string]bool{
 	"fouls":                     true,
 	"dispossessed":              true,
 	"possession_lost":           true,
-	"rating":                    true,
 }
