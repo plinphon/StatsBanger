@@ -8,7 +8,7 @@ import type { Match } from "../models/match"
 import MatchMirrorBarChart from "../components/OverallBarChart"
 import type { PlayerMatchStat } from "../models/player-match-stat"
 import { useParams } from "react-router-dom"
-import { PlayerScatter2 } from "../components/allCharts2"
+import { PlayerMatchBar, PlayerScatter2 } from "../components/allCharts2"
 import { PlayerStat } from "../components/ui/PlayerStat"
 import { positionOrder } from "../utils/dataTransformation"
 import TeamPlayerStats from "../components/ui/TeamPlayerStats"
@@ -80,10 +80,11 @@ export default function AnalyticsPage() {
           positionOrder={positionOrder}
         />
 
-        {/* Mirror Chart in the middle */}
+        {/* Chart in the middle */}
         <div className="flex flex-col space-y-4">
         <MatchMirrorBarChart data={[homeStats, awayStats]} />
         <PlayerScatter2 data={allPlayerStats} xAxisMetric="accurate_pass" yAxisMetric="total_pass" />
+        <PlayerMatchBar data={allPlayerStats} yAxisMetric="total_pass" barLimit={10} />
       </div>
 
         {/* Away Team Stats */}

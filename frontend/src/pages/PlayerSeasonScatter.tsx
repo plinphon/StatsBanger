@@ -38,10 +38,10 @@ export default function PlayerSeasonScatter() {
                     fetchPlayerSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, undefined, `${METRIC_X},${METRIC_Y}`)
                 ])
                 const formatedPlayerStats = stats.map(playerStat => ({
-                    playerID: playerStat.player.id,
+                    playerID: playerStat.player.playerId,
                     playerName: playerStat.player.name,
                     position: playerStat.player.position,
-                    teamId: playerStat.team.id,
+                    teamId: playerStat.team.teamId,
                     teamName: playerStat.team.name,
                     [METRIC_X]: playerStat.stats[METRIC_X] ?? 0, // Fallback to null
                     [METRIC_Y]: playerStat.stats[METRIC_Y] ?? 0  // Fallback to null
