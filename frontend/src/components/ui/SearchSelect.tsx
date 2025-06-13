@@ -130,8 +130,8 @@ export function SearchSelect({
   return (
     <main
       onClick={handleClickMain}
-      className="w-full max-w-5xl bg-[#0f0f0f] rounded-xl shadow-xl p-8 border border-[#ffd000] relative z-10 transform transition-all hover:scale-[1.03] hover:shadow-[#ffd000]/60 duration-300 cursor-pointer"
-      style={{ backgroundImage: "linear-gradient(45deg, rgba(42,41,41,0.2) 25%, transparent 25%), linear-gradient(-45deg, rgba(42,41,41,0.2) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(42,41,41,0.2) 75%), linear-gradient(-45deg, transparent 75%, rgba(42,41,41,0.2) 75%)", backgroundSize: "20px 20px", backgroundColor: "#0f0f0f" }}
+      className="w-full max-w-sm bg-[#0f0f0f] rounded-xl shadow-xl p-8 border border-[#ffd000] relative z-10 transform transition-all hover:scale-[1.03] hover:shadow-[#ffd000]/60 duration-300 cursor-pointer"
+     
     >
       <section className="mb-10 group">
         <div className="flex items-center mb-6">
@@ -151,9 +151,6 @@ export function SearchSelect({
           </h2>
         </div>
         <p className="text-[#fff199] text-lg pl-7 leading-relaxed">{description}</p>
-        <div className="mt-6 pl-7">
-          <SlidingStats />
-        </div>
 
         <div
           className={`transition-all duration-300 overflow-hidden ${
