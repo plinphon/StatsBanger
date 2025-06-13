@@ -2,7 +2,7 @@ import '../style.css'
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { TeamSeasonRadar, PlayerSeasonScatter } from "../components/allCharts"
-import { PlayerBar, PlayerScatter2 } from "../components/allCharts2"
+import { PlayerMatchBar, PlayerScatter2 } from "../components/allCharts2"
 import type { PlayerSeasonStat } from "../models/player-season-stat"
 import type { Player } from "../models/player"
 import { fetchPlayerSeasonStatsWithMeta, fetchPlayerById, fetchTopPlayersByStat, fetchPlayerStatsByMatch } from "../lib/api"
