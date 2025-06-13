@@ -18,7 +18,7 @@ const BigSearchBar = ({ placeholder = "Search players or teams...", onSearch }) 
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={placeholder}
-          className="w-full rounded-full bg-[#1a1a1a] border-2 border-[#ffd000] text-[#ffd000] text-2xl font-semibold py-4 px-6 focus:outline-none focus:ring-4 focus:ring-yellow-400 hover:ring-4 hover:ring-yellow-300 transition"
+          className="w-full rounded-full bg-[#fffbc5] placeholder-[#808080] border-2 border-[#ffd000] text-[#808080] text-2xl font-semibold py-4 px-6 focus:outline-none focus:ring-4 focus:ring-yellow-400 hover:ring-4 hover:ring-yellow-300 transition"
         />
         <button
           type="submit"
