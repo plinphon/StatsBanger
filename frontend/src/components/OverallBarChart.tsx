@@ -1,85 +1,110 @@
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  LabelList,
-} from 'recharts';
+
 
 import type { TeamMatchStat } from '../models/team-match-stat';
-
 
 interface Props {
   data: TeamMatchStat[];
 }
-
 const MatchMirrorBarChart = ({ data }: Props) => {
   if (data.length < 2) return <div>Not enough data</div>;
 
-    const [home, away] = data;
+  const [home, away] = data;
+  const statKeys = Object.keys(home.stats);
 
-    const statKeys = Object.keys(home.stats);
+  const chartData = statKeys.map((stat) => {
+    const homeValue = home.stats[stat] ?? 0;
+    const awayValue = away.stats[stat] ?? 0;
+    const maxValue = Math.max(homeValue, awayValue);
 
-    const chartData = statKeys.map((stat) => {
-      const homeValue = home.stats[stat] ?? 0;
-      const awayValue = away.stats[stat] ?? 0;
-      const total = homeValue + awayValue || 1;
+    return {
+      label: stat,
+      homeValue,
+      awayValue,
+      home: homeValue,
+      away: awayValue,
+      maxValue,
+    };
+  });
 
-      return {
-        label: stat,
-        home: -((homeValue / total) * 100),
-        away: (awayValue / total) * 100,
-        homeValue,
-        awayValue,
-      };
-    });
+  const chartHeight = Math.max(chartData.length * 60, 400);
 
   return (
-    <ResponsiveContainer width={600} height={400}>
-      <BarChart
-        layout="vertical"
-        data={chartData}
-        margin={{ top: 20, bottom: 20, left: 10, right: 10 }}
-        stackOffset="sign" // This is important for mirror effect
-      >
-        <XAxis
-          type="number"
-          domain={[-100, 100]}
-          tickFormatter={(val) => `${Math.abs(val)}%`}
-        />
-        <YAxis dataKey="label" type="category" />
-        <Tooltip 
-          formatter={(value: number, name: string, props: any) => {
-            // Show both percentage and actual value in tooltip
-            const percentage = Math.abs(value).toFixed(1);
-            const actualValue = name.includes('Home') 
-              ? props.payload.homeValue 
-              : props.payload.awayValue;
-            return [`${percentage}%`, `(${actualValue})`];
-          }}
-          labelFormatter={(label) => label}
-        />
-        
-        <Bar dataKey="home" fill="#8884d8" name="Home Team">
-          <LabelList
-            dataKey="home"
-            position="insideLeft"
-            formatter={(v: number) => `${Math.abs(v).toFixed(0)}%`}
-            fill="#fff"
-          />
-        </Bar>
-        <Bar dataKey="away" fill="#82ca9d" name="Away Team">
-          <LabelList
-            dataKey="away"
-            position="insideRight"
-            formatter={(v: number) => `${v.toFixed(0)}%`}
-            fill="#fff"
-          />
-        </Bar>
-      </BarChart>
-    </ResponsiveContainer>
+    <div className="w-full bg-white rounded-lg shadow-lg p-4">
+      {/* Header with team names */}
+      <div className="flex justify-between items-center mb-6">
+        <div className="text-lg font-semibold text-blue-600">{home.team.name}</div>
+        <div className="text-sm text-gray-500 font-medium">MATCH STATS</div>
+        <div className="text-lg font-semibold text-green-600">{away.team.name}</div>
+      </div>
+
+      {/* Custom Mirror Layout */}
+      <div className="space-y-1">
+        {chartData.map((stat, index) => {
+          const total = stat.homeValue + stat.awayValue || 1;
+          const homeWidth = (stat.homeValue / total) * 100;
+          const awayWidth = (stat.awayValue / total) * 100;
+
+          return (
+            <div key={index} className="space-y-1">
+              {/* Stat name above tubes */}
+              <div className="text-center">
+                <div className="text-sm font-semibold text-gray-700 bg-gray-50 px-3 py-1 rounded-lg inline-block">
+                  {stat.label}
+                </div>
+              </div>
+              
+              {/* Tubes and values */}
+              <div className="flex items-center">
+                {/* Home team value */}
+                <div className="w-12 text-right text-lg font-bold text-blue-600">
+                  {stat.homeValue}
+                </div>
+                
+                {/* Home team bar */}
+                <div className="flex-1 flex justify-end mr-2">
+                  <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden relative">
+                    <div 
+                      className="absolute right-0 top-0 h-full bg-gradient-to-l from-blue-500 to-blue-600 rounded-full transition-all duration-500 ease-out"
+                      style={{ width: `${homeWidth}%` }}
+                    />
+                  </div>
+                </div>
+                
+                {/* Center divider */}
+                <div className="w-1 h-5 bg-gray-300 mx-1"></div>
+                
+                {/* Away team bar */}
+                <div className="flex-1 flex justify-start ml-2">
+                  <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden relative">
+                    <div 
+                      className="absolute left-0 top-0 h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-500 ease-out"
+                      style={{ width: `${awayWidth}%` }}
+                    />
+                  </div>
+                </div>
+                
+                {/* Away team value */}
+                <div className="w-12 text-left text-lg font-bold text-green-600">
+                  {stat.awayValue}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+      
+      {/* Legend */}
+      <div className="flex justify-center items-center mt-8 space-x-8">
+        <div className="flex items-center">
+          <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mr-2"></div>
+          <span className="text-sm font-medium text-gray-700">{home.team.name}</span>
+        </div>
+        <div className="flex items-center">
+          <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-green-600 rounded-full mr-2"></div>
+          <span className="text-sm font-medium text-gray-700">{away.team.name}</span>
+        </div>
+      </div>
+    </div>
   );
 };
 

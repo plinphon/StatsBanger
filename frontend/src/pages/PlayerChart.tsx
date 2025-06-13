@@ -109,9 +109,9 @@ export default function PlayerChart() {
   if (!player || !stats) return <p className="p-4">No data found.</p>
 
   return (
-    <div>
+    <div className="min-h-screen bg-grid-pattern text-[#FFB13C] relative font-kagoda">
       <button
-        className="fixed top-4 left-4 p-4 rounded-full bg-white text-black hover:bg-gray-200 transition z-50 shadow"
+        className="fixed top-4 left-4 p-4 rounded-full bg-[#ffb13c] text-black hover:bg-gray-200 transition z-50 shadow"
         onClick={() => navigate(-1)}
         aria-label="Go Back"
       >
@@ -129,22 +129,17 @@ export default function PlayerChart() {
   
       <div className="max-w-5xl mx-auto p-4 relative">
         {/* Player Info Card */}
-        <div className="flex flex-col md:flex-row items-center bg-gradient-to-r from-green-900/60 to-cyan-900/60 rounded-2xl shadow-lg p-6 mb-8 gap-6">
-          <img
-            src="/default-player.png"
-            alt={player.name}
-            className="w-32 h-32 rounded-full object-cover border-4 border-green-400 shadow"
-          />
+        <div className="flex flex-col md:flex-row items-center box-style rounded-2xl shadow-lg p-6 mb-8 gap-6">
           <div className="flex-1">
-            <h2 className="text-3xl font-bold text-green-200 mb-2">{player.name}</h2>
+            <h2 className="text-3xl font-bold text-black mb-2">{player.name}</h2>
             <div className="flex flex-wrap gap-4 text-gray-200 mb-4">
-              <span className="bg-green-700/40 px-3 py-1 rounded-full text-sm font-medium border border-green-400/30">
+              <span className="bg-green-700/40 px-3 py-1 rounded-full text-black font-medium border border-green-400/30">
                 {player.position}
               </span>
-              <span className="bg-blue-700/40 px-3 py-1 rounded-full text-sm font-medium border border-blue-400/30">
+              <span className="bg-blue-700/40 px-3 py-1 rounded-full text-black font-medium border border-blue-400/30">
                 {player.nationality}
               </span>
-              <span className="bg-gray-700/40 px-3 py-1 rounded-full text-sm font-medium border border-gray-400/30">
+              <span className="bg-gray-700/40 px-3 py-1 rounded-full text-black font-medium border border-gray-400/30">
                 Age: {player.age}
               </span>
             </div>
@@ -152,9 +147,9 @@ export default function PlayerChart() {
         </div>
   
         {/* Stats Graph */}
-        <div className="bg-gray-900/80 rounded-2xl shadow-lg p-6 mb-8 relative">
+        <div className="bg-[#F4FDFF] rounded-2xl shadow-lg p-6 mb-8 relative">
           <div className="flex justify-center items-center mb-4">
-            <h3 className="text-2xl font-semibold text-cyan-200">Season Performance</h3>
+            <h3 className="text-2xl font-semibold text-black">Season Performance</h3>
           </div>
           <PlayerSeasonRadar
             data={stats?.stats ? convertSnakeToCamelCase(stats.stats) : {}}
