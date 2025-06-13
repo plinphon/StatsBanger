@@ -1,4 +1,5 @@
-import './style.css';
+import './styles/style.css'
+
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import MatchDetail from './pages/MatchDetail';
 import PlayerChart from './pages/PlayerChart';

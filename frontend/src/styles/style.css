@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* prevent horizontal scroll */
+  width: 100%;
+}
+
 @keyframes fadeInDown {
   from {
     opacity: 0;

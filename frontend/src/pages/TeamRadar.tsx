@@ -1,4 +1,4 @@
-import '../style.css'
+import '../styles/style.css'
 import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import { TeamSeasonRadar } from "../components/allCharts"
