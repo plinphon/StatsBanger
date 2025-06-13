@@ -147,7 +147,7 @@ export default function PlayerChart() {
         </div>
   
         {/* Stats Graph */}
-        <div className="bg-[#F4FDFF] rounded-2xl shadow-lg p-6 mb-8 relative">
+        <div className="bg-[#FFFFFF] rounded-2xl shadow-lg p-6 mb-8 relative">
           <div className="flex justify-center items-center mb-4">
             <h3 className="text-2xl font-semibold text-black">Season Performance</h3>
           </div>
