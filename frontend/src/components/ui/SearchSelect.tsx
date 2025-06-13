@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import type { Player } from "../../models/player";
 import type { Team } from "../../models/team";
 
-
 type ResultType = { name: string; playerId?: number; teamId?: number };
 type OptionType = { label: string; value: number };
 
@@ -18,11 +17,8 @@ type SearchSelectProps = {
     badges: string;
   };
   placeholder: string;
-
   searchFunction: (query: string) => Promise<(Player | Team)[]>;
-
-
-  navigatePathPrefix: string; // "/player/" or "/team/"
+  navigatePathPrefix: string;
   filterOptions?: {
     countries: string[];
     leagues: string[];
@@ -31,13 +27,12 @@ type SearchSelectProps = {
 };
 
 const stats = [
-  { label: "Goals", color: "green" },
-  { label: "Assists", color: "blue" },
-  { label: "Pass Accuracy", color: "purple" },
-  { label: "Tackles", color: "red" },
-  { label: "Shots", color: "yellow" },
-  { label: "Saves", color: "cyan" },
-  // add more stats here...
+  { label: "Goals", color: "#ffd000" },
+  { label: "Assists", color: "#e6c300" },
+  { label: "Pass Accuracy", color: "#ffe066" },
+  { label: "Tackles", color: "#f0d800" },
+  { label: "Shots", color: "#ffeb80" },
+  { label: "Saves", color: "#fff199" },
 ];
 
 function SlidingStats() {
@@ -47,11 +42,11 @@ function SlidingStats() {
         className="flex space-x-4 whitespace-nowrap animate-slide"
         style={{ minWidth: "max-content" }}
       >
-        {/* Duplicate the stats for seamless loop */}
-        {stats.concat(stats).map(({ label, color }, i) => (
+        {[...stats, ...stats].map(({ label, color }, i) => (
           <span
             key={`${label}-${i}`}
-            className={`px-4 py-2 bg-gray-700/50 rounded-full text-${color}-300 text-sm font-medium border border-${color}-500/30 inline-block select-none`}
+            style={{ backgroundColor: "rgba(255, 208, 0, 0.15)", color, borderColor: color }}
+            className="px-4 py-2 rounded-full text-sm font-medium border inline-block select-none"
           >
             {label}
           </span>
@@ -68,13 +63,12 @@ function SlidingStats() {
           }
         }
         .animate-slide {
-          animation: slide 15s linear infinite;
+          animation: slide 6s linear infinite;
         }
       `}</style>
     </div>
   );
 }
-
 
 export function SearchSelect({
   title,
@@ -87,6 +81,7 @@ export function SearchSelect({
 }: SearchSelectProps) {
   const [expanded, setExpanded] = useState(false);
   const [selectedOption, setSelectedOption] = useState<OptionType | null>(null);
+  const navigate = useNavigate();
 
   const handleFocus = () => setExpanded(true);
 
@@ -102,24 +97,21 @@ export function SearchSelect({
     setExpanded((prev) => !prev);
   };
 
-  const navigate = useNavigate();
-
-
   const loadOptions = async (inputValue: string): Promise<OptionType[]> => {
     if (!inputValue) return [];
     try {
       const results: ResultType[] = await searchFunction(inputValue);
-  
+
       return results
         .map((r) => {
           const id = r.playerId ?? r.teamId;
-          if (id === undefined) return null;  // skip if no id
+          if (id === undefined) return null;
           return {
             label: r.name,
             value: Number(id),
           };
         })
-        .filter((opt): opt is OptionType => opt !== null);  // filter out nulls
+        .filter((opt): opt is OptionType => opt !== null);
     } catch {
       return [];
     }
@@ -138,26 +130,33 @@ export function SearchSelect({
   return (
     <main
       onClick={handleClickMain}
-      className="w-full max-w-5xl bg-gray-800/50 backdrop-blur-lg rounded-xl shadow-2xl p-8 border border-gray-700/50 relative z-10 transform transition-all hover:scale-[1.01] hover:shadow-green-500/20 duration-500 cursor-pointer"
+      className="w-full max-w-5xl bg-[#0f0f0f] rounded-xl shadow-xl p-8 border border-[#ffd000] relative z-10 transform transition-all hover:scale-[1.03] hover:shadow-[#ffd000]/60 duration-300 cursor-pointer"
+      style={{ backgroundImage: "linear-gradient(45deg, rgba(42,41,41,0.2) 25%, transparent 25%), linear-gradient(-45deg, rgba(42,41,41,0.2) 25%, transparent 25%), linear-gradient(45deg, transparent 75%, rgba(42,41,41,0.2) 75%), linear-gradient(-45deg, transparent 75%, rgba(42,41,41,0.2) 75%)", backgroundSize: "20px 20px", backgroundColor: "#0f0f0f" }}
     >
       <section className="mb-10 group">
         <div className="flex items-center mb-6">
           <div
-            className={`w-3 h-12 rounded-full mr-4 group-hover:animate-pulse ${colorClasses.bar}`}
+            className={`w-3 h-12 rounded-full mr-4 group-hover:animate-pulse`}
+            style={{ backgroundColor: "#ffd000" }}
           ></div>
           <h2
-            className={`text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r ${colorClasses.titleFrom} ${colorClasses.titleTo}`}
+            className={`text-4xl font-bold`}
+            style={{
+              background: "linear-gradient(90deg, #ffd000, #fff199)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
           >
             {title}
           </h2>
         </div>
-        <p className="text-gray-300 text-lg pl-7 leading-relaxed">{description}</p>
-                <div className={`mt-6 pl-7`}>
-                <SlidingStats />
-              </div>
+        <p className="text-[#fff199] text-lg pl-7 leading-relaxed">{description}</p>
+        <div className="mt-6 pl-7">
+          <SlidingStats />
+        </div>
 
         <div
-          className={`transition-all duration-500 overflow-hidden ${
+          className={`transition-all duration-300 overflow-hidden ${
             expanded ? "max-h-96 mt-6 opacity-100" : "max-h-0 opacity-0"
           }`}
         >
@@ -170,9 +169,27 @@ export function SearchSelect({
               className="w-full text-black"
               onFocus={handleFocus}
               onChange={handleInputChange}
+              styles={{
+                control: (base) => ({
+                  ...base,
+                  backgroundColor: "#fff199",
+                  borderColor: "#ffd000",
+                  minHeight: 38,
+                }),
+                option: (base, state) => ({
+                  ...base,
+                  backgroundColor: state.isFocused ? "#ffd000" : undefined,
+                  color: state.isFocused ? "#0f0f0f" : "#0f0f0f",
+                  cursor: "pointer",
+                }),
+                singleValue: (base) => ({
+                  ...base,
+                  color: "#0f0f0f",
+                }),
+              }}
             />
             <button
-              className={`w-full px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors duration-300`}
+              className="w-full px-4 py-2 rounded-lg bg-[#ffd000] hover:bg-[#e6c300] text-[#0f0f0f] font-semibold transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               onClick={handleSelectClick}
               disabled={!selectedOption}
             >
@@ -180,19 +197,19 @@ export function SearchSelect({
             </button>
           </div>
 
-          <div className="flex items-center justify-center text-gray-500 font-semibold uppercase">
-            <div className="h-px bg-gray-400 flex-1 mr-3"></div>
+          <div className="flex items-center justify-center text-[#fff199] font-semibold uppercase mt-6 mb-4">
+            <div className="h-px bg-[#fff199] flex-1 mr-3"></div>
             or
-            <div className="h-px bg-gray-400 flex-1 ml-3"></div>
+            <div className="h-px bg-[#fff199] flex-1 ml-3"></div>
           </div>
 
           {filterOptions && (
-            <div className="space-y-4 mt-4">
+            <div className="space-y-4">
               <select
                 onFocus={handleFocus}
-                className="w-full px-4 py-2 rounded-lg bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                className="w-full px-4 py-2 rounded-lg bg-[#0f0f0f] text-[#fff199] border border-[#ffd000] focus:outline-none focus:ring-2 focus:ring-[#ffd000]"
               >
-                <option>Select Country</option>
+                <option className="text-[#0f0f0f]">Select Country</option>
                 {filterOptions.countries.map((c) => (
                   <option key={c}>{c}</option>
                 ))}
@@ -200,9 +217,9 @@ export function SearchSelect({
 
               <select
                 onFocus={handleFocus}
-                className="w-full px-4 py-2 rounded-lg bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-2 rounded-lg bg-[#0f0f0f] text-[#fff199] border border-[#ffd000] focus:outline-none focus:ring-2 focus:ring-[#ffd000]"
               >
-                <option>Select League</option>
+                <option className="text-[#0f0f0f]">Select League</option>
                 {filterOptions.leagues.map((l) => (
                   <option key={l}>{l}</option>
                 ))}
@@ -210,21 +227,30 @@ export function SearchSelect({
 
               <select
                 onFocus={handleFocus}
-                className="w-full px-4 py-2 rounded-lg bg-gray-900 text-white border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                className="w-full px-4 py-2 rounded-lg bg-[#0f0f0f] text-[#fff199] border border-[#ffd000] focus:outline-none focus:ring-2 focus:ring-[#ffd000]"
               >
-                <option>Select Team</option>
+                <option className="text-[#0f0f0f]">Select Team</option>
                 {filterOptions.teams.map((t) => (
                   <option key={t}>{t}</option>
                 ))}
               </select>
 
-              <button className="w-full px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-semibold transition-colors duration-300">
+              <button className="w-full px-4 py-2 rounded-lg bg-[#ffd000] hover:bg-[#e6c300] text-[#0f0f0f] font-semibold transition-colors duration-300">
                 Select From Filters
               </button>
             </div>
           )}
         </div>
       </section>
+      <style>{`
+        .group-hover\\:animate-pulse:hover {
+          animation: pulse 0.8s ease-in-out infinite;
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.6; }
+        }
+      `}</style>
     </main>
   );
 }
