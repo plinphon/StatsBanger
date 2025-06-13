@@ -235,7 +235,7 @@ export function PlayerSeasonRadar({ data, position }: PlayerSeasonRadarProps) {
   return (
     <div className="p-4">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-semibold text-gray-300">Player Statistics</h3>
+        <h3 className="text-xl font-semibold text-black">Player Statistics</h3>
         
         <div className="relative inline-block">
           <select 
@@ -297,8 +297,8 @@ export function PlayerSeasonRadar({ data, position }: PlayerSeasonRadarProps) {
               />
               <PolarAngleAxis
                 dataKey="label"
-                tick={{ fill: '#e5e7eb', fontSize: 11, fontWeight: 500 }}
-                className="text-gray-200"
+                tick={{ fill: 'black', fontSize: 11, fontWeight: 500 }}
+                className="text-black"
               />
               <PolarRadiusAxis
                 angle={90}

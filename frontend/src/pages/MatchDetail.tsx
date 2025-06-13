@@ -66,37 +66,47 @@ export default function AnalyticsPage() {
 
 
   return (
-<div className="flex border p-4 max-w-6xl mx-auto">
-  <div className="flex-1">
-    <h1 className="text-3xl font-bold mb-6 text-center">Team Match Stats Analytics</h1>
+<div className="flex border p-6 max-w-full mx-auto min-h-screen">
+  <div className="flex-1 w-full">
+    <h1 className="text-3xl font-bold mb-8 text-center">Team Match Stats Analytics</h1>
 
     {allPlayerStats.length > 0 && match ? (
-      <div className="flex space-x-6">
+      <div className="flex space-x-8 w-full">
         {/* Home Team Stats */}
-        <TeamPlayerStats
-          key={match.homeTeam.teamId}
-          team={match.homeTeam}
-          allPlayerStats={allPlayerStats}
-          positionOrder={positionOrder}
-        />
+        <div className="w-80 flex-shrink-0">
+          <TeamPlayerStats
+            key={match.homeTeam.teamId}
+            team={match.homeTeam}
+            allPlayerStats={allPlayerStats}
+            positionOrder={positionOrder}
+          />
+        </div>
 
         {/* Chart in the middle */}
-        <div className="flex flex-col space-y-4">
-        <MatchMirrorBarChart data={[homeStats, awayStats]} />
-        <PlayerScatter2 data={allPlayerStats} xAxisMetric="accurate_pass" yAxisMetric="total_pass" />
-        <PlayerMatchBar data={allPlayerStats} yAxisMetric="total_pass" barLimit={10} />
-      </div>
+        <div className="flex-1 min-w-0 flex flex-col space-y-6">
+          <div className="w-full">
+            <MatchMirrorBarChart data={[homeStats, awayStats]} />
+          </div>
+          <div className="w-full">
+            <PlayerScatter2 data={allPlayerStats} xAxisMetric="accurate_pass" yAxisMetric="total_pass" />
+          </div>
+          <div className="w-full">
+            <PlayerMatchBar data={allPlayerStats} yAxisMetric="total_pass" barLimit={10} />
+          </div>
+        </div>
 
         {/* Away Team Stats */}
-        <TeamPlayerStats
-          key={match.awayTeam.teamId}
-          team={match.awayTeam}
-          allPlayerStats={allPlayerStats}
-          positionOrder={positionOrder}
-        />
+        <div className="w-80 flex-shrink-0">
+          <TeamPlayerStats
+            key={match.awayTeam.teamId}
+            team={match.awayTeam}
+            allPlayerStats={allPlayerStats}
+            positionOrder={positionOrder}
+          />
+        </div>
       </div>
     ) : (
-      <p className="text-gray-600">No player stats available.</p>
+      <p className="text-gray-600 text-center">No player stats available.</p>
     )}
   </div>
 </div>
