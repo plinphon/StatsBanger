@@ -32,9 +32,9 @@ const MatchMirrorBarChart = ({ data }: Props) => {
     <div className="w-full bg-white rounded-lg shadow-lg p-4">
       {/* Header with team names */}
       <div className="flex justify-between items-center mb-6">
-        <div className="text-lg font-semibold text-blue-600">{home.team.name}</div>
+        <div className="text-lg font-semibold text-black">{home.team.name}</div>
         <div className="text-sm text-gray-500 font-medium">MATCH STATS</div>
-        <div className="text-lg font-semibold text-green-600">{away.team.name}</div>
+        <div className="text-lg font-semibold text-black">{away.team.name}</div>
       </div>
 
       {/* Custom Mirror Layout */}
@@ -56,35 +56,47 @@ const MatchMirrorBarChart = ({ data }: Props) => {
               {/* Tubes and values */}
               <div className="flex items-center">
                 {/* Home team value */}
-                <div className="w-12 text-right text-lg font-bold text-blue-600">
+                <div className={`w-12 text-right text-lg font-bold ${
+                    homeWidth > awayWidth 
+                      ? 'text-orange-600' 
+                      : 'text-gray-600'
+                  }`}>
                   {stat.homeValue}
                 </div>
-                
-                {/* Home team bar */}
-                <div className="flex-1 flex justify-end mr-2">
-                  <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden relative">
-                    <div 
-                      className="absolute right-0 top-0 h-full bg-gradient-to-l from-blue-500 to-blue-600 rounded-full transition-all duration-500 ease-out"
-                      style={{ width: `${homeWidth}%` }}
-                    />
-                  </div>
-                </div>
-                
-                {/* Center divider */}
-                <div className="w-1 h-5 bg-gray-300 mx-1"></div>
-                
-                {/* Away team bar */}
-                <div className="flex-1 flex justify-start ml-2">
-                  <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden relative">
-                    <div 
-                      className="absolute left-0 top-0 h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-500 ease-out"
-                      style={{ width: `${awayWidth}%` }}
-                    />
-                  </div>
-                </div>
-                
+            {/* Home team bar */}
+            <div className="flex-1 flex justify-end mr-2">
+              <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden relative">
+                <div 
+                  className={`absolute right-0 top-0 h-full rounded-full transition-all duration-500 ease-out ${
+                    homeWidth > awayWidth 
+                      ? 'bg-orange-500' 
+                      : 'bg-gray-500'
+                  }`}
+                  style={{ width: `${homeWidth}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Away team bar */}
+            <div className="flex-1 flex justify-start ml-2">
+              <div className="w-24 h-2 bg-gray-100 rounded-full overflow-hidden relative">
+                <div 
+                  className={`absolute left-0 top-0 h-full rounded-full transition-all duration-500 ease-out ${
+                    awayWidth > homeWidth 
+                      ? 'bg-orange-500' 
+                      : 'bg-gray-500'
+                  }`}
+                  style={{ width: `${awayWidth}%` }}
+                />
+              </div>
+            </div>
+                            
                 {/* Away team value */}
-                <div className="w-12 text-left text-lg font-bold text-green-600">
+                <div className={`w-12 text-right text-lg font-bold ${
+                    awayWidth > homeWidth 
+                      ? 'text-orange-600' 
+                      : 'text-gray-600'
+                  }`}>
                   {stat.awayValue}
                 </div>
               </div>
