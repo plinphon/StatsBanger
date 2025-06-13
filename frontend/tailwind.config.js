@@ -5,7 +5,12 @@ module.exports = {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        mono: ['NaturalMono', 'monospace'],
+        kagoda: ['Kagoda', 'sans-serif'],
+      },
+    },
   },
   plugins: [],
 };

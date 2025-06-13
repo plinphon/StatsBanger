@@ -2,11 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
-
 html, body, #root {
   margin: 0;
   padding: 0;
-  overflow-x: hidden; /* prevent horizontal scroll */
+  overflow-x: hidden;
   width: 100%;
 }
 
@@ -55,6 +54,39 @@ html, body, #root {
     transform: translate(0px, 0px) scale(1);
   }
 }
+
+@font-face {
+  font-family: 'NaturalMono';
+  src: url('/fonts/NaturalMono-Bold.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NaturalMono';
+  src: url('/fonts/NaturalMono-Regular.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Kagoda';
+  src: url('/fonts/Kagoda-V4qPw.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Kagoda';
+  src: url('/fonts/KagodaBold-ARwx7.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+body {
+  font-family: 'Kagoda', sans-serif;
+}
+
 
 .animate-fade-in-down {
   animation: fadeInDown 1s ease-out forwards;
@@ -113,4 +145,8 @@ html, body, #root {
 /* Force Recharts background to be transparent */
 .radar-chart-container .recharts-surface {
   background: transparent !important;
+}
+
+.box-style {
+  @apply bg-[#0f0f0f] rounded-xl border border-[#ffd000] shadow-xl p-8 cursor-pointer transform transition-all duration-300;
 }
