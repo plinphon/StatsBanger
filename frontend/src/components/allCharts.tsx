@@ -118,10 +118,10 @@ interface PlayerSeasonRadarProps {
 
 const CustomBackgroundLayers = ({ cx, cy, outerRadius, numSides }: { cx: number; cy: number; outerRadius: number; numSides: number }) => {
   const layers = [
-    { radius: outerRadius * 0.9, fill: '#1f2937', opacity: 0.08 },
-    { radius: outerRadius * 0.7, fill: '#111827', opacity: 0.12 },
-    { radius: outerRadius * 0.5, fill: '#0f172a', opacity: 0.15 },
-    { radius: outerRadius * 0.3, fill: '#020617', opacity: 0.18 }
+    { radius: outerRadius * 0.9, fill: '#1f2937', opacity: 0.03 },
+    { radius: outerRadius * 0.7, fill: '#111827', opacity: 0.05 },
+    { radius: outerRadius * 0.5, fill: '#0f172a', opacity: 0.07 },
+    { radius: outerRadius * 0.3, fill: '#020617', opacity: 0.09 }
   ];
 
   const generatePolygonPoints = (radius: number) => {
