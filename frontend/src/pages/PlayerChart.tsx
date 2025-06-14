@@ -1,14 +1,16 @@
 import '../styles/style.css'
 import React, { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { PlayerSeasonRadar } from "../components/allCharts"
-import type { PlayerSeasonStat } from "../models/player-season-stat"
+
+import { PlayerSeasonRadar } from '../components/PlayerSeasonRadar'
 import type { Player } from "../models/player"
-import { fetchPlayerSeasonStatsWithMeta, fetchPlayerById } from "../lib/api"
+import { fetchPlayerSeasonStatsWithMeta, fetchPlayerById, searchPlayersByName } from "../lib/api"
 import { fetchAllMatchStatsByPlayerId, fetchStatByPlayerAndMatch } from "../lib/api";
 import type { Match } from '../models/match'
 import type { PlayerMatchStat } from '../models/player-match-stat'
 import { PlayerStat } from '../components/ui/PlayerStat'
+import type { PlayerSeasonStat } from '../models/player-season-stat'
+
 
 
 const UNIQUE_TOURNAMENT_ID = 8
@@ -69,6 +71,39 @@ export default function PlayerChart() {
   const sortedRecentMatches = [...recentMatches].sort((a, b) => {
     return new Date(b.match.currentPeriodStartTimestamp).getTime() - new Date(a.match.currentPeriodStartTimestamp).getTime();
   });
+
+  const handlePlayerSearch = async (query: string): Promise<Player[]> => {
+    if (!query || query.length < 2) return [];
+    
+    try {
+      // Use your existing searchFunction (you'll need to pass this in or import it)
+      const results = await searchPlayersByName(query); // This should be your API call function
+      
+      // Filter to only return Player objects (exclude teams)
+      const players = results.filter((result): result is Player => 
+        'playerId' in result && result.playerId !== undefined
+      );
+      
+      return players;
+    } catch (error) {
+      console.error('Player search error:', error);
+      return [];
+    }
+  };
+
+  const handleFetchPlayerStats = async (
+    uniqueTournamentID: number, 
+    seasonID: number, 
+    playerID: number
+  ): Promise<PlayerSeasonStat[]> => {
+    try {
+      return await fetchPlayerSeasonStatsWithMeta(uniqueTournamentID, seasonID, playerID);
+    } catch (error) {
+      console.error('Error fetching player stats:', error);
+      throw error;
+    }
+  };
+  
   
 
   useEffect(() => {
@@ -154,6 +189,12 @@ export default function PlayerChart() {
           <PlayerSeasonRadar
             data={stats?.stats ? convertSnakeToCamelCase(stats.stats) : {}}
             position={player.position?.charAt(0).toUpperCase() || "M"}
+            playerName={player.name}
+            playerId={player.playerId.toString()}
+            onPlayerSearch={handlePlayerSearch}
+            uniqueTournamentID={UNIQUE_TOURNAMENT_ID}
+            seasonID={SEASON_ID}
+            onFetchPlayerStats={handleFetchPlayerStats}
           />
         </div>
   
