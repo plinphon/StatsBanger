@@ -58,7 +58,7 @@ const MatchMirrorBarChart = ({ data }: Props) => {
                 {/* Home team value */}
                 <div className={`w-12 text-right text-lg font-bold ${
                     homeWidth > awayWidth 
-                      ? 'text-orange-600' 
+                      ? 'text-[#FF8113]' 
                       : 'text-gray-600'
                   }`}>
                   {stat.homeValue}
@@ -69,7 +69,7 @@ const MatchMirrorBarChart = ({ data }: Props) => {
                 <div 
                   className={`absolute right-0 top-0 h-full rounded-full transition-all duration-500 ease-out ${
                     homeWidth > awayWidth 
-                      ? 'bg-orange-500' 
+                      ? 'bg-[#FF8113]' 
                       : 'bg-gray-500'
                   }`}
                   style={{ width: `${homeWidth}%` }}
@@ -83,7 +83,7 @@ const MatchMirrorBarChart = ({ data }: Props) => {
                 <div 
                   className={`absolute left-0 top-0 h-full rounded-full transition-all duration-500 ease-out ${
                     awayWidth > homeWidth 
-                      ? 'bg-orange-500' 
+                      ? 'bg-[#FF8113]' 
                       : 'bg-gray-500'
                   }`}
                   style={{ width: `${awayWidth}%` }}
@@ -94,7 +94,7 @@ const MatchMirrorBarChart = ({ data }: Props) => {
                 {/* Away team value */}
                 <div className={`w-12 text-right text-lg font-bold ${
                     awayWidth > homeWidth 
-                      ? 'text-orange-600' 
+                      ? 'text-[#FF8113]' 
                       : 'text-gray-600'
                   }`}>
                   {stat.awayValue}
