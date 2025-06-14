@@ -148,6 +148,6 @@ body {
 }
 
 .box-style {
-  @apply bg-[#FFFFFF] rounded-xl border-4 border-[#ffd000] shadow-xl p-8 cursor-pointer transform transition-all duration-300;
+  @apply bg-[#FFFFFF] rounded-xl border-4 border-[#FF8113] shadow-xl p-8 cursor-pointer transform transition-all duration-300;
 
 }

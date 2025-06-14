@@ -20,13 +20,13 @@ const HomePage = () => {
 
         {/* Header */}
         <header className="mb-12 text-center relative z-10 pt-4">
-          <h1 className="font-kagoda text-8xl font-extrabold bg-clip-text bg-gradient-to-r text-[#FFB13C] mb-6 uppercase tracking-wide animate-fade-in-down">
+          <h1 className="font-kagoda text-8xl font-extrabold bg-clip-text bg-gradient-to-r text-[#FF5E13] mb-6 uppercase tracking-wide animate-fade-in-down">
             StatsBanger.com
           </h1>
-          <p className="font-kagoda text-xl max-w-3xl mx-auto leading-relaxed animate-fade-in-up animate-delay-300 text-[#FFB13C] font-semibold">
+          <p className="font-kagoda text-xl max-w-3xl mx-auto leading-relaxed animate-fade-in-up animate-delay-300 text-[#FF8113] font-semibold">
             Explore{" "}
-            <span className="font-kagoda font-semibold text-[#FFB13C]">detailed analytics</span> and{" "}
-            <span className="font-kagoda font-semibold text-[#FFB13C]">interactive visualizations</span> of your favorite football players and teams.
+            <span className="font-kagoda font-semibold text-[#FF8113]">detailed analytics</span> and{" "}
+            <span className="font-kagoda font-semibold text-[FF8113]">interactive visualizations</span> of your favorite football players and teams.
           </p>
         </header>
 

@@ -2,7 +2,7 @@
 
 /* Background base color */
 .bg-grid-pattern {
-    background-color: #FEF9F3;
+    background-color: #FFFFFF;
     background-image:
       linear-gradient(#2A2929 1px, transparent 1px),
       linear-gradient(90deg, #2A2929 1px, transparent 1px);

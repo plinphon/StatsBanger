@@ -111,7 +111,7 @@ export default function PlayerChart() {
   return (
     <div className="min-h-screen bg-grid-pattern text-[#FFB13C] relative font-kagoda">
       <button
-        className="fixed top-4 left-4 p-4 rounded-full bg-[#ffb13c] text-black hover:bg-gray-200 transition z-50 shadow"
+        className="fixed top-4 left-4 p-4 rounded-full bg-[#FF8113] text-black hover:bg-gray-200 transition z-50 shadow"
         onClick={() => navigate(-1)}
         aria-label="Go Back"
       >
