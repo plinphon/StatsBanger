@@ -77,29 +77,24 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
         .replace(/\b\w/g, (char) => char.toUpperCase());
     };
   
-    // Get team colors for scatter points
-    const getTeamColor = (teamId: number, teamName: string) => {
-      let hash = 0;
-      for (let i = 0; i < teamName.length; i++) {
-        const char = teamName.charCodeAt(i);
-        hash = ((hash << 5) - hash) + char;
-        hash = hash & hash;
-      }
-      
-      const colors = [
-        '#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6',
-        '#F97316', '#06B6D4', '#84CC16', '#EC4899', '#6366F1'
-      ];
-      
-      return colors[Math.abs(hash) % colors.length];
-    };  
 
-  // Enhanced data with team-based colors
-  const enhancedData = sortedData.map((item) => ({
-    ...item,
-    fill: getTeamColor(item.team.teamId, item.team.name),
-    size: 80
-  }));
+      // Get team colors for scatter points
+      const getTeamColor = (teamId: number, teamName: string, homeTeamId: number, awayTeamId: number) => {
+        if (teamId === homeTeamId) {
+          return '#15803d'; // green-700 for home team
+        } else if (teamId === awayTeamId) {
+          return '#dc2626'; // red-600 for away team
+        }
+        // Fallback for any other teams (shouldn't happen in a 2-team match)
+        return '#6b7280'; // gray-500
+      };
+
+      // Enhanced data with team-based colors
+      const enhancedData = sortedData.map((item) => ({
+        ...item,
+        fill: getTeamColor(item.team.teamId, item.team.name, item.match.homeTeam.teamId, item.match.awayTeam.teamId),
+        size: 80
+      }));
 
   // Get unique teams for legend
   const uniqueTeams = Array.from(
@@ -123,7 +118,7 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
     });
   };
 
-  // Get label positions with minimal overlap prevention (updated for square layout)
+  // Get label positions with overlap prevention for both labels and dots
   const getLabelPositions = () => {
     const positions = new Map();
     const highlightedPlayers = enhancedData.filter(item => 
@@ -137,56 +132,90 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
       return bY - aY;
     });
     
+    // Chart scale for coordinate conversion
+    const scale = 500 / (xMax - xMin); // Square chart dimension
+    
     for (let i = 0; i < highlightedPlayers.length; i++) {
       const player = highlightedPlayers[i];
-      let offsetY = -15; // Start 15px above dot
-      let offsetX = 0;   // Center horizontally
+      const playerX = (player.matchStats[currentXMetric] as number);
+      const playerY = (player.matchStats[currentYMetric] as number);
+      
       let foundValidPosition = false;
       
       // Try different positions until we find one that doesn't overlap
       const positionsToTry = [
-        { x: 0, y: -22 },    // Above center
-        { x: -22, y: -22 },  // Above left
-        { x: 22, y: -22 },   // Above right
-        { x: -35, y: -22 },  // Further left
-        { x: 35, y: -22 },   // Further right
-        { x: 0, y: -35 },    // Higher up
-        { x: -22, y: -35 },  // Higher up left
-        { x: 22, y: -35 },   // Higher up right
-        { x: 0, y: 28 },     // Below
-        { x: -22, y: 28 },   // Below left
-        { x: 22, y: 28 },    // Below right
+        { x: 0, y: -25 },    // Above center
+        { x: -25, y: -25 },  // Above left
+        { x: 25, y: -25 },   // Above right
+        { x: -40, y: -25 },  // Further left
+        { x: 40, y: -25 },   // Further right
+        { x: 0, y: -40 },    // Higher up
+        { x: -25, y: -40 },  // Higher up left
+        { x: 25, y: -40 },   // Higher up right
+        { x: 0, y: 30 },     // Below
+        { x: -25, y: 30 },   // Below left
+        { x: 25, y: 30 },    // Below right
+        { x: -40, y: 0 },    // Left side
+        { x: 40, y: 0 },     // Right side
+        { x: -50, y: -15 },  // Far left up
+        { x: 50, y: -15 },   // Far right up
       ];
       
       for (const tryPos of positionsToTry) {
         let hasOverlap = false;
         
-        // Check against all existing labels
+        // Convert to screen coordinates for overlap checking
+        const currentLabelX = (playerX - xMin) * scale + tryPos.x;
+        const currentLabelY = (yMax - playerY) * scale + tryPos.y;
+        
+        // Check against existing labels
         for (let j = 0; j < i; j++) {
           const prevPlayer = highlightedPlayers[j];
           const prevPos = positions.get(prevPlayer.player.playerId);
           
           if (prevPos) {
-            // Calculate actual screen distance between labels (updated for square dimensions)
-            const currentPlayerX = (player.matchStats[currentXMetric] as number);
-            const currentPlayerY = (player.matchStats[currentYMetric] as number);
             const prevPlayerX = (prevPlayer.matchStats[currentXMetric] as number);
             const prevPlayerY = (prevPlayer.matchStats[currentYMetric] as number);
             
-            // Convert data coordinates to approximate screen coordinates for overlap check
-            // Use same scale for both axes since we're making it square
-            const scale = 500 / (xMax - xMin); // Square chart dimension
-            
-            const currentLabelX = (currentPlayerX - xMin) * scale + tryPos.x;
-            const currentLabelY = (yMax - currentPlayerY) * scale + tryPos.y;
             const prevLabelX = (prevPlayerX - xMin) * scale + prevPos.offsetX;
             const prevLabelY = (yMax - prevPlayerY) * scale + prevPos.offsetY;
             
             const xDistance = Math.abs(currentLabelX - prevLabelX);
             const yDistance = Math.abs(currentLabelY - prevLabelY);
             
-            // Check if labels would overlap (considering text width ~40px and height ~12px)
-            if (xDistance < 45 && yDistance < 18) {
+            // Check if labels would overlap (considering text width ~50px and height ~15px)
+            if (xDistance < 55 && yDistance < 20) {
+              hasOverlap = true;
+              break;
+            }
+          }
+        }
+        
+        // Check against ALL dots (not just highlighted ones)
+        if (!hasOverlap) {
+          for (const otherPlayer of enhancedData) {
+            // Skip the current player
+            if (otherPlayer.player.playerId === player.player.playerId) continue;
+            
+            const otherPlayerX = (otherPlayer.matchStats[currentXMetric] as number);
+            const otherPlayerY = (otherPlayer.matchStats[currentYMetric] as number);
+            
+            const otherDotX = (otherPlayerX - xMin) * scale;
+            const otherDotY = (yMax - otherPlayerY) * scale;
+            
+            // Calculate distance between label center and dot center
+            const xDistance = Math.abs(currentLabelX - otherDotX);
+            const yDistance = Math.abs(currentLabelY - otherDotY);
+            
+            // Check if label would overlap with dot
+            // Label dimensions: ~50px width, ~15px height
+            // Dot dimensions: ~12-16px diameter (radius ~6-8px)
+            // Add some padding for better visual separation
+            const labelHalfWidth = 30; // Half of estimated label width + padding
+            const labelHalfHeight = 10; // Half of estimated label height + padding
+            const dotRadius = 10; // Dot radius + padding
+            
+            if (xDistance < (labelHalfWidth + dotRadius) && yDistance < (labelHalfHeight + dotRadius)) {
               hasOverlap = true;
               break;
             }
@@ -194,20 +223,57 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
         }
         
         if (!hasOverlap) {
-          offsetX = tryPos.x;
-          offsetY = tryPos.y;
           foundValidPosition = true;
+          positions.set(player.player.playerId, { offsetX: tryPos.x, offsetY: tryPos.y });
           break;
         }
       }
       
-      // If no valid position found, use default and stack vertically
+      // If no valid position found, use a fallback strategy
       if (!foundValidPosition) {
-        offsetX = 0;
-        offsetY = -15 - (i * 12); // Stack them vertically
+        // Try to find the least crowded area by checking in a spiral pattern
+        let bestPos = { x: 0, y: -25 };
+        let minOverlaps = Infinity;
+        
+        for (let radius = 25; radius <= 80; radius += 15) {
+          for (let angle = 0; angle < 360; angle += 30) {
+            const radians = (angle * Math.PI) / 180;
+            const testX = Math.cos(radians) * radius;
+            const testY = Math.sin(radians) * radius;
+            
+            const testLabelX = (playerX - xMin) * scale + testX;
+            const testLabelY = (yMax - playerY) * scale + testY;
+            
+            let overlapCount = 0;
+            
+            // Count overlaps with other elements
+            for (const otherPlayer of enhancedData) {
+              if (otherPlayer.player.playerId === player.player.playerId) continue;
+              
+              const otherPlayerX = (otherPlayer.matchStats[currentXMetric] as number);
+              const otherPlayerY = (otherPlayer.matchStats[currentYMetric] as number);
+              const otherDotX = (otherPlayerX - xMin) * scale;
+              const otherDotY = (yMax - otherPlayerY) * scale;
+              
+              const xDistance = Math.abs(testLabelX - otherDotX);
+              const yDistance = Math.abs(testLabelY - otherDotY);
+              
+              if (xDistance < 40 && yDistance < 15) {
+                overlapCount++;
+              }
+            }
+            
+            if (overlapCount < minOverlaps) {
+              minOverlaps = overlapCount;
+              bestPos = { x: testX, y: testY };
+              if (overlapCount === 0) break;
+            }
+          }
+          if (minOverlaps === 0) break;
+        }
+        
+        positions.set(player.player.playerId, { offsetX: bestPos.x, offsetY: bestPos.y });
       }
-      
-      positions.set(player.player.playerId, { offsetX, offsetY });
     }
     
     return positions;
@@ -448,7 +514,7 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
 
         {/* Customize Chart Button*/}
         <button
-          className="absolute top-20 right-4 mt-12 bg-gray-800/90 hover:bg-gray-700/90 text-gray-200 hover:text-white px-4 py-2 rounded-lg border border-gray-600 hover:border-gray-500 transition-all duration-200 text-sm font-medium backdrop-blur-sm"
+          className="absolute bottom-4 right-4 mt-12 bg-gray-800/90 hover:bg-gray-700/90 text-gray-200 hover:text-white px-4 py-2 rounded-lg border border-gray-600 hover:border-gray-500 transition-all duration-200 text-sm font-medium backdrop-blur-sm"
           onClick={() => setIsCustomizeOpen(true)}
         >
           Customize Chart
@@ -500,7 +566,6 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
                       }`}
                     >
                       <div className="flex items-center space-x-3">
-                        <span className="text-xl">{combo.icon}</span>
                         <div className="flex-1">
                           <div className="font-medium text-sm">{combo.name}</div>
                           <div className="text-xs opacity-75 mt-1">{combo.description}</div>

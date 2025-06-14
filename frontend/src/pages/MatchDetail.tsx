@@ -8,7 +8,7 @@ import type { Match } from "../models/match"
 import MatchMirrorBarChart from "../components/OverallBarChart"
 import type { PlayerMatchStat } from "../models/player-match-stat"
 import { useParams } from "react-router-dom"
-import { PlayerMatchBar } from "../components/allCharts2"
+import { PlayerMatchBar } from "../components/PlayersMatchBar"
 import { PlayerStat } from "../components/ui/PlayerStat"
 import { positionOrder } from "../utils/dataTransformation"
 import TeamPlayerStats from "../components/ui/TeamPlayerStats"
@@ -22,7 +22,7 @@ export default function AnalyticsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState(0)
-  const [showTeamStats, setShowTeamStats] = useState(false)
+  const [showTeamStats, setShowTeamStats] = useState(true) // Default to showing team stats
   
   const { id } = useParams();
 
@@ -120,49 +120,6 @@ export default function AnalyticsPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-30 shadow-sm">
-        <div className="max-w-full mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Match Analytics</h1>
-              {match && (
-                <p className="text-sm text-gray-600 mt-1">
-                  {match.homeTeam.name} vs {match.awayTeam.name}
-                </p>
-              )}
-            </div>
-            
-            {/* Toggle Team Stats Button */}
-            <button
-              onClick={() => setShowTeamStats(!showTeamStats)}
-              className={`flex items-center space-x-2 px-4 py-2 rounded-lg border transition-all duration-200 ${
-                showTeamStats 
-                  ? 'bg-[#FF8113] text-white border-[#FF8113]' 
-                  : 'bg-white text-gray-700 border-gray-300 hover:border-[#FF8113] hover:text-[#FF8113]'
-              }`}
-            >
-              <svg 
-                className="w-4 h-4" 
-                fill="none" 
-                stroke="currentColor" 
-                viewBox="0 0 24 24"
-              >
-                <path 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
-                  strokeWidth={2} 
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" 
-                />
-              </svg>
-              <span className="font-medium">
-                {showTeamStats ? 'Hide' : 'Show'} Team Rosters
-              </span>
-            </button>
-          </div>
-        </div>
-      </div>
-
       {/* Main Content */}
       <div className="max-w-full mx-auto p-6">
         {allPlayerStats.length > 0 && match ? (
@@ -170,12 +127,12 @@ export default function AnalyticsPage() {
             {/* Team Stats Sidebars - Only show when toggled */}
             {showTeamStats && (
               <>
-                {/* Home Team Stats */}
+                {/* Home Team Stats with Header */}
                 <div className="w-80 flex-shrink-0">
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                    <div className="bg-blue-600 text-white px-4 py-3">
-                      <h3 className="font-semibold">{match.homeTeam.name}</h3>
-                      <p className="text-blue-100 text-sm">Home Team</p>
+                    <div className="bg-[#FF8113] text-white px-4 py-3">
+                      <h3 className="font-semibold text-center">{match.homeTeam.name}</h3>
+                      <p className="text-blue-100 text-sm text-center">Home Team</p>
                     </div>
                     <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
                       <TeamPlayerStats
@@ -192,26 +149,73 @@ export default function AnalyticsPage() {
 
             {/* Chart Section - Takes full width when team stats are hidden */}
             <div className={`${showTeamStats ? 'flex-1 min-w-0' : 'w-full'} flex flex-col`}>
-              {/* Enhanced Tabs */}
+              {/* Match Info Header */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-6 text-center">
+                <h1 className="text-2xl font-bold text-gray-900">Match Analytics</h1>
+                {match && (
+                  <div className="mt-2">
+                    <div className="flex items-center justify-center space-x-3">
+                      <span className="text-lg font-semibold text-gray-800">{match.homeTeam.name}</span>
+                      <div className="bg-[#FAC864] px-3 py-1 rounded-md">
+                        <span className="text-xl font-bold text-gray-900">
+                          {match.homeScore ?? 0} - {match.awayScore ?? 0}
+                        </span>
+                      </div>
+                      <span className="text-lg font-semibold text-gray-800">{match.awayTeam.name}</span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {match.currentPeriodStartTimestamp && new Date(match.currentPeriodStartTimestamp).toLocaleDateString()} • {match.homeTeam.homeStadium ?? 'Stadium'}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Enhanced Tabs with Team Stats Toggle */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-                <div className="flex border-b border-gray-200">
-                  {tabs.map((tab) => (
-                    <button
-                      key={tab.id}
-                      onClick={() => setActiveTab(tab.id)}
-                      className={`flex items-center space-x-2 px-6 py-4 font-medium text-sm transition-all duration-200 relative ${
-                        activeTab === tab.id
-                          ? 'text-[#FF8113] bg-orange-50'
-                          : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
-                      }`}
-                    >
-                      <span className="text-lg">{tab.icon}</span>
-                      <span>{tab.label}</span>
-                      {activeTab === tab.id && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF8113]"></div>
-                      )}
-                    </button>
-                  ))}
+                <div className="flex items-center justify-between border-b border-gray-200">
+                  {/* Tabs on the left */}
+                  <div className="flex">
+                    {tabs.map((tab) => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id)}
+                        className={`flex items-center space-x-2 px-6 py-4 font-medium text-sm transition-all duration-200 relative ${
+                          activeTab === tab.id
+                            ? 'text-[#FF8113] bg-orange-50'
+                            : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
+                        }`}
+                      >
+                        <span className="text-lg">{tab.icon}</span>
+                        <span>{tab.label}</span>
+                        {activeTab === tab.id && (
+                          <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF8113]"></div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Team Stats Toggle on the right */}
+                  <div className="flex items-center space-x-4 px-6 py-2">
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500 mb-1">Individual Stats</p>
+                      <button
+                        onClick={() => setShowTeamStats(!showTeamStats)}
+                        className={`relative inline-flex items-center h-6 w-12 rounded-full border-2 transition-all duration-300 ease-in-out active:outline-none active:ring-0  ${
+                          showTeamStats 
+                            ? 'bg-[#FF8113] border-[#FF8113]' 
+                            : 'bg-gray-200 border-gray-300'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 rounded-full bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
+                            showTeamStats ? 'translate-x-7' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  
+                 
+                  </div>
                 </div>
               </div>
       
@@ -223,13 +227,13 @@ export default function AnalyticsPage() {
               </div>
             </div>
 
-            {/* Away Team Stats - Only show when toggled */}
+            {/* Away Team Stats with Header */}
             {showTeamStats && (
               <div className="w-80 flex-shrink-0">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-                  <div className="bg-red-600 text-white px-4 py-3">
-                    <h3 className="font-semibold">{match.awayTeam.name}</h3>
-                    <p className="text-red-100 text-sm">Away Team</p>
+                  <div className="bg-[#FF8113] text-white px-4 py-3">
+                    <h3 className="font-semibold text-center">{match.awayTeam.name}</h3>
+                    <p className="text-violet-100 text-sm text-center">Away Team</p>
                   </div>
                   <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
                     <TeamPlayerStats
