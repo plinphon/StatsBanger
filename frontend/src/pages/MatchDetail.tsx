@@ -14,8 +14,6 @@ import { positionOrder } from "../utils/dataTransformation"
 import TeamPlayerStats from "../components/ui/TeamPlayerStats"
 import { PlayerScatter } from "../components/scatter/PlayerScatter"
 
-import scatterIcon from '../icons/scatter.svg';
-import barIcon from '../icons/barchart.svg';
 
 export default function AnalyticsPage() {
   const [match, setMatch] = useState<Match>()

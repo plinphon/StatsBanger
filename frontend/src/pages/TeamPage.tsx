@@ -10,6 +10,7 @@ import type { Match } from '../models/match'
 import type { TeamMatchStat } from '../models/team-match-stat'
 
 import type { TeamSeasonStat } from '../models/team-season-stat'
+import { TeamStat } from '../components/ui/teamStat'
 
 const UNIQUE_TOURNAMENT_ID = 8
 const SEASON_ID = 52376
@@ -20,7 +21,7 @@ function formatDateDDMMYYYY(timestamp: number | string): string {
   const month = String(date.getMonth() + 1).padStart(2, '0');
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
-}
+} 
 
 interface TeamChartProps {
   teamId: number; // Define the type of teamId
@@ -233,11 +234,12 @@ export default function TeamPage() {
             <h3 className="text-2xl font-semibold text-gray-800 mb-4">Recent Matches</h3>
             {recentMatches.length > 0 ? (
               <div className="space-y-3">
-                {sortedRecentMatches.map((matchItem, index) => {
-                  const isExpanded = expandedMatchIndex === index;
-                  const isHomeTeam = matchItem.match.homeTeam.teamId === TEAM_ID;
-                  const opponent = isHomeTeam ? matchItem.match.awayTeam : matchItem.match.homeTeam;
-                  
+                {sortedRecentMatches.map((matchItem, index) => { 
+                    if (!matchItem.match) return null; 
+                    const isExpanded = expandedMatchIndex === index;
+                    const isHomeTeam = matchItem.match.homeTeam.teamId === TEAM_ID;
+                    const opponent = isHomeTeam ? matchItem.match.awayTeam : matchItem.match.homeTeam;
+                    
                   return (
                     <div
                       key={index}
@@ -249,15 +251,15 @@ export default function TeamPage() {
                       >
                         <div>
                           <div className="font-semibold text-gray-700">
-                            {isHomeTeam ? 'vs' : '@'} {opponent.name}
+                            vs {opponent.name} {isHomeTeam ? '(H)' : '(A)'} 
                           </div>
                           <div className="text-sm text-gray-600 flex items-center gap-2">
                             <span>{formatDateDDMMYYYY(matchItem.match.currentPeriodStartTimestamp)}</span>
                             {matchItem.match.homeScore !== undefined && matchItem.match.awayScore !== undefined && (
                               <span className="font-medium">
                                 {isHomeTeam 
-                                  ? `${matchItem.match.homeScore.current}-${matchItem.match.awayScore.current}`
-                                  : `${matchItem.match.awayScore.current}-${matchItem.match.homeScore.current}`
+                                  ? `${matchItem.match.homeScore}-${matchItem.match.awayScore}`
+                                  : `${matchItem.match.awayScore}-${matchItem.match.homeScore}`
                                 }
                               </span>
                             )}
