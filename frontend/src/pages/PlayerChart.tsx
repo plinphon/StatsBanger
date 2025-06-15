@@ -10,6 +10,7 @@ import type { Match } from '../models/match'
 import type { PlayerMatchStat } from '../models/player-match-stat'
 import { PlayerStat } from '../components/ui/PlayerStat'
 import type { PlayerSeasonStat } from '../models/player-season-stat'
+import { SeasonPlayerStats } from '../components/PlayerSeasonStats'
 
 
 
@@ -200,30 +201,7 @@ export default function PlayerChart() {
   
         {/* Player Stats */}
         <div className="flex flex-wrap gap-4">
-        <div className="flex-1 bg-white/90 rounded-2xl shadow p-6 mb-8 max-w-full mx-auto">
-          <button
-            className="flex items-center gap-2 text-xl font-bold text-gray-800 mb-4 focus:outline-none"
-          >
-            <span>Player Stats</span>
-
-          </button>
-          {stats?.stats && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-              {Object.entries(stats.stats)
-                .filter(([statKey]) => !["player_id", "season_id", "team_id", "unique_tournament_id"].includes(statKey.toLowerCase()))
-                .map(([statKey, value]) => (
-                  <div key={statKey}>
-                    <span className="font-semibold capitalize">
-                      {statKey
-                        .replace(/([A-Z])/g, " $1")
-                        .replace(/^./, (str) => str.toUpperCase())}:
-                    </span>{" "}
-                    {value}
-                  </div>
-                ))}
-            </div>
-          )}
-        </div>
+        <SeasonPlayerStats stats={stats}  ></SeasonPlayerStats>
   
         {/* Recent Matches */}
         <div className="flex-1 bg-gray-100 rounded-2xl shadow p-6 max-w-sm mx-auto">

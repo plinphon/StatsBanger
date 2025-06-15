@@ -39,9 +39,7 @@ const TeamPlayerStats: React.FC<TeamPlayersProps> = ({ team, allPlayerStats, pos
 
   return (
     <div className="bg-white rounded-lg shadow transition overflow-hidden border">
-      <div className="bg-gray-50 px-4 py-3">
-        <h4 className="font-semibold text-gray-700">{team.name}</h4>
-      </div>
+
 
       <div className="divide-y">
         {sortedPlayers.length > 0 ? (

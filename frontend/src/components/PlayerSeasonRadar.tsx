@@ -209,11 +209,11 @@ const SingleRadarChart = ({
             : `drop-shadow(0 0 10px ${playerColor}20)`
         }}
       >
-        <ResponsiveContainer width={300} height={300}>
+        <ResponsiveContainer width={600} height={600}>
           <RadarChart
             cx="50%"
             cy="50%"
-            outerRadius="80%"
+            outerRadius="75%"
             data={chartData}
           >
             <Customized
@@ -235,7 +235,7 @@ const SingleRadarChart = ({
             />
             <PolarAngleAxis
               dataKey="label"
-              tick={{ fill: 'black', fontSize: 10, fontWeight: 500 }}
+              tick={{ fill: 'black', fontSize: 12, fontWeight: 600 }}
               className="text-black"
             />
             <PolarRadiusAxis
@@ -621,10 +621,10 @@ export function PlayerSeasonRadar({
         </div>
       )}
       
-      {/* Radar Charts - Enhanced single chart comparison mode */}
+      {/* Radar Charts - Both modes now use same size */}
       <div className="relative">
         {!compareMode || allPlayersForComparison.length === 1 ? (
-          // Single player mode
+          // Single player mode - now uses 600x600 like comparison mode
           <div className="flex justify-center">
             <SingleRadarChart
               data={data}
@@ -638,7 +638,7 @@ export function PlayerSeasonRadar({
             />
           </div>
         ) : (
-          // Enhanced overlapping comparison mode (default for comparison)
+          // Enhanced overlapping comparison mode (stays 600x600)
           <div className="flex flex-col items-center">
             {/* Enhanced legend with hover effects */}
             <div className="mb-6 flex flex-wrap justify-center gap-4">
