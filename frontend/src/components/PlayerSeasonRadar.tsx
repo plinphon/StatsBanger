@@ -242,6 +242,8 @@ const SingleRadarChart = ({
               fill={playerColor}
               fillOpacity={isHovered ? 0.35 : 0.25}
               strokeWidth={isHovered ? 3 : 2.5}
+              animationDuration={50}
+              animationEasing="ease-out"
               style={{
                 transition: 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                 filter: isHovered 
@@ -705,6 +707,8 @@ export function PlayerSeasonRadar({
                         hoveredPlayer === null ? 2.5 : 
                         hoveredPlayer === player.id ? 4 : 1.5
                       }
+                      animationDuration={50}
+                      animationEasing="ease-out"
                       style={{
                         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         filter: hoveredPlayer === null || hoveredPlayer === player.id
