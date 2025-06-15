@@ -23,7 +23,6 @@ const PER_GAME_OR_PERCENTAGE_METRICS = new Set([
   'accurateCrossesPercentage',
   'penaltyConversion',
   'setPieceConversion', 
-  'rating'
 ]);
 
 // Keep these as season totals

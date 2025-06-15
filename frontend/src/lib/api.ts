@@ -1,7 +1,7 @@
 const API_BASE_URL = "http://localhost:3000"
 
 import type { Player } from "../models/player"
-import type { PlayerMatchStat } from "../models/player-match-stat"
+import { createEnhancedPlayerMatchStat, type PlayerMatchStat } from "../models/player-match-stat"
 import type { PlayerSeasonStat } from "../models/player-season-stat"
 
 import type { Team } from "../models/team"
@@ -51,21 +51,26 @@ export async function fetchPlayerStatsByMatch(matchID: number, statFields?: stri
 
   const res = await fetch(url.toString())
   if (!res.ok) throw new Error("Failed to fetch player match stats")
-  return await res.json()
+  
+  const rawData = await res.json()
+  return rawData.map(createEnhancedPlayerMatchStat)
 }
 
 export async function fetchAllMatchStatsByPlayerId(playerId: number): Promise<PlayerMatchStat[]> {
   const res = await fetch(`${API_BASE_URL}/api/player-match-stat/player/${playerId}`)
   if (!res.ok) throw new Error("Failed to fetch matches by player ID")
-  return await res.json()
+  
+  const rawData = await res.json()
+  return rawData.map(createEnhancedPlayerMatchStat)
 }
 
 export async function fetchStatByPlayerAndMatch(playerId: number, matchId: number): Promise<PlayerMatchStat> {
   const res = await fetch(`${API_BASE_URL}/api/player-match-stat/player/${playerId}/match/${matchId}`)
   if (!res.ok) throw new Error("Failed to fetch stats by player and match ID")
-  return await res.json()
+  
+  const rawData = await res.json()
+  return createEnhancedPlayerMatchStat(rawData)
 }
-
 // Player Season Stat APIs
 export async function fetchTopPlayersByStat(
   statFields: string,
