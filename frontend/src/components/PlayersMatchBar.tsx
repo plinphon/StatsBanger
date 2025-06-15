@@ -238,7 +238,7 @@ export function PlayerMatchBar({ data, yAxisMetric, barLimit }: PlayerMatchBarPr
       </div>
 
       {/* Customize Chart Button - positioned absolutely */}
-      <div className="absolute bottom-4 right-4">
+      <div className="flex justify-end pr-4 pb-4">
         <PlayerMatchBarCustomizer
           currentMetric={currentMetric}
           currentBarLimit={currentBarLimit}
