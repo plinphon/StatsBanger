@@ -15,6 +15,7 @@ export const STAT_CATEGORIES = {
     attacking: [
       "goals",
       "goal_assist",
+      "total_shots",
       "on_target_scoring_attempt",
       "shot_off_target",
       "big_chance_created",

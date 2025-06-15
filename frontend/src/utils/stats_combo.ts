@@ -25,25 +25,36 @@ export const STAT_COMBINATIONS = {
     // Attacking & Scoring
     shooting_efficiency: {
       name: "Shooting Efficiency",
-      description: "Shots on target vs Goals scored",
-      xMetric: "on_target_scoring_attempt",
-      yMetric: "goals",
+      description: "Shots vs Shots on target",
+      xMetric: "total_shots",
+      yMetric: "on_target_scoring_attempt",
       category: "attacking",
     },
+
+    shot_vs_xG: {
+      name: "Shooting Efficiency 2",
+      description: "Shots vs xG",
+      xMetric: "total_shots",
+      yMetric: "expected_goals",
+      category: "attacking",
+    },
+
+    keypass_output: {
+      name: "Key passes Output",
+      description: "Total passes vs Key passes",
+      xMetric: "total_pass",
+      yMetric: "key_pass",
+      category: "attacking",
+    },
+
     creative_output: {
       name: "Creative Output",
-      description: "Key passes vs Goal assists",
+      description: "Key passes vs xA",
       xMetric: "key_pass",
-      yMetric: "goal_assist",
+      yMetric: "expected_assists",
       category: "attacking",
     },
-    expected_vs_actual: {
-      name: "Expected vs Actual",
-      description: "Expected goals vs Actual goals",
-      xMetric: "expected_goals",
-      yMetric: "goals",
-      category: "attacking",
-    },
+
     big_chance_conversion: {
       name: "Big Chance Conversion",
       description: "Big chances created vs Big chances missed",

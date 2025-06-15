@@ -1,9 +1,8 @@
 import type { PlayerMatchStat } from "../../models/player-match-stat";
 import { STAT_CATEGORIES, CATEGORY_LABELS } from "../../utils/playerMatchStatsCategories";
-
 import { 
-  calculateMatchPercentages, 
   MATCH_PERCENTAGE_CALCULATIONS,
+  calculateMatchPercentages,
   getStatLabel,
   formatStatValue 
 } from "../../utils/matchPercentageCalculation";
@@ -23,27 +22,30 @@ export function PlayerStat({ matchItem }: PlayerStatProps) {
     return key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
-  const calculatedStats = calculateMatchPercentages(matchItem.matchStats || {});
+  // Calculate stats if not already in the model
+  const calculatedStats = matchItem.calculatedStats || calculateMatchPercentages(matchItem.matchStats || {});
 
   const categorizedStats = Object.entries(STAT_CATEGORIES)
     .filter(([category]) => category !== 'identifiers')
     .reduce((acc, [category, statKeys]) => {
       const categoryStats = [];
+      const addedCalculations = new Set(); // Track which calculations we've already added
       
       statKeys.forEach(key => {
         // Add the original stat
         categoryStats.push([key, matchItem.matchStats?.[key] ?? 0, false]);
         
-        // Check for related percentage calculations
+        // Add related percentage calculations (only once per category)
         Object.entries(calculatedStats).forEach(([calcKey, calcValue]) => {
           const calcConfig = MATCH_PERCENTAGE_CALCULATIONS[calcKey];
-          if (calcConfig && calcConfig.category === category) {
-            // Check if this calculated stat is related to the current raw stat
-            if (calcConfig.numerator === key || 
-                (Array.isArray(calcConfig.denominator) && calcConfig.denominator.includes(key)) ||
-                calcConfig.denominator === key) {
-              categoryStats.push([calcKey, calcValue, true]);
-            }
+          if (calcConfig && 
+              calcConfig.category === category && 
+              !addedCalculations.has(calcKey) &&
+              (calcConfig.numerator === key || 
+               (Array.isArray(calcConfig.denominator) && calcConfig.denominator.includes(key)) ||
+               calcConfig.denominator === key)) {
+            categoryStats.push([calcKey, calcValue, true]);
+            addedCalculations.add(calcKey);
           }
         });
       });

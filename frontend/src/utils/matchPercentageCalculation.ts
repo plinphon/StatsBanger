@@ -117,7 +117,7 @@ export const MATCH_PERCENTAGE_CALCULATIONS = {
   };
   
   // Main function to calculate all percentages for a match stat
-  export const calculateMatchPercentages = (matchStats: PlayerMatchStat) => {
+  export const calculateMatchPercentages = (matchStats: Record<string, number | null>) => {
     const calculated: Record<string, number> = {};
     
     Object.entries(MATCH_PERCENTAGE_CALCULATIONS).forEach(([key, config]) => {
