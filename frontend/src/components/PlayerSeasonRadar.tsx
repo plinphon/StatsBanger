@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { Card, CardContent } from "./ui/Card";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Radar, RadarChart, PolarAngleAxis, PolarRadiusAxis, Customized, PolarGrid, ScatterChart, Scatter, CartesianGrid } from 'recharts';
+import { ResponsiveContainer, Radar, RadarChart, PolarAngleAxis, PolarRadiusAxis, Customized, Tooltip } from 'recharts';
 import type { TooltipProps } from 'recharts';
 import { normalizePlayerData, getMetricDisplayLabel } from '../utils/dataTransformation';
 import type { Player } from '../models/player';
 import type { PlayerSeasonStat } from "../models/player-season-stat";
+import { PlayerRadarChartCustomizer } from "./customizerd_chart/PlayerSeasonRadarChartCustomized";
 
 // Position-specific metrics for the radar chart
 const topicF = ["goals", "penaltyGoals", "goalConversionPercentage", "totalShots", "keyPasses", "accurateFinalThirdPasses", "successfulDribbles", "aerialDuelsWon", "possessionLost"];
@@ -34,40 +34,6 @@ const STAT_CATEGORIES = {
     name: "Goalkeeping",
     stats: ["saves", "goalsConceded", "penaltySave", "savedShotsFromInsideTheBox", "cleanSheet"]
   },
-  performance: {
-    name: "Performance",
-    stats: ["rating", "minutesPlayed", "appearances", "yellowCards", "redCards"]
-  }
-};
-
-// Built-in presets for quick selection
-const BUILT_IN_PRESETS = {
-  "attacking": {
-    name: "Attacking Focus",
-    metrics: ["goals", "assists", "expectedGoals", "totalShots", "shotsOnTarget", "keyPasses"]
-  },
-  "defending": {
-    name: "Defensive Profile", 
-    metrics: ["tackles", "interceptions", "clearances", "aerialDuelsWon", "blockedShots", "cleanSheet"]
-  },
-  "playmaking": {
-    name: "Playmaker Profile",
-    metrics: ["keyPasses", "accuratePassesPercentage", "accurateLongBalls", "assists", "passToAssist", "totalPasses"]
-  },
-  "physical": {
-    name: "Physical Dominance",
-    metrics: ["aerialDuelsWon", "totalDuelsWon", "successfulDribbles", "dribbledPast", "possessionLost", "fouls"]
-  }
-};
-
-// All available metrics organized by category
-const ALL_METRICS = {
-  attacking: ["goals", "assists", "expectedGoals", "bigChancesCreated", "shotsOnTarget", "totalShots", "goalConversionPercentage", "penaltyGoals"],
-  defending: ["tackles", "interceptions", "blockedShots", "aerialDuelsWon", "cleanSheet", "clearances", "groundDuelsWonPercentage", "aerialDuelsWonPercentage"],
-  passing: ["accuratePassesPercentage", "keyPasses", "accurateLongBalls", "passToAssist", "totalPasses", "accurateFinalThirdPasses"],
-  dribbling: ["successfulDribbles", "accurateCrosses", "dribbledPast", "possessionLost"],
-  goalkeeping: ["saves", "goalsConceded", "penaltySave", "savedShotsFromInsideTheBox", "goalsConcededOutsideTheBox", "goalsConcededInsideTheBox", "highClaims", "punches", "runsOut"],
-  performance: ["rating", "minutesPlayed", "appearances", "yellowCards", "redCards", "fouls", "totalDuelsWon"]
 };
 
 // Enhanced colors for better distinction between players
@@ -302,9 +268,8 @@ export function PlayerSeasonRadar({
 }: PlayerSeasonRadarProps) {
   const [hoveredPlayer, setHoveredPlayer] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("position");
-  const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
-  const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   const [customMode, setCustomMode] = useState(false);
+  const [selectedMetrics, setSelectedMetrics] = useState<string[]>([]);
   
   // Comparison state
   const [compareMode, setCompareMode] = useState(false);
@@ -358,7 +323,7 @@ export function PlayerSeasonRadar({
       }
     });
 
-    return players;
+      return players;
   }, [playerName, data, position, comparisonPlayers]);
 
   // Enhanced overlapping chart data for comparison mode
@@ -387,7 +352,7 @@ export function PlayerSeasonRadar({
   // Search for players
   const handleSearch = useCallback(async (query: string) => {
     setSearchQuery(query);
-    if (query.length < 2) {
+    if (query.length < 0) {
       setSearchResults([]);
       return;
     }
@@ -488,29 +453,6 @@ export function PlayerSeasonRadar({
     }
   }, [compareMode]);
 
-  // Optimized callback functions using useCallback
-  const handleMetricToggle = useCallback((metric: string) => {
-    setSelectedMetrics(prev => 
-      prev.includes(metric) 
-        ? prev.filter(m => m !== metric)
-        : [...prev, metric]
-    );
-  }, []);
-
-  const handlePresetSelect = useCallback((presetKey: string) => {
-    const preset = BUILT_IN_PRESETS[presetKey as keyof typeof BUILT_IN_PRESETS];
-    if (preset) {
-      setSelectedMetrics(preset.metrics);
-    }
-  }, []);
-
-  const applyCustomization = useCallback(() => {
-    if (selectedMetrics.length > 0) {
-      setCustomMode(true);
-    }
-    setIsCustomizeOpen(false);
-  }, [selectedMetrics.length]);
-
   const topOfAxis = 100;
 
   return (
@@ -555,26 +497,6 @@ export function PlayerSeasonRadar({
               {compareMode ? 'Exit Compare' : 'Compare Players'}
             </button>
           )}
-          
-          <div className="relative inline-block">
-            <select 
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
-              className="appearance-none bg-gray-800 text-gray-200 px-6 py-2 pr-12 rounded-lg border border-gray-600 focus:border-green-400 focus:outline-none"
-            >
-              <option value="position">Position Default</option>
-              {Object.entries(STAT_CATEGORIES).map(([key, category]) => (
-                <option key={key} value={key}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-gray-400">
-              <svg className="h-4 w-4 fill-current" viewBox="0 0 20 20">
-                <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-              </svg>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -798,116 +720,19 @@ export function PlayerSeasonRadar({
           </div>
         )}
         
-        <button
-          className="absolute bottom-4 right-4 bg-gray-800/90 hover:bg-gray-700/90 text-gray-200 hover:text-white px-4 py-2 rounded-lg border border-gray-600 hover:border-gray-500 transition-all duration-200 text-sm font-medium backdrop-blur-sm"
-          onClick={() => setIsCustomizeOpen(true)}
-        >
-          Customize Chart
-        </button>
-      </div>
-      
-      {/* Customization Drawer */}
-      {isCustomizeOpen && (
-        <>
-          <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-            onClick={() => setIsCustomizeOpen(false)}
+        {/* Customizer Component */}
+        <div className="absolute bottom-4 right-4">
+          <PlayerRadarChartCustomizer
+            currentCategory={selectedCategory}
+            customMode={customMode}
+            selectedMetrics={selectedMetrics}
+            position={position}
+            onCategoryChange={setSelectedCategory}
+            onCustomModeChange={setCustomMode}
+            onSelectedMetricsChange={setSelectedMetrics}
           />
-          
-          <div className="fixed right-0 top-0 h-full w-96 bg-gray-900 border-l border-gray-700 shadow-2xl z-50 transform transition-transform duration-300 ease-out">
-            <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between p-6 border-b border-gray-700">
-                <h3 className="text-xl font-semibold text-gray-200">Customize Chart</h3>
-                <button
-                  onClick={() => setIsCustomizeOpen(false)}
-                  className="text-gray-400 hover:text-gray-200 transition-colors p-1"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              
-              <div className="flex-1 overflow-y-auto p-6">
-                <p className="text-gray-400 text-sm mb-6">
-                  Select the metrics you want to display on your radar chart.
-                </p>
-                
-                <div className="mb-6">
-                  <h4 className="text-gray-300 text-sm font-medium mb-3">Quick Presets</h4>
-                  <div className="grid grid-cols-1 gap-2">
-                    {Object.entries(BUILT_IN_PRESETS).map(([key, preset]) => (
-                      <button
-                        key={key}
-                        onClick={() => handlePresetSelect(key)}
-                        className="text-left p-3 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
-                      >
-                        <div className="text-gray-200 text-sm font-medium">{preset.name}</div>
-                        <div className="text-gray-400 text-xs mt-1">
-                          {preset.metrics.length} metrics
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-gray-300 text-sm font-medium">Custom Selection</h4>
-                    <span className="text-gray-400 text-xs">
-                      {selectedMetrics.length} selected
-                    </span>
-                  </div>
-                  
-                  {Object.entries(ALL_METRICS).map(([category, metrics]) => (
-                    <div key={category} className="space-y-2">
-                      <h5 className="text-gray-400 text-xs font-medium uppercase tracking-wide">
-                        {STAT_CATEGORIES[category as keyof typeof STAT_CATEGORIES]?.name || category}
-                      </h5>
-                      <div className="space-y-1">
-                        {metrics.map((metric) => (
-                          <label
-                            key={metric}
-                            className="flex items-center p-2 hover:bg-gray-800 rounded cursor-pointer transition-colors"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedMetrics.includes(metric)}
-                              onChange={() => handleMetricToggle(metric)}
-                              className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2"
-                            />
-                            <span className="ml-3 text-gray-300 text-sm">
-                              {metric.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
-                            </span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
-              <div className="p-6 border-t border-gray-700">
-                <div className="flex gap-3">
-                  <button
-                    className="flex-1 bg-gray-700 hover:bg-gray-600 text-gray-200 py-2 px-4 rounded-lg transition-colors"
-                    onClick={() => setIsCustomizeOpen(false)}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    className="flex-1 bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded-lg transition-colors"
-                    onClick={applyCustomization}
-                    disabled={selectedMetrics.length === 0}
-                  >
-                    Apply Changes
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
+        </div>
+      </div>
     </div>
   );
 }

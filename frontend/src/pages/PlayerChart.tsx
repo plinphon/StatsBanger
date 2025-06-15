@@ -74,7 +74,7 @@ export default function PlayerChart() {
   });
 
   const handlePlayerSearch = async (query: string): Promise<Player[]> => {
-    if (!query || query.length < 2) return [];
+    if (!query || query.length < 0) return [];
     
     try {
       // Use your existing searchFunction (you'll need to pass this in or import it)

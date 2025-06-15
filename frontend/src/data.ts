@@ -75,7 +75,6 @@ export const statsO: Record<string, StatRange> = {
   fouls: { average: 1.609887109035249, lowerBound: 0.0, upperBound: 3.2 },
   dispossessed: { average: 1.1027098309932613, lowerBound: 0.0, upperBound: 3.0 },
   possessionLost: { average: 13.315226083827703, lowerBound: 1.1, upperBound: 23.9 },
-  rating: { average: 6.752536231884057, lowerBound: 0, upperBound: 10 },
 };
 
 export const statsF: Record<string, StatRange> = {
@@ -149,7 +148,6 @@ export const statsF: Record<string, StatRange> = {
   fouls: { average: 2.2314743827803842, lowerBound: 0.0, upperBound: 4.4 },
   dispossessed: { average: 2.071058947019501, lowerBound: 0.0, upperBound: 3.6 },
   possessionLost: { average: 15.156438864214662, lowerBound: 3.6, upperBound: 22.4 },
-  rating: { average: 6.6099999999999985, lowerBound: 0, upperBound: 10 },
 };
 
 export const statsM: Record<string, StatRange> = {
@@ -223,7 +221,6 @@ export const statsM: Record<string, StatRange> = {
   fouls: { average: 1.7245335770935526, lowerBound: 0.0, upperBound: 4.0 },
   dispossessed: { average: 1.2440585369016834, lowerBound: 0.0, upperBound: 2.9 },
   possessionLost: { average: 14.07545565410703, lowerBound: 2.8, upperBound: 24.1 },
-  rating: { average: 6.808384279475982, lowerBound: 0, upperBound: 10 },
 };
 
 export const statsG: Record<string, StatRange> = {
@@ -280,5 +277,4 @@ export const statsG: Record<string, StatRange> = {
   fouls: { average: 0.015839538770942237, lowerBound: 0.0, upperBound: 0.0 },
   dispossessed: { average: 0.003209210777916205, lowerBound: 0.0, upperBound: 0.0 },
   possessionLost: { average: 10.689313790615618, lowerBound: 0.0, upperBound: 21.2 },
-  rating: { average: 6.9819565217391295, lowerBound: 0, upperBound: 10 },
 };
