@@ -145,8 +145,8 @@ func (r *TeamMatchStatRepository) GetAllMatchesByTeamID(teamID int) ([]models.Te
     var stats []models.TeamMatchStat
 
     err := r.db.
-		Preload("Match.HomeTeam").
-		Preload("Match.AwayTeam").
+        Preload("Match.HomeTeam").
+        Preload("Match.AwayTeam").
         Preload("Team").
         Where("team_id = ?", teamID).
         Find(&stats).Error
@@ -155,7 +155,70 @@ func (r *TeamMatchStatRepository) GetAllMatchesByTeamID(teamID int) ([]models.Te
         return nil, err
     }
 
+    // If no stats found, return empty slice
+    if len(stats) == 0 {
+        return stats, nil
+    }
+
+    // Use all valid team match fields
+    statFields := make([]string, 0, len(models.ValidTeamMatchFields))
+    for field := range models.ValidTeamMatchFields {
+        statFields = append(statFields, field)
+    }
+
+    // Prepare query to fetch all stats for all matches
+    columns := strings.Join(statFields, ", ")
+    query := fmt.Sprintf("SELECT match_id, team_id, %s FROM team_match_stat WHERE team_id = ?", columns)
+
+    rows, err := r.db.Raw(query, teamID).Rows()
+    if err != nil {
+        return nil, fmt.Errorf("failed to query stat fields: %w", err)
+    }
+    defer rows.Close()
+
+    // Create a map to store stats by match_id for quick lookup
+    statsByMatch := make(map[int]map[string]*float64)
+
+    for rows.Next() {
+        // Prepare scan targets: match_id, team_id, then all stat fields
+        scanTargets := make([]interface{}, 2+len(statFields))
+        var matchID, teamIDFromRow int
+        scanTargets[0] = &matchID
+        scanTargets[1] = &teamIDFromRow
+        
+        values := make([]sql.NullFloat64, len(statFields))
+        for i := range values {
+            scanTargets[2+i] = &values[i]
+        }
+
+        err = rows.Scan(scanTargets...)
+        if err != nil {
+            return nil, fmt.Errorf("failed to scan stat row: %w", err)
+        }
+
+        // Build stat map for this match
+        statMap := make(map[string]*float64, len(statFields))
+        for i, field := range statFields {
+            if values[i].Valid {
+                val := values[i].Float64
+                statMap[field] = &val
+            }
+        }
+        statsByMatch[matchID] = statMap
+    }
+
+    if err = rows.Err(); err != nil {
+        return nil, fmt.Errorf("error iterating stat rows: %w", err)
+    }
+
+    // Assign stats to each TeamMatchStat
+    for i := range stats {
+        if statMap, exists := statsByMatch[stats[i].MatchId]; exists {
+            stats[i].Stats = statMap
+        } else {
+            stats[i].Stats = map[string]*float64{}
+        }
+    }
 
     return stats, nil
 }
-

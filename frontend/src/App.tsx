@@ -3,7 +3,7 @@ import './styles/style.css'
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import MatchDetail from './pages/MatchDetail';
 import PlayerChart from './pages/PlayerChart';
-import TeamRadar from './pages/TeamRadar';
+import TeamPage from './pages/TeamPage';
 import HomePage from './pages/Index';
 import TeamSeasonScatter from './pages/TeamSeasonScatter';
 import PlayerSeasonScatter from './pages/PlayerSeasonScatter';
@@ -22,7 +22,7 @@ function App() {
         <Route path="/team-season-scatter" element={<TeamSeasonScatter />} />
         <Route path="/match/:id" element={<MatchDetail />} />
         <Route path="/player/:id" element={<PlayerChart />} />
-        <Route path="/team/:id" element={<TeamRadar />} />
+        <Route path="/team/:id" element={<TeamPage/>} />
         <Route path="/" element={<HomePage />} />
         <Route path="/player/:id/match-history" element={<PlayerMatchHistory />} />
       </Routes>

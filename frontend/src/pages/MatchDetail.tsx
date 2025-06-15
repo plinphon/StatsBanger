@@ -12,7 +12,8 @@ import { PlayerMatchBar } from "../components/PlayersMatchBar"
 import { PlayerStat } from "../components/ui/PlayerStat"
 import { positionOrder } from "../utils/dataTransformation"
 import TeamPlayerStats from "../components/ui/TeamPlayerStats"
-import { PlayerScatter } from "../components/PlayerScatter"
+import { PlayerScatter } from "../components/scatter/PlayerScatter"
+import { SmartTeamLink } from "../components/link/teamTextlink"
 
 import scatterIcon from '../icons/scatter.svg';
 import barIcon from '../icons/barchart.svg';
@@ -134,7 +135,14 @@ export default function AnalyticsPage() {
                 <div className="w-80 flex-shrink-0">
                   <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                     <div className="bg-[#FF8113] text-white px-4 py-3">
-                      <h3 className="font-semibold text-center">{match.homeTeam.name}</h3>
+                      <h3 className="font-semibold text-center">
+                      { <SmartTeamLink 
+                          teamId={match.homeTeam.teamId} 
+                          teamName={match.homeTeam.name}
+                          className="font-medium font-semibold text-white text-lg"
+                        />
+                        }
+                      </h3>
                       <p className="text-blue-100 text-sm text-center">Home Team</p>
                     </div>
                     <div className="max-h-[calc(100vh-200px)] overflow-y-auto">
@@ -158,13 +166,25 @@ export default function AnalyticsPage() {
                 {match && (
                   <div className="mt-2">
                     <div className="flex items-center justify-center space-x-3">
-                      <span className="text-lg font-semibold text-gray-800">{match.homeTeam.name}</span>
+                      <span className="text-lg font-semibold text-gray-800">                     
+                        { <SmartTeamLink 
+                          teamId={match.homeTeam.teamId} 
+                          teamName={match.homeTeam.name}
+                          className="font-medium font-semibold text-gray-800 text-lg"
+                        />
+                        }</span>
                       <div className="bg-[#FAC864] px-3 py-1 rounded-md">
                         <span className="text-xl font-bold text-gray-900">
                           {match.homeScore ?? 0} - {match.awayScore ?? 0}
                         </span>
                       </div>
-                      <span className="text-lg font-semibold text-gray-800">{match.awayTeam.name}</span>
+                      <span className="text-lg font-semibold text-gray-800">                      
+                        { <SmartTeamLink 
+                          teamId={match.awayTeam.teamId} 
+                          teamName={match.awayTeam.name}
+                          className="font-medium font-semibold text-gray-800 text-lg"
+                        />
+                        }</span>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
                       {match.currentPeriodStartTimestamp && new Date(match.currentPeriodStartTimestamp).toLocaleDateString()} • {match.homeTeam.homeStadium ?? 'Stadium'}
@@ -237,7 +257,14 @@ export default function AnalyticsPage() {
               <div className="w-80 flex-shrink-0">
                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                   <div className="bg-[#FF8113] text-white px-4 py-3">
-                    <h3 className="font-semibold text-center">{match.awayTeam.name}</h3>
+                    <h3 className="font-semibold text-center">
+                      { <SmartTeamLink 
+                          teamId={match.awayTeam.teamId} 
+                          teamName={match.awayTeam.name}
+                          className="font-medium font-semibold text-white text-lg"
+                        />
+                        }
+                    </h3>
                     <p className="text-violet-100 text-sm text-center">Away Team</p>
                   </div>
                   <div className="max-h-[calc(100vh-200px)] overflow-y-auto">

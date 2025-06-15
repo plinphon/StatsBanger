@@ -2,9 +2,9 @@ export const STAT_COMBINATIONS = {
     // Passing & Distribution
     passing_accuracy: {
       name: "Passing Accuracy",
-      description: "Total passes vs Accurate passes",
+      description: "Total passes vs Accurate passes percentage",
       xMetric: "total_pass",
-      yMetric: "accurate_pass",
+      yMetric: "pass_accuracy",
       category: "passing",
     },
     long_ball_accuracy: {
