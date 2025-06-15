@@ -2,7 +2,8 @@ import '../styles/style.css'
 import React, { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom"
 
-import { PlayerSeasonRadar } from '../components/PlayerSeasonRadar'
+import { PlayerSeasonRadar } from '../components/radar/PlayerSeasonRadar'
+import { PlayerSeasonScatter } from '../components/scatter/PlayerSeasonScatt'
 import type { Player } from "../models/player"
 import { fetchPlayerSeasonStatsWithMeta, fetchPlayerById, searchPlayersByName } from "../lib/api"
 import { fetchAllMatchStatsByPlayerId, fetchStatByPlayerAndMatch } from "../lib/api";
@@ -28,6 +29,9 @@ function formatDateDDMMYYYY(timestamp: number | string): string {
 interface PlayerChartProps {
   playerId: number; // Define the type of playerId
 }
+
+type ChartType = 'radar' | 'scatter';
+
 /**
  * PlayerChart component displays detailed statistics for a specific player.
  * It fetches player data and season stats, then renders them in a user-friendly format.
@@ -53,12 +57,15 @@ export default function PlayerChart() {
   const PLAYER_ID = parseInt(id || "", 10)
 
   const [stats, setStats] = useState<PlayerSeasonStat | null>(null)
+  const [allSeasonStats, setAllSeasonStats] = useState<PlayerSeasonStat[]>([])
+  const [allLeagueStats, setAllLeagueStats] = useState<PlayerSeasonStat[]>([])
   const [player, setPlayer] = useState<Player | null>(null)
   const [recentMatches, setRecentMatches] = useState< PlayerMatchStat[]>([]);
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showStats, setShowStats] = useState(true)
   const [currentMatchIndex, setCurrentMatchIndex] = useState(0);
+  const [chartType, setChartType] = useState<ChartType>('radar');
 
   const navigate = useNavigate();
 
@@ -117,16 +124,17 @@ export default function PlayerChart() {
           throw new Error("Invalid PLAYER_ID");
         }
   
-        const [playerData, statsData, playerMatchHistory] = await Promise.all([
+        const [playerData, statsData, playerMatchHistory, leagueStatsData] = await Promise.all([
           fetchPlayerById(PLAYER_ID),
           fetchPlayerSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID, PLAYER_ID),
-          fetchAllMatchStatsByPlayerId(PLAYER_ID)
-          
-        ]
-);
+          fetchAllMatchStatsByPlayerId(PLAYER_ID),
+          fetchPlayerSeasonStatsWithMeta(UNIQUE_TOURNAMENT_ID, SEASON_ID) // Fetch all league players
+        ]);
   
         setPlayer(playerData);
         setStats(statsData?.length > 0 ? statsData[0] : null);
+        setAllSeasonStats(statsData || []);
+        setAllLeagueStats(leagueStatsData || []);
         setRecentMatches(playerMatchHistory);
         
       } catch (err) {
@@ -181,22 +189,66 @@ export default function PlayerChart() {
             </div>
           </div>
         </div>
+
+        {/* Chart Type Toggle Bar */}
+        <div className="bg-[#FFFFFF] rounded-2xl shadow-lg p-4 mb-4">
+          <div className="flex justify-center">
+            <div className="bg-gray-100 rounded-xl p-1 flex">
+              <button
+                onClick={() => setChartType('radar')}
+                className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${
+                  chartType === 'radar'
+                    ? 'bg-white text-gray-800 shadow-md'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                <span>Radar Chart</span>
+              </button>
+              <button
+                onClick={() => setChartType('scatter')}
+                className={`px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 ${
+                  chartType === 'scatter'
+                    ? 'bg-white text-gray-800 shadow-md'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4" />
+                </svg>
+                <span>Scatter Chart</span>
+              </button>
+            </div>
+          </div>
+        </div>
   
         {/* Stats Graph */}
         <div className="bg-[#FFFFFF] rounded-2xl shadow-lg p-6 mb-8 relative">
           <div className="flex justify-center items-center mb-4">
-            <h3 className="text-2xl font-semibold text-black">Season Performance</h3>
+            <h3 className="text-2xl font-semibold text-black">
+              {chartType === 'radar' ? 'Season Performance' : 'Season Statistics Comparison'}
+            </h3>
           </div>
-          <PlayerSeasonRadar
-            data={stats?.stats ? convertSnakeToCamelCase(stats.stats) : {}}
-            position={player.position?.charAt(0).toUpperCase() || "M"}
-            playerName={player.name}
-            playerId={player.playerId.toString()}
-            onPlayerSearch={handlePlayerSearch}
-            uniqueTournamentID={UNIQUE_TOURNAMENT_ID}
-            seasonID={SEASON_ID}
-            onFetchPlayerStats={handleFetchPlayerStats}
-          />
+          
+          {chartType === 'radar' ? (
+            <PlayerSeasonRadar
+              data={stats?.stats ? convertSnakeToCamelCase(stats.stats) : {}}
+              position={player.position?.charAt(0).toUpperCase() || "M"}
+              playerName={player.name}
+              playerId={player.playerId.toString()}
+              onPlayerSearch={handlePlayerSearch}
+              uniqueTournamentID={UNIQUE_TOURNAMENT_ID}
+              seasonID={SEASON_ID}
+              onFetchPlayerStats={handleFetchPlayerStats}
+            />
+          ) : (
+            <PlayerSeasonScatter
+              data={allLeagueStats}
+              currentPlayerId={PLAYER_ID}
+            />
+          )}
         </div>
   
         {/* Player Stats */}
@@ -248,4 +300,3 @@ export default function PlayerChart() {
     </div>
   );
 }
-

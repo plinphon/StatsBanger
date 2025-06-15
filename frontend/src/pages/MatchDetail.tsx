@@ -12,7 +12,7 @@ import { PlayerMatchBar } from "../components/PlayersMatchBar"
 import { PlayerStat } from "../components/ui/PlayerStat"
 import { positionOrder } from "../utils/dataTransformation"
 import TeamPlayerStats from "../components/ui/TeamPlayerStats"
-import { PlayerScatter } from "../components/PlayerScatter"
+import { PlayerScatter } from "../components/scatter/PlayerScatter"
 
 import scatterIcon from '../icons/scatter.svg';
 import barIcon from '../icons/barchart.svg';

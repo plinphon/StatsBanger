@@ -1,96 +1,181 @@
 import { useState } from 'react';
 import { ResponsiveContainer, ScatterChart, CartesianGrid, XAxis, YAxis, Tooltip, Scatter } from 'recharts';
-import type { PlayerMatchStat } from '../models/player-match-stat';
-import { STAT_COMBINATIONS } from '../utils/statsCombo';
-import { PlayerScatterChartCustomizer } from './customizerd_chart/scatterCustomized';
+import type { PlayerSeasonStat } from '../../models/player-season-stat';
+import { SEASON_STAT_COMBINATIONS } from '../../utils/combo/seasonStatsCombo';
+import { PlayerSeasonScatterCustomizer } from '../customizerd_chart/scatter/scatterSeasonPlayerCustomized';
 
-interface PlayerScatter2Props {
-  data: PlayerMatchStat[];
+interface PlayerSeasonScatterProps {
+  data: PlayerSeasonStat[];
+  currentPlayerId?: number; // Add current player ID to highlight
 }
 
-export function PlayerScatter({ data }: PlayerScatter2Props) {
-    const [currentCombination, setCurrentCombination] = useState("passing_accuracy");
-    const [highlightedPlayerIds, setHighlightedPlayerIds] = useState<Set<number>>(new Set());
-  
-    // Get current metrics from selected combination
-    const selectedCombo = STAT_COMBINATIONS[currentCombination as keyof typeof STAT_COMBINATIONS];
-    const currentXMetric = selectedCombo.xMetric;
-    const currentYMetric = selectedCombo.yMetric;
+export function PlayerSeasonScatter({ data, currentPlayerId }: PlayerSeasonScatterProps) {
+  const [currentCombination, setCurrentCombination] = useState("goals_assists");
+  const [highlightedPlayerIds, setHighlightedPlayerIds] = useState<Set<number>>(new Set());
 
-    // Handle combination change
-    const handleCombinationChange = (newCombination: string) => {
-      setCurrentCombination(newCombination);
-      setHighlightedPlayerIds(new Set()); // Clear highlights when changing
-    };
-  
-    // Filter out entries where the stats are null or undefined
-    const filteredData = data.filter(
-      (item) =>
-        item.allStats[currentXMetric] != null &&
-        item.allStats[currentYMetric] != null
-    );
-  
-    // Sort by xAxisMetric
-    const sortedData = filteredData.sort(
-      (a, b) =>
-        (a.allStats[currentXMetric] as number) - (b.allStats[currentXMetric] as number)
-    );
-  
-    // Extract values for domain calculation
-    const xValues = sortedData.map((item) => item.allStats[currentXMetric] as number);
-    const yValues = sortedData.map((item) => item.allStats[currentYMetric] as number);
-  
-    // Calculate square domain - use the larger range for both axes to maintain square aspect
-    const xRange = Math.max(...xValues) - Math.min(...xValues);
-    const yRange = Math.max(...yValues) - Math.min(...yValues);
-    const maxRange = Math.max(xRange, yRange);
+  // Get current metrics from selected combination
+  const selectedCombo = SEASON_STAT_COMBINATIONS[currentCombination as keyof typeof SEASON_STAT_COMBINATIONS];
+  const currentXMetric = selectedCombo.xMetric;
+  const currentYMetric = selectedCombo.yMetric;
+
+  // Handle combination change
+  const handleCombinationChange = (newCombination: string) => {
+    setCurrentCombination(newCombination);
+    setHighlightedPlayerIds(new Set()); // Clear highlights when changing
+  };
+
+  // Filter out entries where the stats are null, undefined, or NaN
+  const filteredData = data.filter(
+    (item) =>
+      item.stats[currentXMetric] != null &&
+      item.stats[currentYMetric] != null &&
+      !isNaN(Number(item.stats[currentXMetric])) &&
+      !isNaN(Number(item.stats[currentYMetric])) &&
+      isFinite(Number(item.stats[currentXMetric])) &&
+      isFinite(Number(item.stats[currentYMetric]))
+  );
+
+  // Apply intelligent filtering based on metrics
+  const getFilteredQualityData = (data: any[]) => {
+    // Always include current player
+    const currentPlayerData = currentPlayerId ? data.filter(item => item.player.playerId === currentPlayerId) : [];
     
-    const pad = 0.1; // Slightly more padding for square layout
+    // Get all values for the current metrics
+    const xValues = data.map(item => Number(item.stats[currentXMetric])).filter(val => isFinite(val));
+    const yValues = data.map(item => Number(item.stats[currentYMetric])).filter(val => isFinite(val));
     
-    // Center the smaller range within the larger range
-    const xCenter = (Math.max(...xValues) + Math.min(...xValues)) / 2;
-    const yCenter = (Math.max(...yValues) + Math.min(...yValues)) / 2;
+    // Calculate dynamic thresholds (25th percentile for each metric)
+    const xSorted = [...xValues].sort((a, b) => b - a);
+    const ySorted = [...yValues].sort((a, b) => b - a);
+    const xThreshold = xSorted[Math.floor(xSorted.length * 0.20)] || 0;
+    const yThreshold = ySorted[Math.floor(ySorted.length * 0.20)] || 0;
     
-    const halfRange = (maxRange * (1 + pad)) / 2;
+    // Filter players who perform above threshold in at least one metric
+    let qualityFiltered = data.filter(item => {
+      const xValue = Number(item.stats[currentXMetric]);
+      const yValue = Number(item.stats[currentYMetric]);
+      
+      // Basic activity filter - must have some meaningful playing time
+      const hasPlayingTime = !item.stats.minutes_played || Number(item.stats.minutes_played) >= 180; // 2 full games minimum
+      
+      // Must be above 25th percentile in at least one metric OR have decent playing time
+      const isRelevant = (xValue >= xThreshold || yValue >= yThreshold) && hasPlayingTime;
+      
+      return isRelevant;
+    });
     
-    const xMin = xCenter - halfRange;
-    const xMax = xCenter + halfRange;
-    const yMin = yCenter - halfRange;
-    const yMax = yCenter + halfRange;
-  
-    // Format metric names
-    const formatMetricName = (metric: string) => {
-      return metric
-        .replace(/_/g, ' ')
-        .replace(/\b\w/g, (char) => char.toUpperCase());
-    };
-  
-    // Get team colors for scatter points
-    const getTeamColor = (teamId: number, teamName: string, homeTeamId: number, awayTeamId: number) => {
-      if (teamId === homeTeamId) {
-        return '#15803d'; // green-700 for home team
-      } else if (teamId === awayTeamId) {
-        return '#dc2626'; // red-600 for away team
+    // If too few players (less than 15), be more lenient
+    if (qualityFiltered.length < 15) {
+      const relaxedXThreshold = xSorted[Math.floor(xSorted.length * 0.5)] || 0;
+      const relaxedYThreshold = ySorted[Math.floor(ySorted.length * 0.5)] || 0;
+      
+      qualityFiltered = data.filter(item => {
+        const xValue = Number(item.stats[currentXMetric]);
+        const yValue = Number(item.stats[currentYMetric]);
+        const hasMinimalTime = !item.stats.minutes_played || Number(item.stats.minutes_played) >= 90;
+        
+        return (xValue >= relaxedXThreshold || yValue >= relaxedYThreshold) && hasMinimalTime;
+      });
+    }
+    
+    // If still too few, show top 30 players by combined metric
+    if (qualityFiltered.length < 10) {
+      qualityFiltered = data
+        .map(item => ({
+          ...item,
+          combinedScore: Number(item.stats[currentXMetric]) + Number(item.stats[currentYMetric])
+        }))
+        .sort((a, b) => b.combinedScore - a.combinedScore)
+        .slice(0, 30);
+    }
+    
+    // Combine current player with filtered data (remove duplicates)
+    const combinedData = [...currentPlayerData];
+    qualityFiltered.forEach(item => {
+      if (!combinedData.some(existing => existing.player.playerId === item.player.playerId)) {
+        combinedData.push(item);
       }
-      // Fallback for any other teams (shouldn't happen in a 2-team match)
-      return '#6b7280'; // gray-500
-    };
+    });
+    
+    return combinedData;
+  };
 
-    // Enhanced data with team-based colors
-    const enhancedData = sortedData.map((item) => ({
+  const qualityData = getFilteredQualityData(filteredData);
+
+  // Sort by xAxisMetric
+  const sortedData = qualityData.sort(
+    (a, b) =>
+      (a.stats[currentXMetric] as number) - (b.stats[currentXMetric] as number)
+  );
+
+  // Extract values for domain calculation with additional safety checks
+  const xValues = sortedData.map((item) => item.stats[currentXMetric] as number).filter(val => isFinite(val));
+  const yValues = sortedData.map((item) => item.stats[currentYMetric] as number).filter(val => isFinite(val));
+
+  // Early return if no valid data points
+  if (xValues.length === 0 || yValues.length === 0) {
+    return (
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 p-8 relative">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">No Valid Data</h3>
+          <p className="text-sm text-gray-500">No players have valid numeric data for the selected metrics</p>
+          <p className="text-sm text-gray-400 mt-2">Try selecting different stat combinations</p>
+        </div>
+        <div className="absolute bottom-4 right-4">
+          <PlayerSeasonScatterCustomizer
+            currentCombination={currentCombination}
+            onCombinationChange={handleCombinationChange}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  // Calculate square domain with safety checks
+  const xRange = Math.max(...xValues) - Math.min(...xValues);
+  const yRange = Math.max(...yValues) - Math.min(...yValues);
+  
+  // Handle edge cases where all values are the same
+  const maxRange = Math.max(xRange || 1, yRange || 1);
+  
+  const pad = 0.1;
+  
+  const xCenter = (Math.max(...xValues) + Math.min(...xValues)) / 2;
+  const yCenter = (Math.max(...yValues) + Math.min(...yValues)) / 2;
+  
+  const halfRange = (maxRange * (1 + pad)) / 2;
+  
+  const xMin = isFinite(xCenter - halfRange) ? xCenter - halfRange : 0;
+  const xMax = isFinite(xCenter + halfRange) ? xCenter + halfRange : 1;
+  const yMin = isFinite(yCenter - halfRange) ? yCenter - halfRange : 0;
+  const yMax = isFinite(yCenter + halfRange) ? yCenter + halfRange : 1;
+
+  // Format metric names
+  const formatMetricName = (metric: string) => {
+    return metric
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+  // Enhanced data with player-focused colors
+  const enhancedData = sortedData.map((item) => {
+    const isCurrentPlayer = currentPlayerId && item.player.playerId === currentPlayerId;
+    const isHighlighted = highlightedPlayerIds.has(item.player.playerId);
+    
+    return {
       ...item,
-      fill: getTeamColor(item.team.teamId, item.team.name, item.match.homeTeam.teamId, item.match.awayTeam.teamId),
-      size: 80
-    }));
-
-  // Get unique teams for legend
-  const uniqueTeams = Array.from(
-    new Map(enhancedData.map(item => [item.team.teamId, item])).values()
-  ).map(item => ({
-    id: item.team.teamId,
-    name: item.team.name,
-    color: item.fill
-  }));
+      fill: isCurrentPlayer ? '#FF6B35' : (isHighlighted ? '#4F46E5' : '#9CA3AF'), // Orange for current, indigo for highlighted, gray for others
+      size: isCurrentPlayer ? 120 : (isHighlighted ? 100 : 60), // Larger for current and highlighted
+      strokeWidth: isCurrentPlayer ? 3 : (isHighlighted ? 2 : 1),
+      stroke: isCurrentPlayer ? '#000000' : (isHighlighted ? '#1E1B4B' : '#6B7280'),
+      opacity: isCurrentPlayer ? 1 : (isHighlighted ? 0.9 : 0.6) // Make non-selected players more transparent
+    };
+  });
 
   // Handle dot click
   const handleDotClick = (playerId: number) => {
@@ -108,24 +193,25 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
   // Get label positions with overlap prevention for both labels and dots
   const getLabelPositions = () => {
     const positions = new Map();
-    const highlightedPlayers = enhancedData.filter(item => 
+    const playersToLabel = enhancedData.filter(item => 
+      (currentPlayerId && item.player.playerId === currentPlayerId) || 
       highlightedPlayerIds.has(item.player.playerId)
     );
     
     // Sort by Y coordinate (higher values first - top of chart)
-    highlightedPlayers.sort((a, b) => {
-      const aY = (a.allStats[currentYMetric] as number);
-      const bY = (b.allStats[currentYMetric] as number);
+    playersToLabel.sort((a, b) => {
+      const aY = (a.stats[currentYMetric] as number);
+      const bY = (b.stats[currentYMetric] as number);
       return bY - aY;
     });
     
     // Chart scale for coordinate conversion
     const scale = 500 / (xMax - xMin); // Square chart dimension
     
-    for (let i = 0; i < highlightedPlayers.length; i++) {
-      const player = highlightedPlayers[i];
-      const playerX = (player.allStats[currentXMetric] as number);
-      const playerY = (player.allStats[currentYMetric] as number);
+    for (let i = 0; i < playersToLabel.length; i++) {
+      const player = playersToLabel[i];
+      const playerX = (player.stats[currentXMetric] as number);
+      const playerY = (player.stats[currentYMetric] as number);
       
       let foundValidPosition = false;
       
@@ -157,12 +243,12 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
         
         // Check against existing labels
         for (let j = 0; j < i; j++) {
-          const prevPlayer = highlightedPlayers[j];
+          const prevPlayer = playersToLabel[j];
           const prevPos = positions.get(prevPlayer.player.playerId);
           
           if (prevPos) {
-            const prevPlayerX = (prevPlayer.allStats[currentXMetric] as number);
-            const prevPlayerY = (prevPlayer.allStats[currentYMetric] as number);
+            const prevPlayerX = (prevPlayer.stats[currentXMetric] as number);
+            const prevPlayerY = (prevPlayer.stats[currentYMetric] as number);
             
             const prevLabelX = (prevPlayerX - xMin) * scale + prevPos.offsetX;
             const prevLabelY = (yMax - prevPlayerY) * scale + prevPos.offsetY;
@@ -184,8 +270,8 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
             // Skip the current player
             if (otherPlayer.player.playerId === player.player.playerId) continue;
             
-            const otherPlayerX = (otherPlayer.allStats[currentXMetric] as number);
-            const otherPlayerY = (otherPlayer.allStats[currentYMetric] as number);
+            const otherPlayerX = (otherPlayer.stats[currentXMetric] as number);
+            const otherPlayerY = (otherPlayer.stats[currentYMetric] as number);
             
             const otherDotX = (otherPlayerX - xMin) * scale;
             const otherDotY = (yMax - otherPlayerY) * scale;
@@ -237,8 +323,8 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
             for (const otherPlayer of enhancedData) {
               if (otherPlayer.player.playerId === player.player.playerId) continue;
               
-              const otherPlayerX = (otherPlayer.allStats[currentXMetric] as number);
-              const otherPlayerY = (otherPlayer.allStats[currentYMetric] as number);
+              const otherPlayerX = (otherPlayer.stats[currentXMetric] as number);
+              const otherPlayerY = (otherPlayer.stats[currentYMetric] as number);
               const otherDotX = (otherPlayerX - xMin) * scale;
               const otherDotY = (yMax - otherPlayerY) * scale;
               
@@ -272,6 +358,7 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const p = payload[0].payload;
+      const isCurrentPlayer = currentPlayerId && p.player.playerId === currentPlayerId;
       return (
         <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-xs">
           <div className="flex items-center space-x-2 mb-3">
@@ -279,17 +366,20 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
               className="w-3 h-3 rounded-full" 
               style={{ backgroundColor: p.fill }}
             />
-            <h4 className="font-bold text-gray-800 text-sm">{p.player.name}</h4>
+            <h4 className={`font-bold text-sm ${isCurrentPlayer ? 'text-orange-600' : 'text-gray-800'}`}>
+              {p.player.name}
+              {isCurrentPlayer && <span className="ml-2 text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded">Current</span>}
+            </h4>
           </div>
           <div className="text-xs text-gray-600 mb-2">{p.team.name}</div>
           <div className="space-y-1">
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-500">{formatMetricName(currentXMetric)}:</span>
-              <span className="text-xs font-semibold text-blue-600">{p.allStats[currentXMetric]}</span>
+              <span className="text-xs font-semibold text-blue-600">{p.stats[currentXMetric]}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-xs text-gray-500">{formatMetricName(currentYMetric)}:</span>
-              <span className="text-xs font-semibold text-green-600">{p.allStats[currentYMetric]}</span>
+              <span className="text-xs font-semibold text-green-600">{p.stats[currentYMetric]}</span>
             </div>
           </div>
         </div>
@@ -302,6 +392,7 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
   const CustomDot = (props: any) => {
     const { cx, cy, payload } = props;
     const isHighlighted = highlightedPlayerIds.has(payload.player.playerId);
+    const isCurrentPlayer = currentPlayerId && payload.player.playerId === currentPlayerId;
     
     // Get simple offset position
     const labelPos = labelPositions.get(payload.player.playerId);
@@ -311,40 +402,44 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
         <circle
           cx={cx}
           cy={cy}
-          r={isHighlighted ? 8 : 6}
+          r={isCurrentPlayer ? 10 : (isHighlighted ? 8 : 6)}
           fill={payload.fill}
-          stroke={isHighlighted ? "#000000" : "#ffffff"}
-          strokeWidth={isHighlighted ? 3 : 2}
+          stroke={payload.stroke}
+          strokeWidth={payload.strokeWidth}
+          opacity={payload.opacity}
           className="transition-all duration-200 cursor-pointer"
           style={{
-            filter: isHighlighted 
-              ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.3))' 
-              : 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))',
+            filter: (isHighlighted || isCurrentPlayer)
+              ? 'drop-shadow(0 4px 8px rgba(0,0,0,0.4))' 
+              : 'drop-shadow(0 1px 3px rgba(0,0,0,0.2))',
           }}
           onClick={(e) => {
             e.stopPropagation();
             handleDotClick(payload.player.playerId);
           }}
         />
-        {isHighlighted && labelPos && (
+        {/* Show labels for current player and highlighted players */}
+        {(isCurrentPlayer || (isHighlighted && labelPos)) && (
           <>
            {/* Connection line from dot to label */}
            <line
               x1={cx}
               y1={cy}
-              x2={cx + labelPos.offsetX}
-              y2={cy + labelPos.offsetY}
-              stroke="#666666"
-              strokeWidth={1}
+              x2={cx + (labelPos?.offsetX || 0)}
+              y2={cy + (labelPos?.offsetY || -30)}
+              stroke={isCurrentPlayer ? "#FF6B35" : "#4F46E5"}
+              strokeWidth={isCurrentPlayer ? 2 : 1}
               strokeDasharray="2,2"
               className="pointer-events-none"
             />
             {/* Label text */}
             <text
-              x={cx + labelPos.offsetX}
-              y={cy + labelPos.offsetY}
+              x={cx + (labelPos?.offsetX || 0)}
+              y={cy + (labelPos?.offsetY || -30)}
               textAnchor="middle"
-              className="text-xs font-semibold fill-gray-800 pointer-events-none"
+              className={`text-xs font-semibold pointer-events-none ${
+                isCurrentPlayer ? 'fill-orange-600' : 'fill-indigo-700'
+              }`}
               dominantBaseline="middle"
             >
               {payload.player.name}
@@ -371,7 +466,7 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
 
         {/* Customizer for No Data state */}
         <div className="absolute bottom-4 right-4">
-          <PlayerScatterChartCustomizer
+          <PlayerSeasonScatterCustomizer
             currentCombination={currentCombination}
             onCombinationChange={handleCombinationChange}
           />
@@ -383,7 +478,7 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden relative">
       {/* Header */}
-      <div className="bg-gray-600 p-6">
+      <div className="bg-indigo-600 p-6">
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
             <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -404,7 +499,10 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
         {/* Instructions */}
         <div className="mb-4 text-center">
           <p className="text-sm text-gray-600">
-            Click on any dot to highlight a player and show their name. Click again to remove highlight.
+            {currentPlayerId ? 'Current player highlighted in orange. Click other dots to compare.' : 'Click dots to highlight players for comparison.'}
+          </p>
+          <p className="text-xs text-gray-500 mt-1">
+            Showing {qualityData.length} players based on performance in selected metrics
           </p>
         </div>
 
@@ -418,7 +516,7 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
                 height={600}
               >
                 <defs>
-                  <linearGradient id="grid" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <linearGradient id="seasonGrid" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stopColor="#f8fafc" />
                     <stop offset="100%" stopColor="#f1f5f9" />
                   </linearGradient>
@@ -426,17 +524,23 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
                 <CartesianGrid 
                   strokeDasharray="3 3" 
                   stroke="#e2e8f0" 
-                  fill="url(#grid)"
+                  fill="url(#seasonGrid)"
                 />
                 <XAxis
-                  dataKey={`allStats.${currentXMetric}`}
+                  dataKey={`stats.${currentXMetric}`}
                   name={formatMetricName(currentXMetric)}
                   type="number"
-                  domain={[xMin, xMax]}
+                  domain={[
+                    Math.max(xMin, -999999), 
+                    Math.min(xMax, 999999)
+                  ]}
                   tick={{ fontSize: 12, fill: '#64748b' }}
                   tickLine={{ stroke: '#cbd5e1' }}
                   axisLine={{ stroke: '#cbd5e1' }}
-                  tickFormatter={(value) => Number(value).toFixed(2)}
+                  tickFormatter={(value) => {
+                    const num = Number(value);
+                    return isFinite(num) ? num.toFixed(2) : '0';
+                  }}
                   label={{ 
                     value: formatMetricName(currentXMetric), 
                     position: 'insideBottom', 
@@ -445,13 +549,19 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
                   }}
                 />
                 <YAxis
-                  dataKey={`allStats.${currentYMetric}`}
+                  dataKey={`stats.${currentYMetric}`}
                   name={formatMetricName(currentYMetric)}
-                  domain={[yMin, yMax]}
+                  domain={[
+                    Math.max(yMin, -999999), 
+                    Math.min(yMax, 999999)
+                  ]}
                   tick={{ fontSize: 12, fill: '#64748b' }}
                   tickLine={{ stroke: '#cbd5e1' }}
                   axisLine={{ stroke: '#cbd5e1' }}
-                  tickFormatter={(value) => Number(value).toFixed(2)}
+                  tickFormatter={(value) => {
+                    const num = Number(value);
+                    return isFinite(num) ? num.toFixed(2) : '0';
+                  }}
                   label={{ 
                     value: formatMetricName(currentYMetric), 
                     angle: -90, 
@@ -469,7 +579,7 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
                   }} 
                 />
                 <Scatter 
-                  name="Player Performance" 
+                  name="Season Performance" 
                   data={enhancedData} 
                   shape={<CustomDot />}
                 />
@@ -478,17 +588,24 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
           </div>
         </div>
 
-        {/* Team Legend */}
+        {/* Legend */}
         <div className="mt-6 flex flex-wrap gap-3 justify-center">
-          {uniqueTeams.map((team) => (
-            <div key={team.id} className="flex items-center space-x-2">
-              <div 
-                className="w-3 h-3 rounded-full" 
-                style={{ backgroundColor: team.color }}
-              />
-              <span className="text-xs text-gray-600 font-medium">{team.name}</span>
+          {currentPlayerId && (
+            <div className="flex items-center space-x-2 px-3 py-1 bg-orange-100 rounded-full border border-orange-300">
+              <div className="w-3 h-3 rounded-full bg-orange-500" />
+              <span className="text-xs text-orange-700 font-semibold">Selected Player</span>
             </div>
-          ))}
+          )}
+          {highlightedPlayerIds.size > 0 && (
+            <div className="flex items-center space-x-2 px-3 py-1 bg-indigo-100 rounded-full border border-indigo-300">
+              <div className="w-3 h-3 rounded-full bg-indigo-600" />
+              <span className="text-xs text-indigo-700 font-semibold">Highlighted ({highlightedPlayerIds.size})</span>
+            </div>
+          )}
+          <div className="flex items-center space-x-2 px-3 py-1 bg-gray-100 rounded-full border border-gray-300">
+            <div className="w-3 h-3 rounded-full bg-gray-400" />
+            <span className="text-xs text-gray-600 font-medium">Other Players</span>
+          </div>
         </div>
 
         {/* Clear All Highlights Button */}
@@ -505,7 +622,7 @@ export function PlayerScatter({ data }: PlayerScatter2Props) {
 
         {/* Customizer for normal state */}
         <div className="absolute bottom-4 right-4 mt-12">
-          <PlayerScatterChartCustomizer
+          <PlayerSeasonScatterCustomizer
             currentCombination={currentCombination}
             onCombinationChange={handleCombinationChange}
           />
