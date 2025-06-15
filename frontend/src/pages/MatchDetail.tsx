@@ -14,6 +14,9 @@ import { positionOrder } from "../utils/dataTransformation"
 import TeamPlayerStats from "../components/ui/TeamPlayerStats"
 import { PlayerScatter } from "../components/PlayerScatter"
 
+import scatterIcon from '../icons/scatter.svg';
+import barIcon from '../icons/barchart.svg';
+
 export default function AnalyticsPage() {
   const [match, setMatch] = useState<Match>()
   const [homeStats, setHomeStats] = useState<TeamMatchStat>()
@@ -36,13 +39,13 @@ export default function AnalyticsPage() {
     { 
       id: 1, 
       label: 'Scatter Chart', 
-      icon: '📊',
+      icon: <img src={scatterIcon} className="w-4 h-4" alt="scatter" />,
       component: <PlayerScatter data={allPlayerStats}/> 
     },
     { 
       id: 2, 
       label: 'Bar Chart', 
-      icon: '👥',
+      icon: <img src={barIcon} className="w-4 h-4" alt="bar" />,
       component: <PlayerMatchBar data={allPlayerStats} yAxisMetric="total_pass" barLimit={10} /> 
     }
   ];
@@ -185,7 +188,9 @@ export default function AnalyticsPage() {
                             : 'text-gray-600 hover:text-gray-800 hover:bg-gray-50'
                         }`}
                       >
-                        <span className="text-lg">{tab.icon}</span>
+                        <span className={typeof tab.icon === 'string' ? 'text-lg' : ''}>
+                          {tab.icon}
+                        </span>
                         <span>{tab.label}</span>
                         {activeTab === tab.id && (
                           <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#FF8113]"></div>
