@@ -1,5 +1,5 @@
 import type { PlayerMatchStat } from "../models/player-match-stat";
-import { STAT_CATEGORIES, CATEGORY_LABELS } from "./playerMatchStatsCategories";
+import { STAT_CATEGORIES, CATEGORY_LABELS } from "./categories/playerMatchStatsCategories";
 
 // Configuration for percentage calculations
 export const MATCH_PERCENTAGE_CALCULATIONS = {

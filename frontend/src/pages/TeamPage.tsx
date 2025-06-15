@@ -11,6 +11,8 @@ import type { TeamMatchStat } from '../models/team-match-stat'
 
 import type { TeamSeasonStat } from '../models/team-season-stat'
 import { TeamStat } from '../components/ui/teamStat'
+import { SeasonTeamStats } from '../components/ui/TeamSeasonStats'
+import { SmartTeamLink } from '../components/link/teamTextlink'
 
 const UNIQUE_TOURNAMENT_ID = 8
 const SEASON_ID = 52376
@@ -229,6 +231,7 @@ export default function TeamPage() {
   
         {/* Team Stats */}
         <div className="flex flex-wrap gap-4">
+            <SeasonTeamStats stats={stats}/>
           {/* Recent Matches */}
           <div className="flex-1 bg-gray-100 rounded-2xl shadow p-6 max-w-sm mx-auto">
             <h3 className="text-2xl font-semibold text-gray-800 mb-4">Recent Matches</h3>
@@ -251,7 +254,12 @@ export default function TeamPage() {
                       >
                         <div>
                           <div className="font-semibold text-gray-700">
-                            vs {opponent.name} {isHomeTeam ? '(H)' : '(A)'} 
+                            vs                       { <SmartTeamLink 
+                                                      teamId={opponent.teamId} 
+                                                      teamName={opponent.name}
+                                                      className="font-medium text-base font-semibold text-gray-800 text-lg"
+                                                    />
+                                                    } {isHomeTeam ? '(H)' : '(A)'} 
                           </div>
                           <div className="text-sm text-gray-600 flex items-center gap-2">
                             <span>{formatDateDDMMYYYY(matchItem.match.currentPeriodStartTimestamp)}</span>

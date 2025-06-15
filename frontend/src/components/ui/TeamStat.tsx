@@ -1,5 +1,6 @@
 import type { TeamMatchStat } from "../../models/team-match-stat";
-import { TEAM_MATCH_STAT_CATEGORIES, TEAM_CATEGORY_LABELS } from "../../utils/teamMatchStatsCategories";
+import { TEAM_MATCH_STAT_CATEGORIES, TEAM_CATEGORY_LABELS } from "../../utils/categories/teamMatchStatsCategories";
+import { SmartTeamLink } from "../link/teamTextlink";
 
 const hasNoStats = (teamMatch: TeamMatchStat) => {
   const stats = teamMatch.stats || {};
@@ -57,11 +58,6 @@ export function TeamStat({ matchItem }: TeamStatProps) {
             <a href={`/team/${matchItem.team.teamId}`} className="text-blue-600 text-sm hover:underline">
               View Team Profile
             </a>
-          </div>
-          
-          <div className="mb-2">
-            <h3 className="font-medium text-gray-800">{matchItem.team.name}</h3>
-            <p className="text-sm text-gray-500">{matchItem.team.homeStadium}</p>
           </div>
 
           {Object.entries(categorizedStats).map(([category, stats]) => (

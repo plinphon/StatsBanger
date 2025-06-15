@@ -12,6 +12,7 @@ import type { PlayerMatchStat } from '../models/player-match-stat'
 import { PlayerStat } from '../components/ui/PlayerStat'
 import type { PlayerSeasonStat } from '../models/player-season-stat'
 import { SeasonPlayerStats } from '../components/ui/PlayerSeasonStats'
+import { SmartTeamLink } from '../components/link/teamTextlink'
 
 
 
@@ -273,7 +274,17 @@ export default function PlayerChart() {
                     >
                       <div>
                         <div className="font-semibold text-gray-700">
-                          {matchItem.match.homeTeam.name} vs {matchItem.match.awayTeam.name}
+                                                { <SmartTeamLink 
+                                                    teamId={matchItem.match.homeTeam.teamId} 
+                                                    teamName={matchItem.match.homeTeam.name}
+                                                    className="font-medium text-gray-800 text-lg"
+                                                  />
+                                                  } vs                       { <SmartTeamLink 
+                                                                            teamId={matchItem.match.awayTeam.teamId} 
+                                                                            teamName={matchItem.match.awayTeam.name}
+                                                                            className="font-medium text-gray-800 text-lg"
+                                                                          />
+                                                                          }
                         </div>
                           <p className="text-sm text-gray-600">
                             {formatDateDDMMYYYY(matchItem.match.currentPeriodStartTimestamp)}

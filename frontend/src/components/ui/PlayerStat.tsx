@@ -1,5 +1,5 @@
 import type { PlayerMatchStat } from "../../models/player-match-stat";
-import { STAT_CATEGORIES, CATEGORY_LABELS } from "../../utils/playerMatchStatsCategories";
+import { STAT_CATEGORIES, CATEGORY_LABELS } from "../../utils/categories/playerMatchStatsCategories";
 import { 
   MATCH_PERCENTAGE_CALCULATIONS,
   getStatLabel,
