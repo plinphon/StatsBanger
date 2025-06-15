@@ -20,13 +20,20 @@ const HomePage = () => {
 
         {/* Header */}
         <header className="mb-12 text-center relative z-10 pt-4">
-          <h1 className="font-kagoda text-8xl font-extrabold bg-clip-text bg-gradient-to-r text-[#FF5E13] mb-6 uppercase tracking-wide animate-fade-in-down">
-            StatsBanger.com
-          </h1>
-          <p className="font-kagoda text-xl max-w-3xl mx-auto leading-relaxed animate-fade-in-up animate-delay-300 text-[#FF8113] font-semibold">
+        <h1 className="text-8xl md:text-9xl font-black mb-8 uppercase tracking-wider animate-fade-in-down"
+                style={{
+                  background: "linear-gradient(135deg, #FF5E13, #FFD000, #FF8113)",
+                  WebkitBackgroundClip: "text",
+                  WebkitTextFillColor: "transparent",
+                  backgroundClip: "text",
+                  filter: "drop-shadow(0 8px 16px rgba(255, 94, 19, 0.3))"
+                }}>
+              StatsBanger.com
+            </h1>
+          <p className="font-kagoda text-xl max-w-3xl mx-auto leading-relaxed animate-fade-in-up animate-delay-300 text-[#000000] font-semibold">
             Explore{" "}
-            <span className="font-kagoda font-semibold text-[#FF8113]">detailed analytics</span> and{" "}
-            <span className="font-kagoda font-semibold text-[FF8113]">interactive visualizations</span> of your favorite football players and teams.
+            <span className="font-kagoda font-semibold text-[#FF5E13]">detailed analytics</span> and{" "}
+            <span className="font-kagoda font-bold text-[#FF5E13]">interactive visualizations</span> of your favorite football players and teams.
           </p>
         </header>
 

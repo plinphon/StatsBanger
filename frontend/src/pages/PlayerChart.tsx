@@ -10,7 +10,7 @@ import type { Match } from '../models/match'
 import type { PlayerMatchStat } from '../models/player-match-stat'
 import { PlayerStat } from '../components/ui/PlayerStat'
 import type { PlayerSeasonStat } from '../models/player-season-stat'
-import { SeasonPlayerStats } from '../components/PlayerSeasonStats'
+import { SeasonPlayerStats } from '../components/ui/PlayerSeasonStats'
 
 
 

@@ -8,7 +8,8 @@ export const MATCH_PERCENTAGE_CALCULATIONS = {
       numerator: 'on_target_scoring_attempt',
       denominator: ['on_target_scoring_attempt', 'shot_off_target'],
       label: 'Shot Accuracy',
-      category: 'attacking'
+      category: 'attacking',
+      isPercentage: true
     },
     
     big_chance_conversion: {
@@ -16,7 +17,8 @@ export const MATCH_PERCENTAGE_CALCULATIONS = {
       denominator: 'big_chance_missed',
       operation: 'goals / (goals + big_chance_missed)',
       label: 'Big Chance Conversion',
-      category: 'attacking'
+      category: 'attacking',
+      isPercentage: true
     },
   
     // Passing percentages
@@ -24,21 +26,24 @@ export const MATCH_PERCENTAGE_CALCULATIONS = {
       numerator: 'accurate_pass',
       denominator: 'total_pass',
       label: 'Pass Accuracy',
-      category: 'passing'
+      category: 'passing',
+      isPercentage: true
     },
   
     long_ball_accuracy: {
       numerator: 'accurate_long_balls',
       denominator: 'total_long_balls',
       label: 'Long Ball Accuracy',
-      category: 'passing'
+      category: 'passing',
+      isPercentage: true
     },
   
     cross_accuracy: {
       numerator: 'accurate_cross',
       denominator: 'total_cross',
       label: 'Cross Accuracy',
-      category: 'passing'
+      category: 'passing',
+      isPercentage: true
     },
   
     // Duel percentages
@@ -46,21 +51,24 @@ export const MATCH_PERCENTAGE_CALCULATIONS = {
       numerator: 'duel_won',
       denominator: ['duel_won', 'duel_lost'],
       label: 'Duel Win Rate',
-      category: 'duels'
+      category: 'duels',
+      isPercentage: true
     },
   
     aerial_duel_rate: {
       numerator: 'aerial_won',
       denominator: ['aerial_won', 'aerial_lost'],
       label: 'Aerial Duel Rate',
-      category: 'duels'
+      category: 'duels',
+      isPercentage: true
     },
   
     contest_win_rate: {
       numerator: 'won_contest',
       denominator: 'total_contest',
       label: 'Contest Win Rate',
-      category: 'duels'
+      category: 'duels',
+      isPercentage: true
     },
   
     // Goalkeeper percentages
@@ -68,10 +76,11 @@ export const MATCH_PERCENTAGE_CALCULATIONS = {
       numerator: 'accurate_keeper_sweeper',
       denominator: 'total_keeper_sweeper',
       label: 'Sweeper Accuracy',
-      category: 'goalkeeper'
+      category: 'goalkeeper',
+      isPercentage: true
     },
   
-    // Additional ratios
+    // Additional ratios (these are NOT percentages)
     goals_per_shot: {
       numerator: 'goals',
       denominator: ['on_target_scoring_attempt', 'shot_off_target'],
@@ -161,14 +170,24 @@ export const MATCH_PERCENTAGE_CALCULATIONS = {
   };
   
   // Function to format stat value for display
-  export const formatStatValue = (statKey: string, value: number): string => {
+  export const formatStatValue = (statKey: string, value: number | null | undefined): string => {
+    // Handle null/undefined values
+    if (value === null || value === undefined || isNaN(value)) {
+      return "0";
+    }
+
     const config = MATCH_PERCENTAGE_CALCULATIONS[statKey];
     
-    if (!config) return value.toString();
+    if (!config) {
+      // For non-calculated stats, show as integer if whole number
+      return value % 1 === 0 ? Math.round(value).toString() : value.toFixed(2);
+    }
     
-    if (config.isRatio) {
+    if (config.isPercentage) {
+      return `${value.toFixed(1)}%`;
+    } else if (config.isRatio) {
       return value.toFixed(2);
     } else {
-      return `${value}%`;
+      return `${value.toFixed(1)}%`; // Default to percentage if neither flag is set
     }
   };
