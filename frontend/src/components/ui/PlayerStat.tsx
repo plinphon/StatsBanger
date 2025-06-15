@@ -2,7 +2,6 @@ import type { PlayerMatchStat } from "../../models/player-match-stat";
 import { STAT_CATEGORIES, CATEGORY_LABELS } from "../../utils/playerMatchStatsCategories";
 import { 
   MATCH_PERCENTAGE_CALCULATIONS,
-  calculateMatchPercentages,
   getStatLabel,
   formatStatValue 
 } from "../../utils/matchPercentageCalculation";
@@ -22,8 +21,8 @@ export function PlayerStat({ matchItem }: PlayerStatProps) {
     return key.replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase());
   };
 
-  // Calculate stats if not already in the model
-  const calculatedStats = matchItem.calculatedStats || calculateMatchPercentages(matchItem.matchStats || {});
+  // Use calculated stats from the enhanced model
+  const calculatedStats = matchItem.calculatedStats || {};
 
   const categorizedStats = Object.entries(STAT_CATEGORIES)
     .filter(([category]) => category !== 'identifiers')

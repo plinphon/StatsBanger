@@ -39,14 +39,6 @@ export const STAT_COMBINATIONS = {
       category: "attacking",
     },
 
-    keypass_output: {
-      name: "Key passes Output",
-      description: "Total passes vs Key passes",
-      xMetric: "total_pass",
-      yMetric: "key_pass",
-      category: "attacking",
-    },
-
     creative_output: {
       name: "Creative Output",
       description: "Key passes vs xA",
@@ -55,14 +47,6 @@ export const STAT_COMBINATIONS = {
       category: "attacking",
     },
 
-    big_chance_conversion: {
-      name: "Big Chance Conversion",
-      description: "Big chances created vs Big chances missed",
-      xMetric: "big_chance_created",
-      yMetric: "big_chance_missed",
-      category: "attacking",
-    },
-   
     defensive_actions: {
       name: "Defensive Actions",
       description: "Total tackles vs Interceptions won",
@@ -116,13 +100,7 @@ export const STAT_COMBINATIONS = {
     },
    
     // Physical & Discipline
-    fouling_record: {
-      name: "Fouling Record",
-      description: "Fouls committed vs Was fouled",
-      xMetric: "fouls",
-      yMetric: "was_fouled",
-      category: "discipline",
-    },
+
     possession_security: {
       name: "Possession Security",
       description: "Touches vs Possession lost",
@@ -146,18 +124,12 @@ export const STAT_COMBINATIONS = {
       yMetric: "touches",
       category: "performance",
     },
-    set_pieces: {
-      name: "Set Piece Impact",
-      description: "Penalties won vs Penalties conceded",
-      xMetric: "penalty_won",
-      yMetric: "penalty_conceded",
-      category: "performance",
-    },
+
     errors_impact: {
       name: "Error Impact",
-      description: "Errors leading to shots vs Errors leading to goals",
+      description: "Errors leading to shots vs Possession lost",
       xMetric: "error_lead_to_a_shot",
-      yMetric: "error_lead_to_a_goal",
+      yMetric: "possession_lost_ctrl",
       category: "performance",
     }
    };

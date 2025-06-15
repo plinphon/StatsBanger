@@ -105,17 +105,6 @@ const MatchMirrorBarChart = ({ data }: Props) => {
         })}
       </div>
       
-      {/* Legend */}
-      <div className="flex justify-center items-center mt-8 space-x-8">
-        <div className="flex items-center">
-          <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full mr-2"></div>
-          <span className="text-sm font-medium text-gray-700">{home.team.name}</span>
-        </div>
-        <div className="flex items-center">
-          <div className="w-4 h-4 bg-gradient-to-r from-green-500 to-green-600 rounded-full mr-2"></div>
-          <span className="text-sm font-medium text-gray-700">{away.team.name}</span>
-        </div>
-      </div>
     </div>
   );
 };

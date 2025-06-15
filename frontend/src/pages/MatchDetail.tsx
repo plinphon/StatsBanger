@@ -29,19 +29,19 @@ export default function AnalyticsPage() {
   const tabs = [
     { 
       id: 0, 
-      label: 'Team Comparison', 
+      label: 'Stats Overall', 
       icon: '⚖️',
       component: <MatchMirrorBarChart data={[homeStats, awayStats]} /> 
     },
     { 
       id: 1, 
-      label: 'Player Scatter', 
+      label: 'Scatter Chart', 
       icon: '📊',
       component: <PlayerScatter data={allPlayerStats}/> 
     },
     { 
       id: 2, 
-      label: 'Player Performance', 
+      label: 'Bar Chart', 
       icon: '👥',
       component: <PlayerMatchBar data={allPlayerStats} yAxisMetric="total_pass" barLimit={10} /> 
     }
